@@ -7,10 +7,7 @@ const config = getDefaultConfig(__dirname, {
     isCSSEnabled: true,
 });
 
-// 2. Enable Tamagui
-const { withTamagui } = require('@tamagui/metro-plugin');
-module.exports = withTamagui(config, {
-    components: ['tamagui'],
-    config: './tamagui.config.ts',
-    outputCSS: './tamagui-web.css',
-});
+// Tamagui metro plugin Node.js 22+ ESM uyumsuzluğu nedeniyle devre dışı
+// Tamagui runtime modunda çalışacak, performans farkı minimal
+module.exports = config;
+

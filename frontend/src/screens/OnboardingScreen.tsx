@@ -30,7 +30,7 @@ const CustomSelect = ({
                 <Select.Value placeholder={placeholder} />
             </Select.Trigger>
 
-            <Adapt when="sm" platform="touch">
+            <Adapt when={"sm" as any} platform="touch">
                 <Sheet modal dismissOnSnapToBottom>
                     <Sheet.Frame>
                         <Sheet.ScrollView>
@@ -155,7 +155,7 @@ const OnboardingScreen = () => {
                         onCheckedChange={store.setInjuryHistory}
                         size="$4"
                     >
-                        <Switch.Thumb animation="quicker" />
+                        <Switch.Thumb animation={"quicker" as any} />
                     </Switch>
                 </XStack>
 

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Activity, ArrowUp, Battery, Brain, Calendar, ChevronLeft, Clock, Droplets, Flame, Footprints, Gauge, Heart, MapPin, Mountain, Move, Shield, Share2, Thermometer, Timer, TrendingUp, Wind, Zap } from 'lucide-react-native';
 import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryArea, VictoryScatter, VictoryBar, VictoryVoronoiContainer, VictoryTooltip, VictoryLabel, VictoryCursorContainer } from 'victory-native';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, withRepeat, withTiming, interpolateColor } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withRepeat, withTiming, interpolateColor, FadeInDown } from 'react-native-reanimated';
 import { Defs, LinearGradient, Stop } from 'react-native-svg';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { ErrorBoundary } from '../components/ErrorBoundary';
@@ -484,15 +484,15 @@ const ActivityDetailScreen = () => {
 
                 {/* --- AI INSIGHT CARD (THE WIPE ANALYSIS) --- */}
                 {!loading && (
-                    <View style={{ padding: 16, paddingBottom: 0 }}>
+                    <Animated.View entering={FadeInDown.delay(400).duration(600).springify()} style={{ padding: 16, paddingBottom: 0 }}>
                         <AIInsightCard type={activityType} data={{ drift: cardiacDrift }} />
-                    </View>
+                    </Animated.View>
                 )}
 
                 {/* --- ANALYTICS CONTENT --- */}
                 <View style={styles.analyticsContainer}>
                     {/* Activity Map (Interactive) */}
-                    <View style={[styles.section, { marginBottom: 20 }]}>
+                    <Animated.View entering={FadeInDown.delay(200).duration(800)} style={[styles.section, { marginBottom: 20 }]}>
                         <View style={[styles.chartCard, { padding: 0, overflow: 'hidden', height: 350, backgroundColor: '#000', borderWidth: 1, borderColor: '#333' }]}>
                             {loading ? (
                                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -510,13 +510,13 @@ const ActivityDetailScreen = () => {
                                 <Text style={{ color: '#fff', fontSize: 10 }}>Interactive Map</Text>
                             </View>
                         </View>
-                    </View>
+                    </Animated.View>
 
 
                     {/* Removed Old Route Visualization */}
 
                     {/* Detailed Metrics Grid */}
-                    < View style={styles.section} >
+                    <Animated.View entering={FadeInDown.delay(600).springify()} style={styles.section}>
                         <Text style={styles.sectionTitle}>Performance Metrics</Text>
                         <View style={styles.grid}>
                             <MetricItem
@@ -569,649 +569,650 @@ const ActivityDetailScreen = () => {
                                 color="#EEEEEE"
                             />
                         </View>
+                    </Animated.View>
 
-                        {/* Advanced Training Load Grid */}
-                        <View style={[styles.section, { marginTop: 20 }]}>
-                            <Text style={styles.sectionTitle}>Training Load</Text>
-                            <View style={styles.grid}>
-                                <MetricItem
-                                    icon={Zap}
-                                    label="Norm. Power"
-                                    value={np || '-'}
-                                    unit="W"
-                                    color="#FFCC00"
-                                />
-                                <MetricItem
-                                    icon={Activity}
-                                    label="Work"
-                                    value={work || '-'}
-                                    unit="kJ"
-                                    color="#FF3333"
-                                />
-                                {/* IF and TSS would go here if FTP is known */}
-                                <MetricItem
-                                    icon={Activity}
-                                    label="Intensity"
-                                    value={np > 0 ? (np / 250).toFixed(2) : '-'} // Assuming 250W FTP for now
-                                    unit="IF"
-                                    color="#00CCFF"
-                                />
-                            </View>
-                        </View>
-
-                        {/* Laps Table */}
-                        {laps.length > 0 && (
-                            <View style={[styles.section, { marginTop: 24 }]}>
-                                <Text style={[styles.sectionTitle, { marginBottom: 16 }]}>Splits (1km)</Text>
-                                <View style={{ backgroundColor: '#1A1A1A', borderRadius: 12, padding: 16, overflow: 'hidden' }}>
-                                    {/* Header */}
-                                    <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#333', paddingBottom: 12, marginBottom: 8 }}>
-                                        <Text style={{ width: 40, color: '#888', fontSize: 13, fontWeight: '600' }}>Lap</Text>
-                                        <Text style={{ flex: 1, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>Pace</Text>
-                                        <Text style={{ width: 50, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>HR</Text>
-                                        <Text style={{ width: 50, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>Elev</Text>
-                                        <Text style={{ width: 50, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'right' }}>Pwr</Text>
-                                    </View>
-                                    {laps.map((lap, i) => (
-                                        <View key={i} style={{
-                                            flexDirection: 'row',
-                                            paddingVertical: 12,
-                                            borderBottomWidth: i === laps.length - 1 ? 0 : 1,
-                                            borderBottomColor: '#2A2A2A',
-                                            alignItems: 'center'
-                                        }}>
-                                            <View style={{ width: 40, justifyContent: 'center' }}>
-                                                <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: '#333', justifyContent: 'center', alignItems: 'center' }}>
-                                                    <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>{lap.id}</Text>
-                                                </View>
-                                            </View>
-                                            <Text style={{ flex: 1, color: '#fff', fontSize: 16, fontWeight: 'bold', fontFamily: 'System', textAlign: 'center' }}>
-                                                {lap.pace}
-                                            </Text>
-                                            <Text style={{ width: 50, color: getZoneColor(lap.hr), fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>
-                                                {lap.hr}
-                                            </Text>
-                                            <Text style={{ width: 50, color: lap.elevation > 0 ? '#33FF33' : lap.elevation < 0 ? '#FF3333' : '#888', fontSize: 14, fontWeight: '600', textAlign: 'center' }}>
-                                                {lap.elevation > 0 ? '+' : ''}{lap.elevation}
-                                            </Text>
-                                            <Text style={{ width: 50, color: '#FFFF00', fontSize: 15, fontWeight: '600', textAlign: 'right' }}>
-                                                {lap.power}
-                                            </Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </View>
-                        )}
-
-                        {/* Elevation Chart */}
-                        <View style={[styles.section, { marginBottom: 20 }]}>
-                            <Text style={styles.sectionTitle}>Elevation Profile</Text>
-                            <View style={styles.chartCard}>
-                                <VictoryChart
-                                    width={width - 40}
-                                    height={150}
-                                    theme={VictoryTheme.material}
-                                >
-                                    <VictoryArea
-                                        data={elevationData}
-                                        style={{ data: { fill: "#CC00FF", fillOpacity: 0.3, stroke: "#CC00FF", strokeWidth: 2 } }}
-                                        interpolation="natural"
-                                    />
-                                    <VictoryAxis style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#666", fontSize: 10 } }} />
-                                </VictoryChart>
-                            </View>
-                        </View>
-
-                        {/* Cardiac Drift Visual Gauge */}
-                        <View style={{ marginTop: 20, backgroundColor: '#111', padding: 16, borderRadius: 12 }}>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                                <Text style={{ color: '#888', fontSize: 12 }}>CARDIAC DRIFT (Decoupling)</Text>
-                                <Text style={{ color: cardiacDrift < 5 ? '#00FF00' : '#FF0000', fontWeight: 'bold' }}>{cardiacDrift.toFixed(1)}%</Text>
-                            </View>
-                            <View style={{ height: 10, backgroundColor: '#333', borderRadius: 5, overflow: 'hidden' }}>
-                                {/* Threshold Marker at 5% */}
-                                <View style={{ position: 'absolute', left: '33%', width: 2, height: '100%', backgroundColor: '#666', zIndex: 1 }} />
-
-                                <View style={{
-                                    width: `${Math.min(Math.max(cardiacDrift * 6.6, 0), 100)}%`, // Scale 0-15% to 0-100% width. (15% is usually max reasonable drift)
-                                    height: '100%',
-                                    backgroundColor: cardiacDrift < 5 ? '#00FF00' : cardiacDrift < 10 ? '#FFFF00' : '#FF0000'
-                                }} />
-                            </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
-                                <Text style={{ color: '#444', fontSize: 10 }}>0%</Text>
-                                <Text style={{ color: '#444', fontSize: 10 }}>5% (Threshold)</Text>
-                                <Text style={{ color: '#444', fontSize: 10 }}>15%+</Text>
-                            </View>
-                        </View>
-                    </View >
-
-                    {/* Running Dynamics Section */}
-                    {
-                        avgVertOsc > 0 && (
-                            <View style={styles.section}>
-                                <Text style={styles.sectionTitle}>Running Dynamics</Text>
-                                <View style={styles.grid}>
-                                    <MetricItem
-                                        icon={ArrowUp}
-                                        label="Vert. Osc."
-                                        value={avgVertOsc.toFixed(1)}
-                                        unit="mm"
-                                        color="#FF00FF"
-                                    />
-                                    <MetricItem
-                                        icon={Footprints}
-                                        label="Stride Len"
-                                        value={avgStrideLen.toFixed(2)}
-                                        unit="m"
-                                        color="#00FFFF"
-                                    />
-                                    <MetricItem
-                                        icon={Timer}
-                                        label="GCT"
-                                        value={Math.round(avgGCT)}
-                                        unit="ms"
-                                        color="#FFAA00"
-                                    />
-                                    <MetricItem
-                                        icon={Activity}
-                                        label="Vert. Ratio"
-                                        value={avgVertRatio.toFixed(1)}
-                                        unit="%"
-                                        color="#AAAAAA"
-                                    />
-                                </View>
-                            </View>
-                        )
-                    }
-
-                    {/* Heart Rate Zones Section */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Heart Rate Zones</Text>
-                        <View style={styles.chartCard}>
-                            {/* Horizontal Stacked Bar */}
-                            <View style={{ width: '100%', height: 30, flexDirection: 'row', borderRadius: 15, overflow: 'hidden' }}>
-                                {zoneStats.map((zone, i) => (
-                                    <View
-                                        key={i}
-                                        style={{
-                                            width: `${zone.pct}%`,
-                                            height: '100%',
-                                            backgroundColor: zone.color
-                                        }}
-                                    />
-                                ))}
-                            </View>
-
-                            {/* Legend Below */}
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12, flexWrap: 'wrap' }}>
-                                {zoneStats.map((zone, i) => (
-                                    <View key={i} style={{ alignItems: 'center', width: '20%' }}>
-                                        <Text style={{ color: zone.color, fontWeight: 'bold', fontSize: 12 }}>Z{i + 1}</Text>
-                                        <Text style={{ color: '#DDD', fontSize: 12, fontWeight: '600' }}>{Math.round(zone.pct)}%</Text>
-                                        <Text style={{ color: '#666', fontSize: 10 }}>{zone.minutes}m</Text>
-                                    </View>
-                                ))}
-                            </View>
+                    {/* Advanced Training Load Grid */}
+                    <View style={[styles.section, { marginTop: 20 }]}>
+                        <Text style={styles.sectionTitle}>Training Load</Text>
+                        <View style={styles.grid}>
+                            <MetricItem
+                                icon={Zap}
+                                label="Norm. Power"
+                                value={np || '-'}
+                                unit="W"
+                                color="#FFCC00"
+                            />
+                            <MetricItem
+                                icon={Activity}
+                                label="Work"
+                                value={work || '-'}
+                                unit="kJ"
+                                color="#FF3333"
+                            />
+                            {/* IF and TSS would go here if FTP is known */}
+                            <MetricItem
+                                icon={Activity}
+                                label="Intensity"
+                                value={np > 0 ? (np / 250).toFixed(2) : '-'} // Assuming 250W FTP for now
+                                unit="IF"
+                                color="#00CCFF"
+                            />
                         </View>
                     </View>
 
-                    {/* Charts Section */}
-                    {
-                        !loading && (
-                            <View style={styles.section}>
-                                <Text style={styles.sectionTitle}>Analysis</Text>
-
-                                {/* Heart Rate Chart */}
-                                {/* Heart Rate Chart */}
-                                <View style={styles.chartCard}>
-                                    {(() => {
-                                        if (hrData.length === 0) return <Text style={{ color: '#666', textAlign: 'center', marginTop: 20 }}>No Heart Rate Data</Text>;
-
-                                        // Calculate Domain and Stops for Gradient
-                                        const hrValues = hrData.map(d => d.y);
-                                        // Avoid Math.min/max on empty array
-                                        const minData = hrValues.length > 0 ? Math.min(...hrValues) : 0;
-                                        const maxData = hrValues.length > 0 ? Math.max(...hrValues) : 200;
-
-                                        // Add padding to domain
-                                        const minY = Math.floor(minData * 0.95);
-                                        const maxY = Math.ceil(maxData * 1.05);
-                                        const range = maxY - minY || 1; // Avoid divide by zero
-
-                                        // Helper to get offset % for a HR value (0 at bottom, 1 at top in SVG usually, but let's check coord system)
-                                        const getOffset = (val: number) => {
-                                            const ratio = (val - minY) / range;
-                                            const invRatio = 1 - ratio;
-                                            return Math.max(0, Math.min(1, invRatio)); // Clamp
-                                        };
-
-                                        // Calculate Minute Grids and Averages
-                                        const minuteBuckets: { [key: number]: number[] } = {};
-                                        hrData.forEach(d => {
-                                            const min = Math.floor(d.x / 60);
-                                            if (!minuteBuckets[min]) minuteBuckets[min] = [];
-                                            minuteBuckets[min].push(d.y);
-                                        });
-
-                                        const avgLabels = Object.keys(minuteBuckets).map(min => {
-                                            const vals = minuteBuckets[parseInt(min)];
-                                            const avg = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
-                                            return { x: parseInt(min) * 60 + 30, y: maxY - 5, label: `${avg}` };
-                                        });
-
-                                        // Calculate KM Splits (Vertical Lines)
-                                        const kmMarkers: any[] = [];
-                                        let nextKm = 1000;
-
-                                        if (details && details.length > 0) {
-                                            // Safely parse start time
-                                            const startStr = details[0].timestamp;
-                                            const startTime = startStr ? new Date(startStr).getTime() : 0;
-
-                                            if (startTime > 0) {
-                                                details.forEach(d => {
-                                                    if (d.distance && d.distance >= nextKm) {
-                                                        const tStr = d.timestamp;
-                                                        if (tStr) {
-                                                            const t = new Date(tStr).getTime();
-                                                            const seconds = (t - startTime) / 1000;
-                                                            kmMarkers.push({ x: seconds });
-                                                            nextKm += 1000;
-                                                        }
-                                                    }
-                                                });
-                                            }
-                                        }
-
-                                        return (
-                                            <>
-                                                <Text style={[styles.chartTitle, { color: '#FF3333' }]}>Heart Rate</Text>
-                                                <VictoryChart
-                                                    width={width - 40}
-                                                    height={220}
-                                                    theme={VictoryTheme.material}
-                                                    domain={{ y: [minY, maxY] }} // Explicit domain for alignment
-                                                    containerComponent={
-                                                        <VictoryCursorContainer
-                                                            cursorDimension="x"
-                                                            cursorLabel={({ datum }) => {
-                                                                if (!datum || !datum.x) return "";
-                                                                const mins = Math.floor(datum.x / 60);
-                                                                const secs = Math.floor(datum.x % 60);
-                                                                return `${Math.round(datum.y)} bpm\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-                                                            }}
-                                                            cursorLabelComponent={
-                                                                <VictoryLabel
-                                                                    style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                                    backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
-                                                                    backgroundPadding={8}
-                                                                />
-                                                            }
-                                                            cursorComponent={
-                                                                <VictoryLine style={{ data: { stroke: "#CCFF00", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
-                                                            }
-                                                        />
-                                                    }
-                                                >
-                                                    <Defs>
-                                                        {/* Gradient Definition */}
-                                                        {(() => {
-                                                            const safeZones = (hrZones && hrZones.length >= 5) ? hrZones : [100, 120, 140, 160, 180];
-                                                            const safeOffset = (val: number | undefined) => {
-                                                                if (val === undefined || isNaN(val)) return "0%";
-                                                                const ratio = (val - minY) / (range || 1);
-                                                                const invRatio = 1 - ratio;
-                                                                const clamped = Math.max(0, Math.min(1, invRatio));
-                                                                return isNaN(clamped) ? "0%" : `${clamped}`;
-                                                            };
-
-                                                            return (
-                                                                <LinearGradient id="hrZoneGradient" x1="0" y1="0" x2="0" y2="1">
-                                                                    <Stop offset="0%" stopColor="#FF3333" />
-                                                                    <Stop offset={safeOffset(safeZones[4])} stopColor="#FF3333" />
-                                                                    <Stop offset={safeOffset(safeZones[4])} stopColor="#FFCC00" />
-                                                                    <Stop offset={safeOffset(safeZones[3])} stopColor="#FFCC00" />
-                                                                    <Stop offset={safeOffset(safeZones[3])} stopColor="#33FF33" />
-                                                                    <Stop offset={safeOffset(safeZones[2])} stopColor="#33FF33" />
-                                                                    <Stop offset={safeOffset(safeZones[2])} stopColor="#3399FF" />
-                                                                    <Stop offset={safeOffset(safeZones[1])} stopColor="#3399FF" />
-                                                                    <Stop offset={safeOffset(safeZones[1])} stopColor="#999999" />
-                                                                    <Stop offset="100%" stopColor="#999999" />
-                                                                </LinearGradient>
-                                                            );
-                                                        })()}
-                                                    </Defs>
-
-                                                    {/* Minute Grids (Vertical) - Darker, Subtle */}
-                                                    <VictoryAxis
-                                                        style={{
-                                                            axis: { stroke: "#333" },
-                                                            tickLabels: { fill: "#666", fontSize: 10 },
-                                                            grid: { stroke: "#222", strokeWidth: 1 }
-                                                        }}
-                                                        tickValues={Object.keys(minuteBuckets).map(m => parseInt(m) * 60)}
-                                                        tickFormat={(t) => {
-                                                            const mins = Math.floor(t / 60);
-                                                            return `${mins}m`;
-                                                        }}
-                                                    />
-
-                                                    {/* KM Markers (Thick Dashed Lines) - NEON HIGHLIGHT */}
-                                                    {kmMarkers.map((marker, i) => (
-                                                        <VictoryLine
-                                                            key={`km-${i}`}
-                                                            data={[{ x: marker.x, y: minY }, { x: marker.x, y: maxY }]}
-                                                            style={{ data: { stroke: "#CCFF00", strokeWidth: 2, strokeDasharray: "8, 4", opacity: 0.8 } }}
-                                                        />
-                                                    ))}
-
-                                                    {/* REMOVED STATIC LABELS (VictoryScatter) TO REDUCE CLUTTER */}
-                                                    {/* Interaction is now handled by VictoryCursorContainer */}
-
-                                                    {/* Main Heart Rate Line - Gradient */}
-                                                    <VictoryLine
-                                                        data={hrData}
-                                                        interpolation="catmullRom"
-                                                        style={{
-                                                            data: {
-                                                                stroke: "url(#hrZoneGradient)",
-                                                                strokeWidth: 3
-                                                            }
-                                                        }}
-                                                    />
-
-                                                    <VictoryArea
-                                                        data={hrData}
-                                                        interpolation="catmullRom"
-                                                        style={{
-                                                            data: { fill: "url(#hrZoneGradient)", fillOpacity: 0.1, stroke: "none" }
-                                                        }}
-                                                    />
-
-
-                                                    <VictoryAxis
-                                                        dependentAxis
-                                                        style={{
-                                                            axis: { stroke: "transparent" },
-                                                            tickLabels: { fill: "#666", fontSize: 10 },
-                                                            grid: { stroke: "#222", strokeDasharray: "2, 4" }
-                                                        }}
-                                                    />
-                                                </VictoryChart>
-                                            </>
-                                        );
-                                    })()}
+                    {/* Laps Table */}
+                    {laps.length > 0 && (
+                        <View style={[styles.section, { marginTop: 24 }]}>
+                            <Text style={[styles.sectionTitle, { marginBottom: 16 }]}>Splits (1km)</Text>
+                            <View style={{ backgroundColor: '#1A1A1A', borderRadius: 12, padding: 16, overflow: 'hidden' }}>
+                                {/* Header */}
+                                <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#333', paddingBottom: 12, marginBottom: 8 }}>
+                                    <Text style={{ width: 40, color: '#888', fontSize: 13, fontWeight: '600' }}>Lap</Text>
+                                    <Text style={{ flex: 1, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>Pace</Text>
+                                    <Text style={{ width: 50, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>HR</Text>
+                                    <Text style={{ width: 50, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>Elev</Text>
+                                    <Text style={{ width: 50, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'right' }}>Pwr</Text>
                                 </View>
-
-
-                                {/* Running Dynamics Grid (New) */}
-                                {details.some(d => d.power) && (
-                                    <View style={styles.chartCard}>
-                                        <Text style={styles.chartTitle}>Running Dynamics</Text>
-                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 10 }}>
-
-                                            {/* Power */}
-                                            <View style={styles.dynamicsItem}>
-                                                <Text style={styles.dynamicsLabel}>AVG POWER</Text>
-                                                <Text style={[styles.dynamicsValue, { color: '#FFCC00' }]}>{Math.round(calcAvg('power'))} <Text style={{ fontSize: 14 }}>W</Text></Text>
-                                            </View>
-
-                                            {/* Cadence */}
-                                            <View style={styles.dynamicsItem}>
-                                                <Text style={styles.dynamicsLabel}>CADENCE</Text>
-                                                <Text style={[styles.dynamicsValue, { color: '#00FF99' }]}>{Math.round(calcAvg('cadence'))} <Text style={{ fontSize: 14 }}>spm</Text></Text>
-                                            </View>
-
-                                            {/* GCT */}
-                                            <View style={styles.dynamicsItem}>
-                                                <Text style={styles.dynamicsLabel}>GCT</Text>
-                                                <Text style={[styles.dynamicsValue, { color: '#CC00FF' }]}>{Math.round(avgGCT)} <Text style={{ fontSize: 14 }}>ms</Text></Text>
-                                            </View>
-
-                                            {/* Vertical Osc */}
-                                            <View style={styles.dynamicsItem}>
-                                                <Text style={styles.dynamicsLabel}>VERT OSC</Text>
-                                                <Text style={[styles.dynamicsValue, { color: '#00CCFF' }]}>{avgVertOsc.toFixed(1)} <Text style={{ fontSize: 14 }}>cm</Text></Text>
+                                {laps.map((lap, i) => (
+                                    <View key={i} style={{
+                                        flexDirection: 'row',
+                                        paddingVertical: 12,
+                                        borderBottomWidth: i === laps.length - 1 ? 0 : 1,
+                                        borderBottomColor: '#2A2A2A',
+                                        alignItems: 'center'
+                                    }}>
+                                        <View style={{ width: 40, justifyContent: 'center' }}>
+                                            <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: '#333', justifyContent: 'center', alignItems: 'center' }}>
+                                                <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>{lap.id}</Text>
                                             </View>
                                         </View>
+                                        <Text style={{ flex: 1, color: '#fff', fontSize: 16, fontWeight: 'bold', fontFamily: 'System', textAlign: 'center' }}>
+                                            {lap.pace}
+                                        </Text>
+                                        <Text style={{ width: 50, color: getZoneColor(lap.hr), fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>
+                                            {lap.hr}
+                                        </Text>
+                                        <Text style={{ width: 50, color: lap.elevation > 0 ? '#33FF33' : lap.elevation < 0 ? '#FF3333' : '#888', fontSize: 14, fontWeight: '600', textAlign: 'center' }}>
+                                            {lap.elevation > 0 ? '+' : ''}{lap.elevation}
+                                        </Text>
+                                        <Text style={{ width: 50, color: '#FFFF00', fontSize: 15, fontWeight: '600', textAlign: 'right' }}>
+                                            {lap.power}
+                                        </Text>
                                     </View>
-                                )}
-
-                                {/* Power Chart (New) */}
-                                {details.some(d => d.power) && (
-                                    <View style={styles.chartCard}>
-                                        <Text style={[styles.chartTitle, { color: '#FFCC00' }]}>Power (10s Smoothing)</Text>
-                                        <VictoryChart
-                                            width={width - 50}
-                                            height={200}
-                                            theme={VictoryTheme.material}
-                                            containerComponent={
-                                                <VictoryCursorContainer
-                                                    cursorDimension="x"
-                                                    cursorLabel={({ datum }) => {
-                                                        if (!datum || !datum.x) return "";
-                                                        const mins = Math.floor(datum.x / 60);
-                                                        return `${Math.round(datum.y)} W\n@ ${mins}m`;
-                                                    }}
-                                                    cursorLabelComponent={
-                                                        <VictoryLabel
-                                                            style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                            backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
-                                                            backgroundPadding={8}
-                                                        />
-                                                    }
-                                                    cursorComponent={
-                                                        <VictoryLine style={{ data: { stroke: "#CCFF00", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
-                                                    }
-                                                />
-                                            }
-                                        >
-                                            <Defs>
-                                                <LinearGradient id="powerGradient" x1="0" y1="0" x2="0" y2="1">
-                                                    <Stop offset="0%" stopColor="#FFFF00" stopOpacity={0.8} />
-                                                    <Stop offset="100%" stopColor="#FFFF00" stopOpacity={0.0} />
-                                                </LinearGradient>
-                                            </Defs>
-                                            <VictoryArea
-                                                data={smoothedPower}
-                                                style={{
-                                                    data: { fill: "url(#powerGradient)", stroke: "#FFFF00", strokeWidth: 2 }
-                                                }}
-                                                interpolation="monotoneX" // Smooth curves
-                                            />
-                                            <VictoryAxis style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#666", fontSize: 10 } }} />
-                                            <VictoryAxis dependentAxis style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#666", fontSize: 10 }, grid: { stroke: "#333" } }} />
-                                        </VictoryChart>
-                                    </View>
-                                )}
-
-                                {/* Cadence Chart (New) */}
-                                {details.some(d => d.cadence) && (
-                                    <View style={styles.chartCard}>
-                                        <Text style={[styles.chartTitle, { color: '#00FF99' }]}>Cadence (spm)</Text>
-                                        <VictoryChart
-                                            width={width - 50}
-                                            height={200}
-                                            theme={VictoryTheme.material}
-                                            containerComponent={
-                                                <VictoryCursorContainer
-                                                    cursorDimension="x"
-                                                    cursorLabel={({ datum }) => {
-                                                        if (!datum || !datum.x) return "";
-                                                        const mins = Math.floor(datum.x / 60);
-                                                        return `${Math.round(datum.y)} spm\n@ ${mins}m`;
-                                                    }}
-                                                    cursorLabelComponent={
-                                                        <VictoryLabel
-                                                            style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                            backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
-                                                            backgroundPadding={8}
-                                                        />
-                                                    }
-                                                    cursorComponent={
-                                                        <VictoryLine style={{ data: { stroke: "#00FF99", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
-                                                    }
-                                                />
-                                            }
-                                        >
-                                            <Defs>
-                                                <LinearGradient id="cadenceGradient" x1="0" y1="0" x2="0" y2="1">
-                                                    <Stop offset="0%" stopColor="#00FF99" stopOpacity={0.8} />
-                                                    <Stop offset="100%" stopColor="#009966" stopOpacity={0.2} />
-                                                </LinearGradient>
-                                            </Defs>
-                                            <VictoryLine
-                                                data={details.map((d, i) => ({ x: i, y: d.cadence || 0 }))}
-                                                style={{
-                                                    data: { stroke: "#00FF99", strokeWidth: 2 }
-                                                }}
-                                            />
-                                            <VictoryArea
-                                                data={details.map((d, i) => ({ x: i, y: d.cadence || 0 }))}
-                                                style={{
-                                                    data: { fill: "url(#cadenceGradient)", fillOpacity: 0.3, stroke: "none" }
-                                                }}
-                                            />
-                                            <VictoryAxis style={{ axis: { stroke: "#333" }, tickLabels: { fill: "#666", fontSize: 10 } }} />
-                                            <VictoryAxis dependentAxis domain={[0, 220]} style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#666", fontSize: 10 }, grid: { stroke: "#222", strokeDasharray: "4, 4" } }} />
-                                        </VictoryChart>
-                                    </View>
-                                )}
-
-                                {/* Pace Chart */}
-                                <View style={styles.chartCard}>
-                                    <Text style={[styles.chartTitle, { color: '#00CCFF' }]}>Pace (km/h)</Text>
-                                    <VictoryChart
-                                        width={width - 40}
-                                        height={220}
-                                        theme={VictoryTheme.material}
-                                        containerComponent={
-                                            <VictoryCursorContainer
-                                                cursorDimension="x"
-                                                cursorLabel={({ datum }) => {
-                                                    if (!datum || !datum.x) return "";
-                                                    const mins = Math.floor(datum.x / 60);
-                                                    const secs = Math.floor(datum.x % 60);
-                                                    return `${datum.y.toFixed(1)} km/h\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-                                                }}
-                                                cursorLabelComponent={
-                                                    <VictoryLabel
-                                                        style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                        backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
-                                                        backgroundPadding={8}
-                                                    />
-                                                }
-                                                cursorComponent={
-                                                    <VictoryLine style={{ data: { stroke: "#00CCFF", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
-                                                }
-                                            />
-                                        }
-                                    >
-                                        <Defs>
-                                            <LinearGradient id="paceGradient" x1="0" y1="0" x2="0" y2="1">
-                                                <Stop offset="0%" stopColor="#00CCFF" stopOpacity={0.8} />
-                                                <Stop offset="100%" stopColor="#0066FF" stopOpacity={0.2} />
-                                            </LinearGradient>
-                                        </Defs>
-                                        <VictoryArea
-                                            data={paceData}
-                                            interpolation="catmullRom"
-                                            style={{
-                                                data: { fill: "url(#paceGradient)", stroke: "#00CCFF", strokeWidth: 2 }
-                                            }}
-                                        />
-                                        <VictoryAxis
-                                            style={{
-                                                axis: { stroke: "#333" },
-                                                tickLabels: { fill: "#666", fontSize: 10 },
-                                                grid: { stroke: "#222", strokeWidth: 1 }
-                                            }}
-                                            tickFormat={(t) => {
-                                                const mins = Math.floor(t / 60);
-                                                return `${mins}m`;
-                                            }}
-                                        />
-                                        <VictoryAxis
-                                            dependentAxis
-                                            style={{
-                                                axis: { stroke: "transparent" },
-                                                tickLabels: { fill: "#666", fontSize: 10 },
-                                                grid: { stroke: "#222", strokeDasharray: "4, 4" }
-                                            }}
-                                        />
-                                    </VictoryChart>
-                                </View>
-
-                                {/* Elevation Chart */}
-                                <View style={styles.chartCard}>
-                                    <Text style={[styles.chartTitle, { color: '#CC00FF' }]}>Elevation</Text>
-                                    <VictoryChart
-                                        width={width - 40}
-                                        height={220}
-                                        theme={VictoryTheme.material}
-                                        containerComponent={
-                                            <VictoryCursorContainer
-                                                cursorDimension="x"
-                                                cursorLabel={({ datum }) => {
-                                                    if (!datum || !datum.x) return "";
-                                                    const mins = Math.floor(datum.x / 60);
-                                                    const secs = Math.floor(datum.x % 60);
-                                                    return `${Math.round(datum.y)} m\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-                                                }}
-                                                cursorLabelComponent={
-                                                    <VictoryLabel
-                                                        style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                        backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
-                                                        backgroundPadding={8}
-                                                    />
-                                                }
-                                                cursorComponent={
-                                                    <VictoryLine style={{ data: { stroke: "#CC00FF", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
-                                                }
-                                            />
-                                        }
-                                    >
-                                        <Defs>
-                                            <LinearGradient id="elevationGradient" x1="0" y1="0" x2="0" y2="1">
-                                                <Stop offset="0%" stopColor="#CC00FF" stopOpacity={0.8} />
-                                                <Stop offset="100%" stopColor="#6600FF" stopOpacity={0.2} />
-                                            </LinearGradient>
-                                        </Defs>
-                                        <VictoryArea
-                                            data={elevationData}
-                                            interpolation="step"
-                                            style={{
-                                                data: { fill: "url(#elevationGradient)", stroke: "#CC00FF", strokeWidth: 2 }
-                                            }}
-                                        />
-                                        <VictoryAxis
-                                            style={{
-                                                axis: { stroke: "#333" },
-                                                tickLabels: { fill: "#666", fontSize: 10 },
-                                                grid: { stroke: "#222", strokeWidth: 1 }
-                                            }}
-                                            tickFormat={(t) => {
-                                                const mins = Math.floor(t / 60);
-                                                return `${mins}m`;
-                                            }}
-                                        />
-                                        <VictoryAxis
-                                            dependentAxis
-                                            style={{
-                                                axis: { stroke: "transparent" },
-                                                tickLabels: { fill: "#666", fontSize: 10 },
-                                                grid: { stroke: "#222", strokeDasharray: "4, 4" }
-                                            }}
-                                        />
-                                    </VictoryChart>
-                                </View>
+                                ))}
                             </View>
-                        )
-                    }
+                        </View>
+                    )}
 
-                    <View style={{ height: 40 }} />
+                    {/* Elevation Chart */}
+                    <View style={[styles.section, { marginBottom: 20 }]}>
+                        <Text style={styles.sectionTitle}>Elevation Profile</Text>
+                        <View style={styles.chartCard}>
+                            <VictoryChart
+                                width={width - 40}
+                                height={150}
+                                theme={VictoryTheme.material}
+                            >
+                                <VictoryArea
+                                    data={elevationData}
+                                    style={{ data: { fill: "#CC00FF", fillOpacity: 0.3, stroke: "#CC00FF", strokeWidth: 2 } }}
+                                    interpolation="natural"
+                                />
+                                <VictoryAxis style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#666", fontSize: 10 } }} />
+                            </VictoryChart>
+                        </View>
+                    </View>
+
+                    {/* Cardiac Drift Visual Gauge */}
+                    <View style={{ marginTop: 20, backgroundColor: '#111', padding: 16, borderRadius: 12 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                            <Text style={{ color: '#888', fontSize: 12 }}>CARDIAC DRIFT (Decoupling)</Text>
+                            <Text style={{ color: cardiacDrift < 5 ? '#00FF00' : '#FF0000', fontWeight: 'bold' }}>{cardiacDrift.toFixed(1)}%</Text>
+                        </View>
+                        <View style={{ height: 10, backgroundColor: '#333', borderRadius: 5, overflow: 'hidden' }}>
+                            {/* Threshold Marker at 5% */}
+                            <View style={{ position: 'absolute', left: '33%', width: 2, height: '100%', backgroundColor: '#666', zIndex: 1 }} />
+
+                            <View style={{
+                                width: `${Math.min(Math.max(cardiacDrift * 6.6, 0), 100)}%`, // Scale 0-15% to 0-100% width. (15% is usually max reasonable drift)
+                                height: '100%',
+                                backgroundColor: cardiacDrift < 5 ? '#00FF00' : cardiacDrift < 10 ? '#FFFF00' : '#FF0000'
+                            }} />
+                        </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
+                            <Text style={{ color: '#444', fontSize: 10 }}>0%</Text>
+                            <Text style={{ color: '#444', fontSize: 10 }}>5% (Threshold)</Text>
+                            <Text style={{ color: '#444', fontSize: 10 }}>15%+</Text>
+                        </View>
+                    </View>
+                </View >
+
+                {/* Running Dynamics Section */}
+                {
+                    avgVertOsc > 0 && (
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Running Dynamics</Text>
+                            <View style={styles.grid}>
+                                <MetricItem
+                                    icon={ArrowUp}
+                                    label="Vert. Osc."
+                                    value={avgVertOsc.toFixed(1)}
+                                    unit="mm"
+                                    color="#FF00FF"
+                                />
+                                <MetricItem
+                                    icon={Footprints}
+                                    label="Stride Len"
+                                    value={avgStrideLen.toFixed(2)}
+                                    unit="m"
+                                    color="#00FFFF"
+                                />
+                                <MetricItem
+                                    icon={Timer}
+                                    label="GCT"
+                                    value={Math.round(avgGCT)}
+                                    unit="ms"
+                                    color="#FFAA00"
+                                />
+                                <MetricItem
+                                    icon={Activity}
+                                    label="Vert. Ratio"
+                                    value={avgVertRatio.toFixed(1)}
+                                    unit="%"
+                                    color="#AAAAAA"
+                                />
+                            </View>
+                        </View>
+                    )
+                }
+
+                {/* Heart Rate Zones Section */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Heart Rate Zones</Text>
+                    <View style={styles.chartCard}>
+                        {/* Horizontal Stacked Bar */}
+                        <View style={{ width: '100%', height: 30, flexDirection: 'row', borderRadius: 15, overflow: 'hidden' }}>
+                            {zoneStats.map((zone, i) => (
+                                <View
+                                    key={i}
+                                    style={{
+                                        width: `${zone.pct}%`,
+                                        height: '100%',
+                                        backgroundColor: zone.color
+                                    }}
+                                />
+                            ))}
+                        </View>
+
+                        {/* Legend Below */}
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12, flexWrap: 'wrap' }}>
+                            {zoneStats.map((zone, i) => (
+                                <View key={i} style={{ alignItems: 'center', width: '20%' }}>
+                                    <Text style={{ color: zone.color, fontWeight: 'bold', fontSize: 12 }}>Z{i + 1}</Text>
+                                    <Text style={{ color: '#DDD', fontSize: 12, fontWeight: '600' }}>{Math.round(zone.pct)}%</Text>
+                                    <Text style={{ color: '#666', fontSize: 10 }}>{zone.minutes}m</Text>
+                                </View>
+                            ))}
+                        </View>
+                    </View>
                 </View>
+
+                {/* Charts Section */}
+                {
+                    !loading && (
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Analysis</Text>
+
+                            {/* Heart Rate Chart */}
+                            {/* Heart Rate Chart */}
+                            <View style={styles.chartCard}>
+                                {(() => {
+                                    if (hrData.length === 0) return <Text style={{ color: '#666', textAlign: 'center', marginTop: 20 }}>No Heart Rate Data</Text>;
+
+                                    // Calculate Domain and Stops for Gradient
+                                    const hrValues = hrData.map(d => d.y);
+                                    // Avoid Math.min/max on empty array
+                                    const minData = hrValues.length > 0 ? Math.min(...hrValues) : 0;
+                                    const maxData = hrValues.length > 0 ? Math.max(...hrValues) : 200;
+
+                                    // Add padding to domain
+                                    const minY = Math.floor(minData * 0.95);
+                                    const maxY = Math.ceil(maxData * 1.05);
+                                    const range = maxY - minY || 1; // Avoid divide by zero
+
+                                    // Helper to get offset % for a HR value (0 at bottom, 1 at top in SVG usually, but let's check coord system)
+                                    const getOffset = (val: number) => {
+                                        const ratio = (val - minY) / range;
+                                        const invRatio = 1 - ratio;
+                                        return Math.max(0, Math.min(1, invRatio)); // Clamp
+                                    };
+
+                                    // Calculate Minute Grids and Averages
+                                    const minuteBuckets: { [key: number]: number[] } = {};
+                                    hrData.forEach(d => {
+                                        const min = Math.floor(d.x / 60);
+                                        if (!minuteBuckets[min]) minuteBuckets[min] = [];
+                                        minuteBuckets[min].push(d.y);
+                                    });
+
+                                    const avgLabels = Object.keys(minuteBuckets).map(min => {
+                                        const vals = minuteBuckets[parseInt(min)];
+                                        const avg = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+                                        return { x: parseInt(min) * 60 + 30, y: maxY - 5, label: `${avg}` };
+                                    });
+
+                                    // Calculate KM Splits (Vertical Lines)
+                                    const kmMarkers: any[] = [];
+                                    let nextKm = 1000;
+
+                                    if (details && details.length > 0) {
+                                        // Safely parse start time
+                                        const startStr = details[0].timestamp;
+                                        const startTime = startStr ? new Date(startStr).getTime() : 0;
+
+                                        if (startTime > 0) {
+                                            details.forEach(d => {
+                                                if (d.distance && d.distance >= nextKm) {
+                                                    const tStr = d.timestamp;
+                                                    if (tStr) {
+                                                        const t = new Date(tStr).getTime();
+                                                        const seconds = (t - startTime) / 1000;
+                                                        kmMarkers.push({ x: seconds });
+                                                        nextKm += 1000;
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    }
+
+                                    return (
+                                        <>
+                                            <Text style={[styles.chartTitle, { color: '#FF3333' }]}>Heart Rate</Text>
+                                            <VictoryChart
+                                                width={width - 40}
+                                                height={220}
+                                                theme={VictoryTheme.material}
+                                                domain={{ y: [minY, maxY] }} // Explicit domain for alignment
+                                                containerComponent={
+                                                    <VictoryCursorContainer
+                                                        cursorDimension="x"
+                                                        cursorLabel={({ datum }) => {
+                                                            if (!datum || !datum.x) return "";
+                                                            const mins = Math.floor(datum.x / 60);
+                                                            const secs = Math.floor(datum.x % 60);
+                                                            return `${Math.round(datum.y)} bpm\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                                                        }}
+                                                        cursorLabelComponent={
+                                                            <VictoryLabel
+                                                                style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                                backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
+                                                                backgroundPadding={8}
+                                                            />
+                                                        }
+                                                        cursorComponent={
+                                                            <VictoryLine style={{ data: { stroke: "#CCFF00", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
+                                                        }
+                                                    />
+                                                }
+                                            >
+                                                <Defs>
+                                                    {/* Gradient Definition */}
+                                                    {(() => {
+                                                        const safeZones = (hrZones && hrZones.length >= 5) ? hrZones : [100, 120, 140, 160, 180];
+                                                        const safeOffset = (val: number | undefined) => {
+                                                            if (val === undefined || isNaN(val)) return "0%";
+                                                            const ratio = (val - minY) / (range || 1);
+                                                            const invRatio = 1 - ratio;
+                                                            const clamped = Math.max(0, Math.min(1, invRatio));
+                                                            return isNaN(clamped) ? "0%" : `${clamped}`;
+                                                        };
+
+                                                        return (
+                                                            <LinearGradient id="hrZoneGradient" x1="0" y1="0" x2="0" y2="1">
+                                                                <Stop offset="0%" stopColor="#FF3333" />
+                                                                <Stop offset={safeOffset(safeZones[4])} stopColor="#FF3333" />
+                                                                <Stop offset={safeOffset(safeZones[4])} stopColor="#FFCC00" />
+                                                                <Stop offset={safeOffset(safeZones[3])} stopColor="#FFCC00" />
+                                                                <Stop offset={safeOffset(safeZones[3])} stopColor="#33FF33" />
+                                                                <Stop offset={safeOffset(safeZones[2])} stopColor="#33FF33" />
+                                                                <Stop offset={safeOffset(safeZones[2])} stopColor="#3399FF" />
+                                                                <Stop offset={safeOffset(safeZones[1])} stopColor="#3399FF" />
+                                                                <Stop offset={safeOffset(safeZones[1])} stopColor="#999999" />
+                                                                <Stop offset="100%" stopColor="#999999" />
+                                                            </LinearGradient>
+                                                        );
+                                                    })()}
+                                                </Defs>
+
+                                                {/* Minute Grids (Vertical) - Darker, Subtle */}
+                                                <VictoryAxis
+                                                    style={{
+                                                        axis: { stroke: "#333" },
+                                                        tickLabels: { fill: "#666", fontSize: 10 },
+                                                        grid: { stroke: "#222", strokeWidth: 1 }
+                                                    }}
+                                                    tickValues={Object.keys(minuteBuckets).map(m => parseInt(m) * 60)}
+                                                    tickFormat={(t) => {
+                                                        const mins = Math.floor(t / 60);
+                                                        return `${mins}m`;
+                                                    }}
+                                                />
+
+                                                {/* KM Markers (Thick Dashed Lines) - NEON HIGHLIGHT */}
+                                                {kmMarkers.map((marker, i) => (
+                                                    <VictoryLine
+                                                        key={`km-${i}`}
+                                                        data={[{ x: marker.x, y: minY }, { x: marker.x, y: maxY }]}
+                                                        style={{ data: { stroke: "#CCFF00", strokeWidth: 2, strokeDasharray: "8, 4", opacity: 0.8 } }}
+                                                    />
+                                                ))}
+
+                                                {/* REMOVED STATIC LABELS (VictoryScatter) TO REDUCE CLUTTER */}
+                                                {/* Interaction is now handled by VictoryCursorContainer */}
+
+                                                {/* Main Heart Rate Line - Gradient */}
+                                                <VictoryLine
+                                                    data={hrData}
+                                                    interpolation="catmullRom"
+                                                    style={{
+                                                        data: {
+                                                            stroke: "url(#hrZoneGradient)",
+                                                            strokeWidth: 3
+                                                        }
+                                                    }}
+                                                />
+
+                                                <VictoryArea
+                                                    data={hrData}
+                                                    interpolation="catmullRom"
+                                                    style={{
+                                                        data: { fill: "url(#hrZoneGradient)", fillOpacity: 0.1, stroke: "none" }
+                                                    }}
+                                                />
+
+
+                                                <VictoryAxis
+                                                    dependentAxis
+                                                    style={{
+                                                        axis: { stroke: "transparent" },
+                                                        tickLabels: { fill: "#666", fontSize: 10 },
+                                                        grid: { stroke: "#222", strokeDasharray: "2, 4" }
+                                                    }}
+                                                />
+                                            </VictoryChart>
+                                        </>
+                                    );
+                                })()}
+                            </View>
+
+
+                            {/* Running Dynamics Grid (New) */}
+                            {details.some(d => d.power) && (
+                                <View style={styles.chartCard}>
+                                    <Text style={styles.chartTitle}>Running Dynamics</Text>
+                                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 10 }}>
+
+                                        {/* Power */}
+                                        <View style={styles.dynamicsItem}>
+                                            <Text style={styles.dynamicsLabel}>AVG POWER</Text>
+                                            <Text style={[styles.dynamicsValue, { color: '#FFCC00' }]}>{Math.round(calcAvg('power'))} <Text style={{ fontSize: 14 }}>W</Text></Text>
+                                        </View>
+
+                                        {/* Cadence */}
+                                        <View style={styles.dynamicsItem}>
+                                            <Text style={styles.dynamicsLabel}>CADENCE</Text>
+                                            <Text style={[styles.dynamicsValue, { color: '#00FF99' }]}>{Math.round(calcAvg('cadence'))} <Text style={{ fontSize: 14 }}>spm</Text></Text>
+                                        </View>
+
+                                        {/* GCT */}
+                                        <View style={styles.dynamicsItem}>
+                                            <Text style={styles.dynamicsLabel}>GCT</Text>
+                                            <Text style={[styles.dynamicsValue, { color: '#CC00FF' }]}>{Math.round(avgGCT)} <Text style={{ fontSize: 14 }}>ms</Text></Text>
+                                        </View>
+
+                                        {/* Vertical Osc */}
+                                        <View style={styles.dynamicsItem}>
+                                            <Text style={styles.dynamicsLabel}>VERT OSC</Text>
+                                            <Text style={[styles.dynamicsValue, { color: '#00CCFF' }]}>{avgVertOsc.toFixed(1)} <Text style={{ fontSize: 14 }}>cm</Text></Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            )}
+
+                            {/* Power Chart (New) */}
+                            {details.some(d => d.power) && (
+                                <View style={styles.chartCard}>
+                                    <Text style={[styles.chartTitle, { color: '#FFCC00' }]}>Power (10s Smoothing)</Text>
+                                    <VictoryChart
+                                        width={width - 50}
+                                        height={200}
+                                        theme={VictoryTheme.material}
+                                        containerComponent={
+                                            <VictoryCursorContainer
+                                                cursorDimension="x"
+                                                cursorLabel={({ datum }) => {
+                                                    if (!datum || !datum.x) return "";
+                                                    const mins = Math.floor(datum.x / 60);
+                                                    return `${Math.round(datum.y)} W\n@ ${mins}m`;
+                                                }}
+                                                cursorLabelComponent={
+                                                    <VictoryLabel
+                                                        style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                        backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
+                                                        backgroundPadding={8}
+                                                    />
+                                                }
+                                                cursorComponent={
+                                                    <VictoryLine style={{ data: { stroke: "#CCFF00", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
+                                                }
+                                            />
+                                        }
+                                    >
+                                        <Defs>
+                                            <LinearGradient id="powerGradient" x1="0" y1="0" x2="0" y2="1">
+                                                <Stop offset="0%" stopColor="#FFFF00" stopOpacity={0.8} />
+                                                <Stop offset="100%" stopColor="#FFFF00" stopOpacity={0.0} />
+                                            </LinearGradient>
+                                        </Defs>
+                                        <VictoryArea
+                                            data={smoothedPower}
+                                            style={{
+                                                data: { fill: "url(#powerGradient)", stroke: "#FFFF00", strokeWidth: 2 }
+                                            }}
+                                            interpolation="monotoneX" // Smooth curves
+                                        />
+                                        <VictoryAxis style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#666", fontSize: 10 } }} />
+                                        <VictoryAxis dependentAxis style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#666", fontSize: 10 }, grid: { stroke: "#333" } }} />
+                                    </VictoryChart>
+                                </View>
+                            )}
+
+                            {/* Cadence Chart (New) */}
+                            {details.some(d => d.cadence) && (
+                                <View style={styles.chartCard}>
+                                    <Text style={[styles.chartTitle, { color: '#00FF99' }]}>Cadence (spm)</Text>
+                                    <VictoryChart
+                                        width={width - 50}
+                                        height={200}
+                                        theme={VictoryTheme.material}
+                                        containerComponent={
+                                            <VictoryCursorContainer
+                                                cursorDimension="x"
+                                                cursorLabel={({ datum }) => {
+                                                    if (!datum || !datum.x) return "";
+                                                    const mins = Math.floor(datum.x / 60);
+                                                    return `${Math.round(datum.y)} spm\n@ ${mins}m`;
+                                                }}
+                                                cursorLabelComponent={
+                                                    <VictoryLabel
+                                                        style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                        backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
+                                                        backgroundPadding={8}
+                                                    />
+                                                }
+                                                cursorComponent={
+                                                    <VictoryLine style={{ data: { stroke: "#00FF99", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
+                                                }
+                                            />
+                                        }
+                                    >
+                                        <Defs>
+                                            <LinearGradient id="cadenceGradient" x1="0" y1="0" x2="0" y2="1">
+                                                <Stop offset="0%" stopColor="#00FF99" stopOpacity={0.8} />
+                                                <Stop offset="100%" stopColor="#009966" stopOpacity={0.2} />
+                                            </LinearGradient>
+                                        </Defs>
+                                        <VictoryLine
+                                            data={details.map((d, i) => ({ x: i, y: d.cadence || 0 }))}
+                                            style={{
+                                                data: { stroke: "#00FF99", strokeWidth: 2 }
+                                            }}
+                                        />
+                                        <VictoryArea
+                                            data={details.map((d, i) => ({ x: i, y: d.cadence || 0 }))}
+                                            style={{
+                                                data: { fill: "url(#cadenceGradient)", fillOpacity: 0.3, stroke: "none" }
+                                            }}
+                                        />
+                                        <VictoryAxis style={{ axis: { stroke: "#333" }, tickLabels: { fill: "#666", fontSize: 10 } }} />
+                                        <VictoryAxis dependentAxis domain={[0, 220]} style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#666", fontSize: 10 }, grid: { stroke: "#222", strokeDasharray: "4, 4" } }} />
+                                    </VictoryChart>
+                                </View>
+                            )}
+
+                            {/* Pace Chart */}
+                            <View style={styles.chartCard}>
+                                <Text style={[styles.chartTitle, { color: '#00CCFF' }]}>Pace (km/h)</Text>
+                                <VictoryChart
+                                    width={width - 40}
+                                    height={220}
+                                    theme={VictoryTheme.material}
+                                    containerComponent={
+                                        <VictoryCursorContainer
+                                            cursorDimension="x"
+                                            cursorLabel={({ datum }) => {
+                                                if (!datum || !datum.x) return "";
+                                                const mins = Math.floor(datum.x / 60);
+                                                const secs = Math.floor(datum.x % 60);
+                                                return `${datum.y.toFixed(1)} km/h\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                                            }}
+                                            cursorLabelComponent={
+                                                <VictoryLabel
+                                                    style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                    backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
+                                                    backgroundPadding={8}
+                                                />
+                                            }
+                                            cursorComponent={
+                                                <VictoryLine style={{ data: { stroke: "#00CCFF", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
+                                            }
+                                        />
+                                    }
+                                >
+                                    <Defs>
+                                        <LinearGradient id="paceGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <Stop offset="0%" stopColor="#00CCFF" stopOpacity={0.8} />
+                                            <Stop offset="100%" stopColor="#0066FF" stopOpacity={0.2} />
+                                        </LinearGradient>
+                                    </Defs>
+                                    <VictoryArea
+                                        data={paceData}
+                                        interpolation="catmullRom"
+                                        style={{
+                                            data: { fill: "url(#paceGradient)", stroke: "#00CCFF", strokeWidth: 2 }
+                                        }}
+                                    />
+                                    <VictoryAxis
+                                        style={{
+                                            axis: { stroke: "#333" },
+                                            tickLabels: { fill: "#666", fontSize: 10 },
+                                            grid: { stroke: "#222", strokeWidth: 1 }
+                                        }}
+                                        tickFormat={(t) => {
+                                            const mins = Math.floor(t / 60);
+                                            return `${mins}m`;
+                                        }}
+                                    />
+                                    <VictoryAxis
+                                        dependentAxis
+                                        style={{
+                                            axis: { stroke: "transparent" },
+                                            tickLabels: { fill: "#666", fontSize: 10 },
+                                            grid: { stroke: "#222", strokeDasharray: "4, 4" }
+                                        }}
+                                    />
+                                </VictoryChart>
+                            </View>
+
+                            {/* Elevation Chart */}
+                            <View style={styles.chartCard}>
+                                <Text style={[styles.chartTitle, { color: '#CC00FF' }]}>Elevation</Text>
+                                <VictoryChart
+                                    width={width - 40}
+                                    height={220}
+                                    theme={VictoryTheme.material}
+                                    containerComponent={
+                                        <VictoryCursorContainer
+                                            cursorDimension="x"
+                                            cursorLabel={({ datum }) => {
+                                                if (!datum || !datum.x) return "";
+                                                const mins = Math.floor(datum.x / 60);
+                                                const secs = Math.floor(datum.x % 60);
+                                                return `${Math.round(datum.y)} m\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                                            }}
+                                            cursorLabelComponent={
+                                                <VictoryLabel
+                                                    style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                    backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
+                                                    backgroundPadding={8}
+                                                />
+                                            }
+                                            cursorComponent={
+                                                <VictoryLine style={{ data: { stroke: "#CC00FF", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
+                                            }
+                                        />
+                                    }
+                                >
+                                    <Defs>
+                                        <LinearGradient id="elevationGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <Stop offset="0%" stopColor="#CC00FF" stopOpacity={0.8} />
+                                            <Stop offset="100%" stopColor="#6600FF" stopOpacity={0.2} />
+                                        </LinearGradient>
+                                    </Defs>
+                                    <VictoryArea
+                                        data={elevationData}
+                                        interpolation="step"
+                                        style={{
+                                            data: { fill: "url(#elevationGradient)", stroke: "#CC00FF", strokeWidth: 2 }
+                                        }}
+                                    />
+                                    <VictoryAxis
+                                        style={{
+                                            axis: { stroke: "#333" },
+                                            tickLabels: { fill: "#666", fontSize: 10 },
+                                            grid: { stroke: "#222", strokeWidth: 1 }
+                                        }}
+                                        tickFormat={(t) => {
+                                            const mins = Math.floor(t / 60);
+                                            return `${mins}m`;
+                                        }}
+                                    />
+                                    <VictoryAxis
+                                        dependentAxis
+                                        style={{
+                                            axis: { stroke: "transparent" },
+                                            tickLabels: { fill: "#666", fontSize: 10 },
+                                            grid: { stroke: "#222", strokeDasharray: "4, 4" }
+                                        }}
+                                    />
+                                </VictoryChart>
+                            </View>
+                        </View>
+                    )
+                }
+
+                <View style={{ height: 40 }} />
+
             </ScrollView >
         </ErrorBoundary >
     );

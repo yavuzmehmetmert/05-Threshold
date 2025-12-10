@@ -8,7 +8,18 @@ const bodyFont = createInterFont()
 
 const config = createTamagui({
     themes,
-    tokens,
+    tokens: {
+        ...tokens,
+        color: {
+            ...tokens.color,
+            neonGreen: '#CCFF00',
+            neonBlue: '#00CCFF',
+            neonRed: '#FF3333',
+            neonYellow: '#FFFF00',
+            glassBg: 'rgba(255,255,255,0.05)',
+            glassBorder: 'rgba(255,255,255,0.1)',
+        }
+    },
     shorthands,
     fonts: {
         heading: headingFont,

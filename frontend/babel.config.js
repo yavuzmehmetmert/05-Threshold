@@ -3,14 +3,8 @@ module.exports = function (api) {
     return {
         presets: ['babel-preset-expo'],
         plugins: [
-            [
-                "@tamagui/babel-plugin",
-                {
-                    components: ["tamagui"],
-                    config: "./tamagui.config.ts",
-                    logTimings: true,
-                },
-            ],
+            // Tamagui babel plugin Node.js 22+ ESM uyumsuzluğu nedeniyle devre dışı
+            // Runtime modunda çalışacak, performans farkı minimal
             "react-native-reanimated/plugin",
         ],
     };

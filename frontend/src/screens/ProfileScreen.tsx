@@ -113,7 +113,7 @@ const ProfileScreen = () => {
             {/* Training Context Section */}
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Training Schedule</Text>
-                <View style={styles.card}>
+                <View style={styles.infoCard}>
                     <View style={styles.row}>
                         <Text style={styles.label}>Experience</Text>
                         <Text style={styles.value}>{goals.experienceLevel}</Text>
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 16,
     },
-    card: {
+    infoCard: {
         backgroundColor: '#111',
         borderRadius: 16,
         padding: 16,
