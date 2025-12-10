@@ -134,7 +134,7 @@ const DailyCockpitScreen = () => {
 
                                         <View style={{ flex: 1 }} />
 
-                                        <TouchableOpacity style={styles.button} onPress={() => alert('Starting Workout...')}>
+                                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LiveActivity')}>
                                             <Play size={20} color="#050505" />
                                             <Text style={styles.buttonText}>Start Workout</Text>
                                         </TouchableOpacity>

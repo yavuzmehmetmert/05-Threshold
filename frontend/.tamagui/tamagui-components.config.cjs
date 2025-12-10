@@ -1225,9 +1225,9 @@ var require_hyphenateStyleName = __commonJS({
   }
 });
 
-// node_modules/react-native-web/node_modules/inline-style-prefixer/lib/utils/capitalizeString.js
+// node_modules/inline-style-prefixer/lib/utils/capitalizeString.js
 var require_capitalizeString = __commonJS({
-  "node_modules/react-native-web/node_modules/inline-style-prefixer/lib/utils/capitalizeString.js"(exports2) {
+  "node_modules/inline-style-prefixer/lib/utils/capitalizeString.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", {
       value: true
@@ -1240,9 +1240,9 @@ var require_capitalizeString = __commonJS({
   }
 });
 
-// node_modules/react-native-web/node_modules/inline-style-prefixer/lib/utils/prefixProperty.js
+// node_modules/inline-style-prefixer/lib/utils/prefixProperty.js
 var require_prefixProperty = __commonJS({
-  "node_modules/react-native-web/node_modules/inline-style-prefixer/lib/utils/prefixProperty.js"(exports2) {
+  "node_modules/inline-style-prefixer/lib/utils/prefixProperty.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", {
       value: true
@@ -1271,9 +1271,9 @@ var require_prefixProperty = __commonJS({
   }
 });
 
-// node_modules/react-native-web/node_modules/inline-style-prefixer/lib/utils/prefixValue.js
+// node_modules/inline-style-prefixer/lib/utils/prefixValue.js
 var require_prefixValue = __commonJS({
-  "node_modules/react-native-web/node_modules/inline-style-prefixer/lib/utils/prefixValue.js"(exports2) {
+  "node_modules/inline-style-prefixer/lib/utils/prefixValue.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", {
       value: true
@@ -1291,9 +1291,9 @@ var require_prefixValue = __commonJS({
   }
 });
 
-// node_modules/react-native-web/node_modules/inline-style-prefixer/lib/utils/addNewValuesOnly.js
+// node_modules/inline-style-prefixer/lib/utils/addNewValuesOnly.js
 var require_addNewValuesOnly = __commonJS({
-  "node_modules/react-native-web/node_modules/inline-style-prefixer/lib/utils/addNewValuesOnly.js"(exports2) {
+  "node_modules/inline-style-prefixer/lib/utils/addNewValuesOnly.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", {
       value: true
@@ -1318,9 +1318,9 @@ var require_addNewValuesOnly = __commonJS({
   }
 });
 
-// node_modules/react-native-web/node_modules/inline-style-prefixer/lib/utils/isObject.js
+// node_modules/inline-style-prefixer/lib/utils/isObject.js
 var require_isObject = __commonJS({
-  "node_modules/react-native-web/node_modules/inline-style-prefixer/lib/utils/isObject.js"(exports2) {
+  "node_modules/inline-style-prefixer/lib/utils/isObject.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", {
       value: true
@@ -1333,9 +1333,9 @@ var require_isObject = __commonJS({
   }
 });
 
-// node_modules/react-native-web/node_modules/inline-style-prefixer/lib/createPrefixer.js
+// node_modules/inline-style-prefixer/lib/createPrefixer.js
 var require_createPrefixer = __commonJS({
-  "node_modules/react-native-web/node_modules/inline-style-prefixer/lib/createPrefixer.js"(exports2) {
+  "node_modules/inline-style-prefixer/lib/createPrefixer.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", {
       value: true
@@ -1384,9 +1384,9 @@ var require_createPrefixer = __commonJS({
   }
 });
 
-// node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/backgroundClip.js
+// node_modules/inline-style-prefixer/lib/plugins/backgroundClip.js
 var require_backgroundClip = __commonJS({
-  "node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/backgroundClip.js"(exports2) {
+  "node_modules/inline-style-prefixer/lib/plugins/backgroundClip.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", {
       value: true
@@ -1841,9 +1841,9 @@ var require_lib = __commonJS({
   }
 });
 
-// node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/crossFade.js
+// node_modules/inline-style-prefixer/lib/plugins/crossFade.js
 var require_crossFade = __commonJS({
-  "node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/crossFade.js"(exports2) {
+  "node_modules/inline-style-prefixer/lib/plugins/crossFade.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", {
       value: true
@@ -1863,9 +1863,9 @@ var require_crossFade = __commonJS({
   }
 });
 
-// node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/cursor.js
+// node_modules/inline-style-prefixer/lib/plugins/cursor.js
 var require_cursor = __commonJS({
-  "node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/cursor.js"(exports2) {
+  "node_modules/inline-style-prefixer/lib/plugins/cursor.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", {
       value: true
@@ -1889,9 +1889,9 @@ var require_cursor = __commonJS({
   }
 });
 
-// node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/filter.js
+// node_modules/inline-style-prefixer/lib/plugins/filter.js
 var require_filter = __commonJS({
-  "node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/filter.js"(exports2) {
+  "node_modules/inline-style-prefixer/lib/plugins/filter.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", {
       value: true
@@ -1911,9 +1911,9 @@ var require_filter = __commonJS({
   }
 });
 
-// node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/imageSet.js
+// node_modules/inline-style-prefixer/lib/plugins/imageSet.js
 var require_imageSet = __commonJS({
-  "node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/imageSet.js"(exports2) {
+  "node_modules/inline-style-prefixer/lib/plugins/imageSet.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", {
       value: true
@@ -1937,9 +1937,9 @@ var require_imageSet = __commonJS({
   }
 });
 
-// node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/logical.js
+// node_modules/inline-style-prefixer/lib/plugins/logical.js
 var require_logical = __commonJS({
-  "node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/logical.js"(exports2) {
+  "node_modules/inline-style-prefixer/lib/plugins/logical.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", {
       value: true
@@ -1983,9 +1983,9 @@ var require_logical = __commonJS({
   }
 });
 
-// node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/position.js
+// node_modules/inline-style-prefixer/lib/plugins/position.js
 var require_position = __commonJS({
-  "node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/position.js"(exports2) {
+  "node_modules/inline-style-prefixer/lib/plugins/position.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", {
       value: true
@@ -2000,9 +2000,9 @@ var require_position = __commonJS({
   }
 });
 
-// node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/sizing.js
+// node_modules/inline-style-prefixer/lib/plugins/sizing.js
 var require_sizing = __commonJS({
-  "node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/sizing.js"(exports2) {
+  "node_modules/inline-style-prefixer/lib/plugins/sizing.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", {
       value: true
@@ -2036,9 +2036,9 @@ var require_sizing = __commonJS({
   }
 });
 
-// node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/transition.js
+// node_modules/inline-style-prefixer/lib/plugins/transition.js
 var require_transition = __commonJS({
-  "node_modules/react-native-web/node_modules/inline-style-prefixer/lib/plugins/transition.js"(exports2) {
+  "node_modules/inline-style-prefixer/lib/plugins/transition.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", {
       value: true
@@ -21322,6 +21322,7 @@ __export(esm_exports, {
   CheckboxIndicatorFrame: () => CheckboxIndicatorFrame,
   CheckboxStyledContext: () => CheckboxStyledContext,
   Circle: () => Circle,
+  ClientOnly: () => import_core61.ClientOnly,
   ComponentContext: () => import_core61.ComponentContext,
   Configuration: () => import_core61.Configuration,
   Dialog: () => Dialog,
@@ -22123,6 +22124,15 @@ var stylePropsView = {
   ...stylePropsUnitless,
   boxShadow: true,
   filter: true,
+  // RN 0.77+ style props (set REACT_NATIVE_PRE_77=1 for older RN)
+  ...!process.env.REACT_NATIVE_PRE_77 && {
+    boxSizing: true,
+    mixBlendMode: true,
+    outlineColor: true,
+    outlineSpread: true,
+    outlineStyle: true,
+    outlineWidth: true
+  },
   // RN doesn't support specific border styles per-edge
   transition: true,
   textWrap: true,
@@ -22143,7 +22153,6 @@ var stylePropsView = {
   borderLeftStyle: true,
   borderRightStyle: true,
   borderTopStyle: true,
-  boxSizing: true,
   caretColor: true,
   clipPath: true,
   contain: true,
@@ -22168,12 +22177,9 @@ var stylePropsView = {
   maskRepeat: true,
   maskSize: true,
   maskType: true,
-  mixBlendMode: true,
   objectFit: true,
   objectPosition: true,
   outlineOffset: true,
-  outlineStyle: true,
-  outlineWidth: true,
   overflowBlock: true,
   overflowInline: true,
   overflowX: true,
@@ -30576,7 +30582,7 @@ __name(useEffectEvent, "useEffectEvent");
 var import_jsx_runtime44 = require("react/jsx-runtime");
 var ReactDOM4 = __toESM(require("react-dom"), 1);
 
-// node_modules/@tamagui/popover/node_modules/@floating-ui/react-dom/dist/floating-ui.react-dom.mjs
+// node_modules/@tamagui/popover/node_modules/@floating-ui/react/node_modules/@floating-ui/react-dom/dist/floating-ui.react-dom.mjs
 var React57 = __toESM(require("react"), 1);
 var import_react46 = require("react");
 var ReactDOM3 = __toESM(require("react-dom"), 1);
@@ -33679,10 +33685,10 @@ var ForwardSelectContext = /* @__PURE__ */ __name(({
   })
 }), "ForwardSelectContext");
 
-// node_modules/tamagui/node_modules/@floating-ui/react/dist/floating-ui.react.mjs
+// node_modules/tamagui/node_modules/@tamagui/select/node_modules/@floating-ui/react/dist/floating-ui.react.mjs
 var React70 = __toESM(require("react"), 1);
 
-// node_modules/tamagui/node_modules/@floating-ui/react/dist/floating-ui.react.utils.mjs
+// node_modules/tamagui/node_modules/@tamagui/select/node_modules/@floating-ui/react/dist/floating-ui.react.utils.mjs
 var React68 = __toESM(require("react"), 1);
 var import_react54 = require("react");
 var import_tabbable = __toESM(require_dist(), 1);
@@ -34200,12 +34206,12 @@ function enableFocusInside2(container) {
 }
 __name(enableFocusInside2, "enableFocusInside");
 
-// node_modules/tamagui/node_modules/@floating-ui/react/dist/floating-ui.react.mjs
+// node_modules/tamagui/node_modules/@tamagui/select/node_modules/@floating-ui/react/dist/floating-ui.react.mjs
 var import_jsx_runtime54 = require("react/jsx-runtime");
 var import_tabbable2 = __toESM(require_dist(), 1);
 var ReactDOM6 = __toESM(require("react-dom"), 1);
 
-// node_modules/tamagui/node_modules/@floating-ui/react-dom/dist/floating-ui.react-dom.mjs
+// node_modules/tamagui/node_modules/@tamagui/select/node_modules/@floating-ui/react-dom/dist/floating-ui.react-dom.mjs
 var React69 = __toESM(require("react"), 1);
 var import_react55 = require("react");
 var ReactDOM5 = __toESM(require("react-dom"), 1);
@@ -34443,7 +34449,7 @@ var size4 = /* @__PURE__ */ __name((options, deps) => ({
   options: [options, deps]
 }), "size");
 
-// node_modules/tamagui/node_modules/@floating-ui/react/dist/floating-ui.react.mjs
+// node_modules/tamagui/node_modules/@tamagui/select/node_modules/@floating-ui/react/dist/floating-ui.react.mjs
 var FOCUSABLE_ATTRIBUTE4 = "data-floating-ui-focusable";
 var ACTIVE_KEY2 = "active";
 var SELECTED_KEY2 = "selected";
@@ -39718,7 +39724,7 @@ __name(useEffectEvent3, "useEffectEvent");
 var import_jsx_runtime70 = require("react/jsx-runtime");
 var ReactDOM8 = __toESM(require("react-dom"), 1);
 
-// node_modules/@tamagui/tooltip/node_modules/@floating-ui/react-dom/dist/floating-ui.react-dom.mjs
+// node_modules/@tamagui/tooltip/node_modules/@floating-ui/react/node_modules/@floating-ui/react-dom/dist/floating-ui.react-dom.mjs
 var React86 = __toESM(require("react"), 1);
 var import_react63 = require("react");
 var ReactDOM7 = __toESM(require("react-dom"), 1);
@@ -41869,6 +41875,7 @@ var import_core61 = require("@tamagui/core");
   CheckboxIndicatorFrame,
   CheckboxStyledContext,
   Circle,
+  ClientOnly,
   ComponentContext,
   Configuration,
   Dialog,

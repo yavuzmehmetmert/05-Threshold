@@ -5,7 +5,8 @@ import os
 import tempfile
 import logging
 import json
-from datetime import date
+from datetime import date, datetime
+import requests
 from auth_service import get_garmin_client
 
 # Logger
@@ -304,7 +305,29 @@ async def get_activity_details(activity_id: str):
         try:
             with open(mock_file, "r") as f:
                 print(f"Serving MOCK activity details from {mock_file}")
-                return json.load(f)
+                mock_data = json.load(f)
+                
+                # --- WEATHER FOR MOCK DATA ---
+                # Scan for first valid GPS point
+                lat, lon, ts = None, None, None
+                for record in mock_data:
+                    if isinstance(record, dict) and 'position_lat' in record and 'position_long' in record and record['position_lat'] is not None:
+                        lat = record['position_lat']
+                        lon = record['position_long']
+                        ts = record.get('timestamp')
+                        break
+                
+                if lat and lon and ts:
+                    logger.info(f"[MOCK WEATHER] Found GPS: lat={lat}, lon={lon}, ts={ts}")
+                    weather_data = fetch_weather_history(lat, lon, ts)
+                    logger.info(f"[MOCK WEATHER] Result: {weather_data}")
+                    if weather_data:
+                        return {
+                            "data": mock_data,
+                            "weather": weather_data
+                        }
+                
+                return mock_data
         except Exception as e:
             print(f"Mock activity missing: {e}")
 
@@ -356,10 +379,133 @@ async def get_activity_details(activity_id: str):
             
             # Use json.loads(df.to_json()) to handle NaN/Inf/None robustly
             # This converts NaN/Inf to null, which is valid JSON
-            return json.loads(df.to_json(orient="records"))
+            activity_data = json.loads(df.to_json(orient="records"))
+            
+            # --- WEATHER INTEGRATION ---
+            # Try to get Lat/Lon and Time from the first valid point containing them
+            try:
+                lat = None
+                lon = None
+                ts = None
+                
+                # Scan for first valid valid GPS point
+                for record in activity_data:
+                    if 'position_lat' in record and 'position_long' in record and record['position_lat'] is not None:
+                        lat = record['position_lat']
+                        lon = record['position_long']
+                        ts = record.get('timestamp')
+                        break
+                
+                if lat and lon and ts:
+                    logger.info(f"[WEATHER DEBUG] Found GPS: lat={lat}, lon={lon}, ts={ts}")
+                    weather_data = fetch_weather_history(lat, lon, ts)
+                    logger.info(f"[WEATHER DEBUG] Result: {weather_data}")
+                    if weather_data:
+                        logger.info(f"Weather fetched: {weather_data}")
+                        # Inject into the FIRST record or as a separate metadata field?
+                        # Frontend expects `activity.weather` on the main object.
+                        # BUT `get_activity_details` returns ARRAY of records (FIT data).
+                        # Frontend logic: ActivityDetailScreen uses `activity` passed from Calendar.
+                        # Wait, `get_activity_details` (this endpoint) returns the TIME SERIES (charts).
+                        # The HEADER info comes from `useDashboardStore` -> `activities`.
+                        # SO WE NEED TO UPDATE THE `activities` LIST in `/activities` endpoint too?
+                        # OR: Update dashboard store to fetch detailed weather when opening screen?
+                        
+                        # Current Logic:
+                        # CalendarScreen -> fetches `/activities` -> populates Store.
+                        # ActivityDetailScreen -> uses `route.params.activity` (from Store).
+                        # It THEN fetches `/activity/:id` for Charts.
+                        
+                        # ISSUE: The Weather Strip is in Header. Header uses `activity` object 
+                        # which is passed from navigation params (from Store list).
+                        # If I add weather in `/activity/:id` (Details), I must update the 
+                        # Frontend to look for it in the DETAILS response, OR update the `/activities` list response.
+                        
+                        # Updating `/activities` (List) to fetch weather for 50 items is too slow/expensive.
+                        
+                        # SOLUTION: Include weather in THIS response (`/activity/:id`), and 
+                        # update Frontend `ActivityDetailScreen` to merge this weather data 
+                        # into the existing `activity` state or simple `weather` state.
+                        
+                        return {
+                            "data": activity_data,
+                            "weather": weather_data
+                        }
+            except Exception as w_err:
+                logger.warning(f"Weather processing failed: {w_err}")
+
+            return activity_data
         else:
             raise HTTPException(status_code=404, detail="Aktivite verisi işlenemedi veya boş.")
 
     except Exception as e:
         logger.error(f"Detay Çekme Hatası: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+def fetch_weather_history(lat, lon, timestamp_str):
+    """
+    Open-Meteo Archive API to fetch historical weather.
+    timestamp_str example: "2024-10-18 07:00:00"
+    """
+    try:
+        # Parse timestamp
+        # FIT timestamp might differ slightly, ensure ISO format YYYY-MM-DD
+        dt = pd.to_datetime(timestamp_str)
+        date_str = dt.strftime("%Y-%m-%d")
+        hour_str = dt.strftime("%H")
+        
+        # Use Forecast API which covers recent past (up to 90 days?) better than Archive (5 day lag)
+        # For very old data, Archive is better, but typical usage is recent runs.
+        # api.open-meteo.com/v1/forecast handles both future and recent past if dates are provided.
+        url = "https://api.open-meteo.com/v1/forecast"
+        params = {
+            "latitude": lat,
+            "longitude": lon,
+            "start_date": date_str,
+            "end_date": date_str,
+            "hourly": "temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code",
+        }
+        
+        logger.info(f"[WEATHER API] Calling Open-Meteo: {url} params={params}")
+        response = requests.get(url, params=params)
+        logger.info(f"[WEATHER API] Response status: {response.status_code}")
+        data = response.json()
+        logger.info(f"[WEATHER API] Data keys: {data.keys() if isinstance(data, dict) else 'not dict'}")
+        
+        if "hourly" in data:
+            # Find index for the specific hour
+            # The API returns 24 hours for the day.
+            idx = int(hour_str)
+            
+            temp = data["hourly"]["temperature_2m"][idx]
+            humid = data["hourly"]["relative_humidity_2m"][idx]
+            wind = data["hourly"]["wind_speed_10m"][idx]
+            code = data["hourly"]["weather_code"][idx]
+            
+            # Map code to string
+            condition = "Unknown"
+            if code == 0: condition = "Clear"
+            elif code in [1, 2, 3]: condition = "Cloudy"
+            elif code in [45, 48]: condition = "Foggy"
+            elif code in [51, 53, 55, 61, 63, 65]: condition = "Rainy"
+            elif code in [71, 73, 75]: condition = "Snowy"
+            
+            # AQI is not provided by Open-Meteo Archive Free easily, use mock/default or separate API
+            # For now default reasonable AQI
+            aqi = 25 
+            
+            # Elevation from API response
+            elevation = data.get("elevation", 0)
+            
+            return {
+                "temp": temp,
+                "humidity": humid,
+                "windSpeed": wind,
+                "aqi": aqi,
+                "condition": condition,
+                "elevation": elevation
+            }
+            
+    except Exception as e:
+        logger.error(f"Weather Fetch Error: {e}")
+        return None

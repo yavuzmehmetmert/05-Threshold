@@ -12,6 +12,7 @@ import OnboardingNavigator from './src/navigation/OnboardingNavigator';
 import { useDashboardStore } from './src/store/useDashboardStore';
 import MainTabNavigator from './src/navigation/MainTabNavigator';
 import ActivityDetailScreen from './src/screens/ActivityDetailScreen';
+import LiveActivityScreen from './src/screens/LiveActivityScreen';
 import config from './tamagui.config';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -21,6 +22,7 @@ export type RootStackParamList = {
     Onboarding: undefined;
     MainTab: undefined;
     ActivityDetail: { activity: any };
+    LiveActivity: undefined;
 };
 
 const NavTheme = {
@@ -65,6 +67,7 @@ export default function App() {
                             <>
                                 <Stack.Screen name="MainTab" component={MainTabNavigator} />
                                 <Stack.Screen name="ActivityDetail" component={ActivityDetailScreen} />
+                                <Stack.Screen name="LiveActivity" component={LiveActivityScreen} />
                             </>
                         ) : (
                             <Stack.Screen name="Onboarding" component={OnboardingNavigator} />

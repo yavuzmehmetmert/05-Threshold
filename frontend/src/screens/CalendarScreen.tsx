@@ -50,6 +50,20 @@ const CalendarScreen = () => {
         setCurrentDate(newDate);
     };
 
+    const getIntensityColor = (hr: number) => {
+        const { userProfile } = useDashboardStore.getState();
+        const maxHr = userProfile.maxHr || 190;
+
+        if (!hr || hr === 0) return '#888'; // No data
+
+        const pct = (hr / maxHr) * 100;
+
+        // Intensity Logic
+        if (pct < 75) return '#00CCFF'; // Easy / Recovery (Blue)
+        if (pct < 85) return '#FFCC00'; // Moderate / Tempo (Yellow)
+        return '#FF3333';               // Hard / Threshold+ (Red)
+    };
+
     const renderCalendarGrid = () => {
         const daysInMonth = getDaysInMonth(currentDate);
         const firstDay = getFirstDayOfMonth(currentDate);
@@ -57,44 +71,50 @@ const CalendarScreen = () => {
 
         // Empty cells for previous month
         for (let i = 0; i < firstDay; i++) {
-            days.push(<View key={`empty-${i}`} style={styles.dayCell} />);
+            days.push(<View key={`empty-${i}`} style={[styles.dayCell, styles.emptyCell]} />);
         }
 
         // Days of current month
         for (let i = 1; i <= daysInMonth; i++) {
             const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-            const dayActivities = activities.filter(a => a.startTimeLocal.startsWith(dateStr));
+            // Match substring (YYYY-MM-DD)
+            const dayActivities = activities.filter(a => a.startTimeLocal && a.startTimeLocal.startsWith(dateStr));
             const isSelected = selectedDate.getDate() === i && selectedDate.getMonth() === currentDate.getMonth() && selectedDate.getFullYear() === currentDate.getFullYear();
+            const isToday = new Date().getDate() === i && new Date().getMonth() === currentDate.getMonth() && new Date().getFullYear() === currentDate.getFullYear();
 
             days.push(
                 <TouchableOpacity
                     key={i}
-                    style={[styles.dayCell, isSelected && styles.selectedDayCell]}
+                    style={[styles.dayCell, isSelected && styles.selectedDayCell, isToday && styles.todayCell]}
                     onPress={() => setSelectedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), i))}
                 >
-                    <Text style={[styles.dayText, isSelected && styles.selectedDayText]}>{i}</Text>
-                    <View style={styles.activityDots}>
-                        {dayActivities.map((act, index) => (
-                            <View key={index} style={[styles.dot, { backgroundColor: getActivityColor(act.activityType) }]} />
-                        ))}
+                    <Text style={[styles.dayText, (isSelected || isToday) && styles.selectedDayText]}>{i}</Text>
+
+                    {/* Activity Event Boxes */}
+                    <View style={styles.eventContainer}>
+                        {dayActivities.map((act, index) => {
+                            const color = getIntensityColor(act.averageHeartRate);
+                            return (
+                                <TouchableOpacity
+                                    key={index}
+                                    style={[styles.eventBox, { borderColor: color, backgroundColor: color + '15' }]} // Outlined with slight tint
+                                    onPress={() => navigation.navigate('ActivityDetail', { activity: act })}
+                                >
+                                    <Text style={[styles.eventName, { color: color }]} numberOfLines={1}>
+                                        {act.activityName}
+                                    </Text>
+                                    <Text style={[styles.eventText, { color: color }]} numberOfLines={1}>
+                                        {(act.distance / 1000).toFixed(1)}k
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        })}
                     </View>
                 </TouchableOpacity>
             );
         }
 
         return days;
-    };
-
-    const getActivityColor = (type: string) => {
-        if (type.includes('running')) return '#CCFF00';
-        if (type.includes('cycling')) return '#00CCFF';
-        if (type.includes('swimming')) return '#CC00FF';
-        return '#888';
-    };
-
-    const getActivityIcon = (type: string) => {
-        // Simple icon mapping, can be expanded
-        return Activity;
     };
 
     const selectedDateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
@@ -136,8 +156,8 @@ const CalendarScreen = () => {
                             style={styles.activityCard}
                             onPress={() => navigation.navigate('ActivityDetail', { activity })}
                         >
-                            <View style={[styles.iconBox, { backgroundColor: getActivityColor(activity.activityType) + '20' }]}>
-                                <Activity color={getActivityColor(activity.activityType)} size={24} />
+                            <View style={[styles.iconBox, { backgroundColor: getIntensityColor(activity.averageHeartRate) + '20' }]}>
+                                <Activity color={getIntensityColor(activity.averageHeartRate)} size={24} />
                             </View>
                             <View style={styles.activityInfo}>
                                 <Text style={styles.activityName}>{activity.activityName}</Text>
@@ -193,37 +213,58 @@ const styles = StyleSheet.create({
     },
     dayCell: {
         width: '14.28%',
-        aspectRatio: 1,
-        justifyContent: 'center',
+        minHeight: 90, // Taller cells for boxes
+        justifyContent: 'flex-start', // Align to top
         alignItems: 'center',
         borderWidth: 0.5,
-        borderColor: '#111',
+        borderColor: '#222',
+        paddingVertical: 4,
+    },
+    emptyCell: {
+        backgroundColor: 'transparent',
+        borderWidth: 0,
     },
     selectedDayCell: {
         backgroundColor: '#1A1A1A',
-        borderRadius: 8,
         borderColor: '#CCFF00',
         borderWidth: 1,
     },
+    todayCell: {
+        backgroundColor: '#222',
+    },
     dayText: {
         color: '#888',
-        fontSize: 14,
+        fontSize: 12,
+        marginBottom: 4,
     },
     selectedDayText: {
         color: 'white',
         fontWeight: 'bold',
     },
-    activityDots: {
-        flexDirection: 'row',
-        gap: 4,
-        marginTop: 6,
-        justifyContent: 'center',
-        flexWrap: 'wrap',
+    eventContainer: {
+        width: '100%',
+        paddingHorizontal: 2,
+        gap: 2,
     },
-    dot: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
+    eventBox: {
+        width: '100%',
+        paddingVertical: 4,
+        paddingHorizontal: 2,
+        borderRadius: 4,
+        marginBottom: 2,
+        borderWidth: 1, // Outlined style
+    },
+    eventName: {
+        fontSize: 8,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 1,
+        opacity: 0.9,
+    },
+    eventText: {
+        fontSize: 10, // Larger KM font
+        fontWeight: '900',
+        textAlign: 'center',
     },
     detailsSection: {
         marginTop: 10,
