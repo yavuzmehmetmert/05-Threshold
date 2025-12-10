@@ -1,0 +1,17 @@
+{
+    "name": "70fd098f-079f-406a-b5b1-8c9387b038cf",
+    "weight": 70,
+    "restingHr": 43,
+    "maxHr": 89,
+    "lthr": 170,
+    "vo2max": 50,
+    "stressScore": 27,
+    "email": "Connected via Garmin",
+    "hrZones": [
+        100,
+        120,
+        140,
+        160,
+        180
+    ]
+}
