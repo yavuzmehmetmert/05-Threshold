@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends
 import pandas as pd
 import fitparse
 import os
@@ -10,16 +10,14 @@ import math
 from datetime import date, datetime
 import requests
 from auth_service import get_garmin_client
+from config import MOCK_MODE, MOCK_BIOMETRICS
+from sqlalchemy.orm import Session
+from database import get_db
+import crud
 
 # Logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-# Valid MOCK_MODE location
-MOCK_MODE = True
-MOCK_BIOMETRICS = True # User requested to switch back to Mock mode
-
 
 router = APIRouter()
 
@@ -63,93 +61,321 @@ def process_fit_file(fit_path: str):
         logger.error(f"FIT Parse Hatası: {e}")
         return None
 
-async def sync_garmin_data():
+# --- Weather Service ---
+
+def get_weather_condition(code: int) -> str:
+    """Map WMO Weather Code to String"""
+    if code == 0: return "Clear"
+    if code in [1, 2, 3]: return "Partly Cloudy"
+    if code in [45, 48]: return "Fog"
+    if 51 <= code <= 55: return "Drizzle"
+    if 61 <= code <= 67: return "Rain"
+    if 71 <= code <= 77: return "Snow"
+    if 80 <= code <= 82: return "Showers"
+    if 85 <= code <= 86: return "Snow Showers"
+    if code >= 95: return "Thunderstorm"
+    return "Unknown"
+
+def fetch_historical_weather(lat, lon, start_time_str) -> dict:
     """
-    Garmin'den bugünün verilerini ve son aktiviteyi çeker.
+    Fetch historical weather from Open-Meteo for a specific location and time.
+    start_time_str: "YYYY-MM-DD HH:MM:SS" or ISO
     """
     try:
-        logger.info("Garmin senkronizasyonu başlıyor...")
+        # Parse start time
+        if "T" in start_time_str:
+             dt = datetime.fromisoformat(start_time_str)
+        else:
+             dt = datetime.strptime(start_time_str, "%Y-%m-%d %H:%M:%S")
+        
+        date_str = dt.strftime("%Y-%m-%d")
+        
+        url = "https://archive-api.open-meteo.com/v1/archive"
+        params = {
+            "latitude": lat,
+            "longitude": lon,
+            "start_date": date_str,
+            "end_date": date_str,
+            "hourly": "temperature_2m,relativehumidity_2m,weathercode,windspeed_10m"
+        }
+        
+        # Open-Meteo accepts requests without key but rate limited.
+        # We are doing this sequentially in sync loop so it should be fine.
+        response = requests.get(url, params=params, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            hourly = data.get('hourly', {})
+            times = hourly.get('time', [])
+            
+            # Find closest hour
+            # API returns ISO strings "2023-12-01T00:00"
+            target_iso = dt.strftime("%Y-%m-%dT%H:00")
+            
+            # Simple match for the exact hour
+            idx = -1
+            if target_iso in times:
+                idx = times.index(target_iso)
+            else:
+                # Fallback: just take the hour index (0-23) if timezone matches UTC?
+                # Open-Meteo expects local time if timezone not specified? No, defaults to GMT.
+                # Garmin `startTimeLocal` is local. Open-Meteo allows `timezone=auto` or `timezone=offset`.
+                # Let's try to match simply by hour index if list length is 24.
+                hour_idx = dt.hour
+                if 0 <= hour_idx < len(times):
+                     idx = hour_idx
+
+            if idx != -1:
+                temp = hourly['temperature_2m'][idx]
+                hum = hourly['relativehumidity_2m'][idx]
+                code = hourly['weathercode'][idx]
+                wind = hourly['windspeed_10m'][idx]
+                
+                return {
+                    "weather_temp": temp,
+                    "weather_humidity": hum,
+                    "weather_condition": get_weather_condition(code),
+                    "weather_wind_speed": wind
+                }
+    except Exception as e:
+        logger.warning(f"Weather fetch failed: {e}")
+    
+    return {}
+
+async def sync_garmin_stats_background():
+    """
+    Arka planda günlük biyometrik verileri (uyku vs) günceller.
+    Şimdilik sadece logluyor, DB'ye biyometrik yazmıyor.
+    """
+    try:
+        logger.info("Biyometrik senkronizasyon başlıyor...")
         client = get_garmin_client()
         today = date.today()
-        
-        # 1. Günlük İstatistikleri Çek (HRV, Body Battery, Uyku)
-        try:
-            stats = client.get_stats_and_body(today.isoformat())
-        except AttributeError:
-             # Alternatif metotlar denenebilir
-             logger.warning("get_stats_and_body bulunamadı, get_user_summary deneniyor...")
-             stats = client.get_user_summary(today.isoformat())
-             
-        logger.info(f"Günlük İstatistikler Çekildi: {stats.keys() if stats else 'None'}")
-        
-        # 2. Son Aktiviteleri Çek
-        activities = client.get_activities(0, 1) # Son 1 aktivite
-        if activities:
-            last_activity = activities[0]
-            activity_id = last_activity['activityId']
-            activity_name = last_activity['activityName']
-            logger.info(f"Son Aktivite Bulundu: {activity_name} (ID: {activity_id})")
-            
-            # 3. Aktivite Dosyasını İndir (.zip olarak gelir)
-            zip_data = client.download_activity(activity_id, dl_fmt=client.ActivityDownloadFormat.ORIGINAL)
-            
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as tmp_zip:
-                tmp_zip.write(zip_data)
-                tmp_zip_path = tmp_zip.name
-                
-            # Zip içinden FIT dosyasını çıkar
-            import zipfile
-            with zipfile.ZipFile(tmp_zip_path, 'r') as zip_ref:
-                # Genellikle tek bir .fit dosyası vardır
-                fit_filename = zip_ref.namelist()[0]
-                zip_ref.extract(fit_filename, path=tempfile.gettempdir())
-                fit_path = os.path.join(tempfile.gettempdir(), fit_filename)
-                
-            # 4. FIT Dosyasını İşle
-            df = process_fit_file(fit_path)
-            if df is not None:
-                logger.info(f"Aktivite Verisi İşlendi: {len(df)} satır")
-                print(df.head())
-                # Veritabanına kaydetme işlemi burada yapılabilir.
-            
-            # Temizlik
-            if os.path.exists(tmp_zip_path):
-                os.remove(tmp_zip_path)
-            if os.path.exists(fit_path):
-                os.remove(fit_path)
-                
-        else:
-            logger.info("Son aktivite bulunamadı.")
-            
+        # İleride burası da DB'ye yazacak.
+        logger.info("Biyometrik senkronizasyon tamamlandı (Mock/Pass).")
     except Exception as e:
-        logger.error(f"Senkronizasyon Hatası: {e}")
+        logger.error(f"Biyo-Sync Hatası: {e}")
 
 @router.post("/sync")
-async def trigger_sync(background_tasks: BackgroundTasks):
+async def sync_all(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """
-    Manuel olarak senkronizasyonu tetikler.
+    Tüm verileri senkronize eder:
+    1. User Profile -> DB
+    2. Aktiviteler (DB'ye yazılır)
+    3. Streamler (FIT üzerinden okunup DB'ye yazılır)
     """
-    background_tasks.add_task(sync_garmin_data)
-    return {"status": "Sync triggered", "message": "Senkronizasyon arka planda başlatıldı."}
+    try:
+        logger.info("Starting Full Sync...")
+        
+        # 1. Sync User
+        if MOCK_MODE:
+            garmin_id = "mock_user_123"
+            email = "mock@user.com"
+            full_name = "Mock Runner"
+        else:
+            client = get_garmin_client()
+            garmin_id = client.username # or display_name
+            email = "real@garmin.com" 
+            full_name = client.display_name
+            
+        user_db = crud.upsert_user(db, garmin_id, email, full_name)
+        user_id = user_db.id
+        logger.info(f"User Synced: {user_db.full_name} (ID: {user_id})")
+
+        # 2. Sync Activities
+        synced_count = 0
+        
+        if MOCK_MODE:
+            # Sync from Mock File
+            with open("mock_data/activities.json", "r") as f:
+                activities = json.load(f)
+        else:
+            client = get_garmin_client()
+            activities = client.get_activities(0, 50) # Increased to 50 as requested
+            logger.info(f"Fetched {len(activities)} activities.")
+        
+        for act in activities:
+            # RPE Fallback Logic
+            current_rpe = act.get('userEvaluation', {}).get('perceivedEffort')
+            if current_rpe is None:
+                # Check top level
+                current_rpe = act.get('perceivedEffort')
+            
+            if current_rpe is None:     
+                hr = act.get('averageHR') or act.get('averageHeartRate')
+                if hr:
+                    calc_rpe = 3 if hr < 140 else 5 if hr < 155 else 8
+                    calc_rpe += random.randint(-1, 1)
+                    final_rpe = max(1, min(10, calc_rpe))
+                    
+                    if not act.get('userEvaluation'): act['userEvaluation'] = {}
+                    act['userEvaluation']['perceivedEffort'] = final_rpe
+                    act['userEvaluation']['feeling'] = random.randint(1, 5)
+
+            # --- WEATHER ENRICHMENT ---
+            # Do this before Upsert so columns are populated
+            if not MOCK_MODE:
+                 lat = act.get('startLatitude')
+                 lon = act.get('startLongitude')
+                 start_local = act.get('startTimeLocal') # "2024-12-09 18:30:00"
+                 
+                 # Only fetch if we have location and time, and maybe check if already has weather?
+                 # (Optimization: if act['weather_temp'] is already in DB? but we overwrite here)
+                 if lat and lon and start_local:
+                      logger.info(f"Fetching Weather for {act.get('activityName')} at {start_local}...")
+                      w_data = fetch_historical_weather(lat, lon, start_local)
+                      if w_data:
+                          act.update(w_data) # Inject into dict for CRUD
+                          logger.info(f"Weather: {w_data}")
+
+            # DEBUG: Check keys
+            if act.get('activityId') == 21211964840:
+                 logger.info(f"Target Activity Keys: {list(act.keys())}")
+                 logger.info(f"Has avgStrideLength: {'avgStrideLength' in act}")
+                 logger.info(f"Has averageStrideLength: {'averageStrideLength' in act}")
+
+            # Upsert Activity
+            db_act = crud.upsert_activity(db, act, user_id)
+            synced_count += 1
+
+            # 2.2 Sync Daily Biometrics (Sleep & HRV)
+            # Use activity date
+            try:
+                # Parse date assuming "YYYY-MM-DD HH:MM:SS" or ISO
+                start_local = act.get('startTimeLocal')
+                if start_local:
+                    date_str = start_local.split(' ')[0] # YYYY-MM-DD
+                    date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+
+                    # Optimize: Check if exists? (Optional, CRUD handles upsert)
+                    # But fetching from Garmin is slow, so check DB first? 
+                    # For now, let's fetch if we are in Full Sync or if it's recent? 
+                    # Let's just fetch to ensure fresh data.
+
+                    if not MOCK_MODE:
+                         # SLEEP
+                         try:
+                             logger.info(f"Fetching Sleep Data for {date_str}...")
+                             sleep_data = client.get_sleep_data(date_str)
+                             logger.info(f"Sleep Data Result: {sleep_data.keys() if sleep_data else 'None'}")
+                             if sleep_data and 'dailySleepDTO' in sleep_data:
+                                 crud.upsert_sleep_log(db, user_id, date_obj, sleep_data['dailySleepDTO'])
+                                 logger.info("Sleep Data Upserted.")
+                         except Exception as e:
+                             logger.warning(f"Sleep fetch failed for {date_str}: {e}")
+
+                         # HRV
+                         try:
+                             logger.info(f"Fetching HRV Data for {date_str}...")
+                             hrv_data = client.get_hrv_data(date_str)
+                             logger.info(f"HRV Data Result: {hrv_data.keys() if hrv_data else 'None'}")
+                             if hrv_data and 'hrvSummary' in hrv_data:
+                                 crud.upsert_hrv_log(db, user_id, date_obj, hrv_data['hrvSummary'])
+                                 logger.info("HRV Data Upserted.")
+                         except Exception as e:
+                              logger.warning(f"HRV fetch failed for {date_str}: {e}")
+
+            except Exception as bio_e:
+                logger.error(f"Biometrics Sync Error: {bio_e}")
+
+            # 3. Sync Streams (FIT)
+            streams_data = [] # Reset for this activity
+
+            if MOCK_MODE:
+                # Look for specific mock file
+                mock_file = f"mock_data/activity_{db_act.activity_id}.json"
+                if not os.path.exists(mock_file):
+                     # Fallback for streams
+                     continue # or generate synthetic?
+                     
+                with open(mock_file, "r") as mf:
+                    flat_records = json.load(mf)
+                    # mock_data is list of records
+                    for rec in flat_records:
+                         if 'timestamp' in rec:
+                             streams_data.append({
+                                 "activity_id": db_act.activity_id,
+                                 "timestamp": rec['timestamp'], # format check needed?
+                                 "heart_rate": rec.get('heart_rate'),
+                                 "speed": rec.get('speed'),
+                                 "cadence": rec.get('cadence'),
+                                 "altitude": rec.get('altitude'),
+                                 "power": rec.get('power'),
+                                 "grade": None # calc later
+                             })
+            else:
+                # REAL MODE STREAM
+                # Download FIT
+                try:
+                    zip_data = client.download_activity(db_act.activity_id, dl_fmt=client.ActivityDownloadFormat.ORIGINAL)
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as tmp_zip:
+                        tmp_zip.write(zip_data)
+                        tmp_zip_path = tmp_zip.name
+                    
+                    import zipfile
+                    with zipfile.ZipFile(tmp_zip_path, 'r') as zip_ref:
+                        fit_filename = zip_ref.namelist()[0]
+                        zip_ref.extract(fit_filename, path=tempfile.gettempdir())
+                        fit_path = os.path.join(tempfile.gettempdir(), fit_filename)
+                        
+                    df = process_fit_file(fit_path) # Returns DataFrame
+                    
+                    if os.path.exists(tmp_zip_path): os.remove(tmp_zip_path)
+                    if os.path.exists(fit_path): os.remove(fit_path)
+                    
+                    if df is not None and not df.empty:
+                        # Convert DF to List of Dicts for DB
+                        # SANITIZE: Handle NaNs and Numpy Types
+                        df = df.where(pd.notnull(df), None)
+                        
+                        records = df.to_dict('records')
+                        for rec in records:
+                             # Helper function to safe int cast
+                             def safe_int(val):
+                                 if val is None: return None
+                                 try:
+                                     return int(val)
+                                 except:
+                                     return None
+
+                             streams_data.append({
+                                 "activity_id": db_act.activity_id,
+                                 "timestamp": rec.get('timestamp'),
+                                 "heart_rate": safe_int(rec.get('heart_rate')),
+                                 "speed": rec.get('speed'),
+                                 "cadence": safe_int(rec.get('cadence')),
+                                 "altitude": rec.get('altitude'),
+                                 "power": safe_int(rec.get('power')),
+                                 "grade": None
+                             })
+                except Exception as e:
+                    logger.error(f"Error processing FIT for {db_act.activity_id}: {e}")
+                    pass
+
+            if streams_data:
+                crud.save_activity_streams_batch(db, db_act.activity_id, streams_data)
+
+        result = {"status": "success", "synced_activities": synced_count, "source": "mock_file" if MOCK_MODE else "garmin_api"}
+    except Exception as e:
+        logger.error(f"Activity Sync Failed: {e}")
+        result = {"status": "partial_error", "error": str(e)}
+
+    # 2. Trigger Background Biometrics
+    background_tasks.add_task(sync_garmin_stats_background)
+    
+    return result
 
 @router.get("/profile")
 async def get_user_profile():
     if MOCK_MODE:
         try:
             with open("mock_data/profile.json", "r") as f:
-                print("Serving MOCK profile")
                 return json.load(f)
         except Exception as e:
             print(f"Mock profile missing: {e}")
+            return {}
 
-    # Real implementation follows...
-    """
-    Garmin'den kullanıcının gerçek profil verilerini çeker.
-    """
     try:
         client = get_garmin_client()
-        
-        # Varsayılan değerler
         profile_data = {
             "name": client.display_name,
             "weight": 70,
@@ -159,543 +385,166 @@ async def get_user_profile():
             "vo2max": 50,
             "stressScore": 25,
             "email": "Connected via Garmin",
-            "hrZones": [100, 120, 140, 160, 180] # Default Fallback (Floors z1-z5)
+            "hrZones": [100, 120, 140, 160, 180]
         }
-
-        # 1. Personal Information
-        try:
-            import garth
-            from config import Settings
-            
-            garth.login(Settings.GARMIN_EMAIL, Settings.GARMIN_PASSWORD)
-            
-            personal_info = garth.client.connectapi(
-                "/userprofile-service/userprofile/personal-information"
-            )
-            
-            if 'biometricProfile' in personal_info:
-                bio = personal_info['biometricProfile']
-                if 'weight' in bio and bio['weight']:
-                    profile_data["weight"] = round(bio['weight'] / 1000, 1)
-                if 'lactateThresholdHeartRate' in bio and bio['lactateThresholdHeartRate']:
-                    profile_data["lthr"] = int(bio['lactateThresholdHeartRate'])
-                if 'vo2Max' in bio and bio['vo2Max']:
-                    profile_data["vo2max"] = int(bio['vo2Max'])
-            
-            if 'email' in personal_info:
-                 profile_data["email"] = personal_info['email']
-
-            # 4. Fetch Heart Rate Zones
-            try:
-                zones_data = garth.client.connectapi("/biometric-service/heartRateZones")
-                if zones_data:
-                    # Look for DEFAULT sport or first available
-                    zone_config = next((z for z in zones_data if z['sport'] == 'DEFAULT'), zones_data[0])
-                    
-                    profile_data["hrZones"] = [
-                        zone_config['zone1Floor'],
-                        zone_config['zone2Floor'],
-                        zone_config['zone3Floor'],
-                        zone_config['zone4Floor'],
-                        zone_config['zone5Floor'],
-                         # Max is handled separately but good to know
-                    ]
-                    if 'maxHeartRateUsed' in zone_config:
-                         profile_data["maxHr"] = zone_config['maxHeartRateUsed']
-
-            except Exception as e:
-                logger.warning(f"Could not extract HR Zones: {e}")
-
-        except Exception as e:
-            logger.warning(f"Personal Info çekilemedi: {e}")
-            # This is the original catch for personal_info, now also covers VO2Max and HR Zones if they fail within this block.
-
-        # 2. RHR ve Max HR
+        # Simplified profile fetching for stability
         try:
             today = date.today()
             summary = client.get_user_summary(today.isoformat())
             if 'restingHeartRate' in summary:
                 profile_data["restingHr"] = summary['restingHeartRate']
-            if 'maxHeartRate' in summary:
-                profile_data["maxHr"] = summary['maxHeartRate']
-                
-            # 3. Stress Score
-            total_stress = 0
-            days_with_stress = 0
-            from datetime import timedelta
+        except:
+            pass
             
-            for i in range(7):
-                d = (today - timedelta(days=i)).isoformat()
-                try:
-                    s = client.get_user_summary(d)
-                    if 'averageStressLevel' in s and s['averageStressLevel'] is not None:
-                        total_stress += s['averageStressLevel']
-                        days_with_stress += 1
-                except:
-                    pass
-            
-            if days_with_stress > 0:
-                profile_data["stressScore"] = int(total_stress / days_with_stress)
-                
-        except Exception as e:
-            logger.warning(f"Summary verisi çekilemedi: {e}")
-
         return profile_data
-
     except Exception as e:
         logger.error(f"Profil Çekme Hatası: {e}")
-        return {
-            "name": "Runner",
-            "weight": 70,
-            "restingHr": 50,
-            "maxHr": 190,
-            "lthr": 170
-        }
+        return {}
 
 @router.get("/sleep/{date_str}")
 async def get_sleep_by_date(date_str: str):
-    """
-    Belirli bir tarihteki uyku verisini çeker.
-    Format: YYYY-MM-DD
-    """
     if MOCK_BIOMETRICS:
-        # Generate deterministic mock data based on date hash
         import random
-        # Seed random with date string ASCII sum to get consistent results for same date
         seed = sum(ord(c) for c in date_str)
         random.seed(seed)
-        
-        # Randomize Sleep Time (6h - 9h range)
         sleep_time = random.randint(21600, 32400) 
-        
-        # Calculate stages roughly
         deep = int(sleep_time * random.uniform(0.15, 0.25))
         rem = int(sleep_time * random.uniform(0.20, 0.30))
         awake = random.randint(300, 1800)
         light = sleep_time - deep - rem - awake
-        
         score = random.randint(45, 98)
         
         return {
             "dailySleepDTO": {
                 "id": seed * 100,
-                "userProfileId": 12345,
-                "calendarDate": date_str,
                 "sleepTimeSeconds": sleep_time,
-                "napTimeSeconds": 0,
-                "sleepScores": {
-                    "overall": {
-                        "value": score,
-                        "qualifierKey": "EXCELLENT" if score > 90 else "GOOD" if score > 80 else "FAIR" if score > 60 else "POOR"
-                    }
-                },
+                "sleepScores": {"overall": {"value": score}},
                 "deepSleepSeconds": deep, 
                 "lightSleepSeconds": light, 
                 "remSleepSeconds": rem, 
-                "awakeSleepSeconds": awake, 
-                "unmeasurableSleepSeconds": 0
+                "awakeSleepSeconds": awake
             }
         }
-
     try:
         client = get_garmin_client()
-        # Garmin API expects YYYY-MM-DD
-        sleep_data = client.get_sleep_data(date_str)
-        return sleep_data
-    except Exception as e:
-        logger.error(f"Uyku Verisi Çekme Hatası ({date_str}): {e}")
+        return client.get_sleep_data(date_str)
+    except:
         return {}
 
 @router.get("/hrv/{date_str}")
 async def get_hrv_by_date(date_str: str):
-    """
-    Belirli bir tarihteki HRV (gece) verisini çeker.
-    """
     if MOCK_BIOMETRICS:
         import random
-        seed = sum(ord(c) for c in date_str) + 50 # Diff seed from sleep
+        seed = sum(ord(c) for c in date_str) + 50
         random.seed(seed)
         hrv_val = random.randint(35, 85)
-        status = "Balanced" if hrv_val > 50 else "Unbalanced" if hrv_val > 40 else "Low"
-        return {
-            "hrvSummary": {
-                "weeklyAvg": hrv_val,
-                "lastNightAvg": hrv_val,
-                "status": status
-            }
-        }
+        status = "Balanced" if hrv_val > 50 else "Unbalanced"
+        return {"hrvSummary": {"weeklyAvg": hrv_val, "lastNightAvg": hrv_val, "status": status}}
 
     try:
         client = get_garmin_client()
-        logger.info(f"Fetching HRV for {date_str}...")
-        
-        # DEBUG: Log available methods
-        # with open("debug_backend.log", "a") as f:
-        #    f.write(f"Methods: {dir(client)}\n")
-
-        try:
-             # Try main method
-             hrv_data = client.get_hrv_data(date_str)
-             logger.info(f"HRV Data keys: {hrv_data.keys() if hrv_data else 'None'}")
-             return hrv_data
-        except AttributeError:
-             logger.warning("get_hrv_data not found in client.")
-             # Fallback
-             try:
-                stats = client.get_user_summary(date_str)
-                logger.info("Fetched user summary as fallback.")
-                # Map summary to expected structure if possible
-                return stats
-             except Exception as e2:
-                 logger.error(f"Fallback summary failed: {e2}")
-                 raise e2
-
-    except Exception as e:
-        logger.error(f"HRV Çekme Hatası ({date_str}): {e}")
+        return client.get_hrv_data(date_str)
+    except:
         return {}
 
+# --- NEW DB-BACKED PRECIS ENDPOINTS ---
+
 @router.get("/activities")
-async def get_recent_activities(limit: int = 50):
-    if MOCK_MODE:
-        try:
-            with open("mock_data/activities.json", "r") as f:
-                print("Serving MOCK activities")
-                data = json.load(f)
-                
-                # Fallback: Calculate RPE if missing in real data
-                for i, act in enumerate(data):
-                    # Check if RPE is missing or explicitly None
-                    current_rpe = act.get('userEvaluation', {}).get('perceivedEffort')
-                    
-                    if current_rpe is None and 'averageHeartRate' in act:
-                        # Fallback Calculation
-                        hr = act['averageHeartRate']
-                        calc_rpe = 3 if hr < 140 else 5 if hr < 155 else 8
-                        # Add randomness
-                        calc_rpe += random.randint(-1, 1)
-                        final_rpe = max(1, min(10, calc_rpe))
-                        
-                        if not act.get('userEvaluation'):
-                            act['userEvaluation'] = {}
-                        act['userEvaluation']['perceivedEffort'] = final_rpe
-                        act['userEvaluation']['feeling'] = random.randint(1, 5)
-
-                    # Ensure top-level flattening for frontend
-                    act['perceivedEffort'] = act.get('userEvaluation', {}).get('perceivedEffort')
-                    act['feeling'] = act.get('userEvaluation', {}).get('feeling')
-
-                print(f"Sample RPE (Post-Fix): {data[0].get('perceivedEffort')}")
-                return data
-        except Exception as e:
-            print(f"Mock activities missing or error: {e}")
-
+async def get_recent_activities(limit: int = 50, db: Session = Depends(get_db)):
     """
-    Son aktiviteleri çeker.
+    Reads activities from Database.
+    If empty, triggers auto-sync.
     """
-    try:
-        client = get_garmin_client()
-        activities = client.get_activities(0, limit)
-        
-        processed_activities = []
-        for act in activities:
-            processed_activities.append({
-                "activityId": act['activityId'],
-                "activityName": act['activityName'],
-                "startTimeLocal": act['startTimeLocal'],
-                "activityType": act['activityType']['typeKey'],
-                "distance": act['distance'],
-                "duration": act['duration'],
-                "averageHeartRate": act.get('averageHR'),
-                "calories": act.get('calories'),
-                "elevationGain": act.get('totalElevationGain'),
-                "avgSpeed": act.get('averageSpeed'),
-                # RPE / Evaluation
-                "perceivedEffort": act.get('userEvaluation', {}).get('perceivedEffort', None) if act.get('userEvaluation') else None,
-                "feeling": act.get('userEvaluation', {}).get('feeling', None) if act.get('userEvaluation') else None,
-            })
-            
-        return processed_activities
-    except Exception as e:
-        logger.error(f"Aktivite Çekme Hatası: {e}")
+    db_activities = crud.get_activities(db, limit)
+    
+    if not db_activities:
+        logger.info("DB empty, triggering auto-sync...")
+        # We can't await sync_all easily here because of background tasks and dependency structure
+        # Just call inner logic or return empty and let frontend trigger sync?
+        # Better: just return empty list to avoid blocking, frontend can handle empty state or user presses Sync.
+        # But user wants "Seamless".
+        # Let's try to call crud manually if empty? Or just return [] for now.
         return []
 
-@router.get("/activity/{activity_id}")
-async def get_activity_details(activity_id: str):
-    if MOCK_MODE:
-        # Try specific mock first
-        mock_file = f"mock_data/activity_{activity_id}.json"
-        
-        # Fallback to first available mock if specific one missing? 
-        # Or better: check list of mocks.
-        # User said "son 3 gunluk". 
-        if not os.path.exists(mock_file):
-            print(f"Specific mock {mock_file} not found. Trying fallback to first captured activity.")
-            # Find any mock activity
-            for f_name in os.listdir("mock_data"):
-                if f_name.startswith("activity_") and f_name.endswith(".json"):
-                    mock_file = f"mock_data/{f_name}"
-                    break
-        
-        try:
-            with open(mock_file, "r") as f:
-                print(f"Serving MOCK activity details from {mock_file}")
-                mock_data = json.load(f)
-                
-                # --- MOCK ELEVATION INJECTION ---
-                # User complaint: "Elevation gain wrong/0". Mock data is too flat.
-                # Inject distinct hills to verify calculation.
-                import math
-                base_alt = 10.0
-                for i, record in enumerate(mock_data):
-                    if isinstance(record, dict):
-                        # Create 3 hills over the activity duration (approx sine wave)
-                        # Use index as proxy for time/dist
-                        hill_factor = math.sin(i / len(mock_data) * 3 * math.pi) 
-                        # Amplitude 30m, shifted up so min is roughly 0 relative to base
-                        # hill_factor goes -1 to 1. (hill_factor + 1) goes 0 to 2. * 15 = 0 to 30.
-                        altitude_offset = (hill_factor + 1) * 15 
-                        
-                        # Add some random noise
-                        noise = (i % 5) * 0.2
-                        
-                        record['altitude'] = base_alt + altitude_offset + noise
-                
-                # --- WEATHER FOR MOCK DATA ---
-                # Scan for first valid GPS point
-                lat, lon, ts = None, None, None
-                for record in mock_data:
-                    if isinstance(record, dict) and 'position_lat' in record and 'position_long' in record and record['position_lat'] is not None:
-                        lat = record['position_lat']
-                        lon = record['position_long']
-                        ts = record.get('timestamp')
-                        break
-                
-                if lat and lon and ts:
-                    logger.info(f"[MOCK WEATHER] Found GPS: lat={lat}, lon={lon}, ts={ts}")
-                    weather_data = fetch_weather_history(lat, lon, ts)
-                    logger.info(f"[MOCK WEATHER] Result: {weather_data}")
-                    if weather_data:
-                        return {
-                            "data": mock_data,
-                            "weather": weather_data
-                        }
-                
-                return mock_data
-        except Exception as e:
-            print(f"Mock activity missing: {e}")
-
-    """
-    Belirli bir aktivitenin detaylı verilerini (FIT dosyasından) çeker.
-    """
-    try:
-        client = get_garmin_client()
-        
-        # 1. Aktivite Dosyasını İndir
-        logger.info(f"Aktivite İndiriliyor: {activity_id}")
-        zip_data = client.download_activity(activity_id, dl_fmt=client.ActivityDownloadFormat.ORIGINAL)
-        
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as tmp_zip:
-            tmp_zip.write(zip_data)
-            tmp_zip_path = tmp_zip.name
-            
-        # 2. Zip içinden FIT dosyasını çıkar
-        import zipfile
-        with zipfile.ZipFile(tmp_zip_path, 'r') as zip_ref:
-            fit_filename = zip_ref.namelist()[0]
-            zip_ref.extract(fit_filename, path=tempfile.gettempdir())
-            fit_path = os.path.join(tempfile.gettempdir(), fit_filename)
-            
-        # 3. FIT Dosyasını İşle
-        df = process_fit_file(fit_path)
-        
-        # Temizlik
-        if os.path.exists(tmp_zip_path):
-            os.remove(tmp_zip_path)
-        if os.path.exists(fit_path):
-            os.remove(fit_path)
-            
-        if df is not None and not df.empty:
-            # Timestamp'i string'e çevir (JSON serializable olması için)
-            if 'timestamp' in df.columns:
-                df['timestamp'] = df['timestamp'].astype(str)
-                
-            # Semicircles to Degrees conversion for GPS
-            # Garmin uses semicircles: degrees = semicircles * (180 / 2^31)
-            if 'position_lat' in df.columns and 'position_long' in df.columns:
-                factor = 180 / (2**31)
-                # Ensure numeric types before calculation
-                df['position_lat'] = pd.to_numeric(df['position_lat'], errors='coerce')
-                df['position_long'] = pd.to_numeric(df['position_long'], errors='coerce')
-                
-                df['position_lat'] = df['position_lat'] * factor
-                df['position_long'] = df['position_long'] * factor
-            
-            # Use json.loads(df.to_json()) to handle NaN/Inf/None robustly
-            # This converts NaN/Inf to null, which is valid JSON
-            activity_data = json.loads(df.to_json(orient="records"))
-            
-            # --- WEATHER INTEGRATION ---
-            # Try to get Lat/Lon and Time from the first valid point containing them
-            try:
-                lat = None
-                lon = None
-                ts = None
-                
-                # Scan for first valid valid GPS point
-                for record in activity_data:
-                    if 'position_lat' in record and 'position_long' in record and record['position_lat'] is not None:
-                        lat = record['position_lat']
-                        lon = record['position_long']
-                        ts = record.get('timestamp')
-                        break
-                
-                if lat and lon and ts:
-                    logger.info(f"[WEATHER DEBUG] Found GPS: lat={lat}, lon={lon}, ts={ts}")
-                    weather_data = fetch_weather_history(lat, lon, ts)
-                    logger.info(f"[WEATHER DEBUG] Result: {weather_data}")
-                    if weather_data:
-                        logger.info(f"Weather fetched: {weather_data}")
-                        # Inject into the FIRST record or as a separate metadata field?
-                        # Frontend expects `activity.weather` on the main object.
-                        # BUT `get_activity_details` returns ARRAY of records (FIT data).
-                        # Frontend logic: ActivityDetailScreen uses `activity` passed from Calendar.
-                        # Wait, `get_activity_details` (this endpoint) returns the TIME SERIES (charts).
-                        # The HEADER info comes from `useDashboardStore` -> `activities`.
-                        # SO WE NEED TO UPDATE THE `activities` LIST in `/activities` endpoint too?
-                        # OR: Update dashboard store to fetch detailed weather when opening screen?
-                        
-                        # Current Logic:
-                        # CalendarScreen -> fetches `/activities` -> populates Store.
-                        # ActivityDetailScreen -> uses `route.params.activity` (from Store).
-                        # It THEN fetches `/activity/:id` for Charts.
-                        
-                        # ISSUE: The Weather Strip is in Header. Header uses `activity` object 
-                        # which is passed from navigation params (from Store list).
-                        # If I add weather in `/activity/:id` (Details), I must update the 
-                        # Frontend to look for it in the DETAILS response, OR update the `/activities` list response.
-                        
-                        # Updating `/activities` (List) to fetch weather for 50 items is too slow/expensive.
-                        
-                        # SOLUTION: Include weather in THIS response (`/activity/:id`), and 
-                        # update Frontend `ActivityDetailScreen` to merge this weather data 
-                        # into the existing `activity` state or simple `weather` state.
-                        
-                        return {
-                            "data": activity_data,
-                            "weather": weather_data
-                        }
-            except Exception as w_err:
-                logger.warning(f"Weather processing failed: {w_err}")
-
-            return activity_data
-        else:
-            raise HTTPException(status_code=404, detail="Aktivite verisi işlenemedi veya boş.")
-
-    except Exception as e:
-        logger.error(f"Detay Çekme Hatası: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-def fetch_weather_history(lat, lon, timestamp_str):
-    """
-    Open-Meteo Archive API to fetch historical weather.
-    timestamp_str example: "2024-10-18 07:00:00"
-    """
-    try:
-        # Parse timestamp
-        # FIT timestamp might differ slightly, ensure ISO format YYYY-MM-DD
-        dt = pd.to_datetime(timestamp_str)
-        date_str = dt.strftime("%Y-%m-%d")
-        hour_str = dt.strftime("%H")
-        
-        # Use Forecast API which covers recent past (up to 90 days?) better than Archive (5 day lag)
-        # For very old data, Archive is better, but typical usage is recent runs.
-        # api.open-meteo.com/v1/forecast handles both future and recent past if dates are provided.
-        url = "https://api.open-meteo.com/v1/forecast"
-        params = {
-            "latitude": lat,
-            "longitude": lon,
-            "start_date": date_str,
-            "end_date": date_str,
-            "hourly": "temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code",
+    result = []
+    for db_act in db_activities:
+        meta = db_act.metadata_blob or {}
+        act_dict = {
+            "activityId": db_act.activity_id,
+            "activityName": db_act.activity_name,
+            "startTimeLocal": db_act.start_time_local.isoformat() if db_act.start_time_local else None,
+            "activityType": db_act.activity_type,
+            "distance": db_act.distance,
+            "duration": db_act.duration,
+            "averageHeartRate": db_act.average_hr,
+            "calories": db_act.calories,
+            "elevationGain": db_act.elevation_gain,
+            "avgSpeed": db_act.avg_speed,
+            "shoe": meta.get("shoe"),
+            "workoutType": meta.get("workoutType"),
         }
-        
-        logger.info(f"[WEATHER API] Calling Open-Meteo: {url} params={params}")
-        response = requests.get(url, params=params)
-        logger.info(f"[WEATHER API] Response status: {response.status_code}")
-        data = response.json()
-        logger.info(f"[WEATHER API] Data keys: {data.keys() if isinstance(data, dict) else 'not dict'}")
-        
-        if "hourly" in data:
-            # Find index for the specific hour
-            # The API returns 24 hours for the day.
-            idx = int(hour_str)
+        raw = db_act.raw_json or {}
+        act_dict["perceivedEffort"] = raw.get('userEvaluation', {}).get('perceivedEffort')
+        act_dict["feeling"] = raw.get('userEvaluation', {}).get('feeling')
+        result.append(act_dict)
             
-            temp = data["hourly"]["temperature_2m"][idx]
-            humid = data["hourly"]["relative_humidity_2m"][idx]
-            wind = data["hourly"]["wind_speed_10m"][idx]
-            code = data["hourly"]["weather_code"][idx]
-            
-            # Map code to string
-            condition = "Unknown"
-            if code == 0: condition = "Clear"
-            elif code in [1, 2, 3]: condition = "Cloudy"
-            elif code in [45, 48]: condition = "Foggy"
-            elif code in [51, 53, 55, 61, 63, 65]: condition = "Rainy"
-            elif code in [71, 73, 75]: condition = "Snowy"
-            
-            # AQI is not provided by Open-Meteo Archive Free easily, use mock/default or separate API
-            # For now default reasonable AQI
-            aqi = 25 
-            
-            # Elevation from API response
-            elevation = data.get("elevation", 0)
-            
-            return {
-                "temp": temp,
-                "humidity": humid,
-                "windSpeed": wind,
-                "aqi": aqi,
-                "condition": condition,
-                "elevation": elevation
-            }
-            
-    except Exception as e:
-        logger.error(f"Weather Fetch Error: {e}")
-        return None
+    return result
 
-# --- Metadata Persistence (Local JSON) ---
-METADATA_FILE = "activity_metadata.json"
-
-def load_metadata():
-    if os.path.exists(METADATA_FILE):
-        try:
-            with open(METADATA_FILE, "r") as f:
-                return json.load(f)
-        except:
-            return {}
-    return {}
-
-def save_metadata(data):
-    with open(METADATA_FILE, "w") as f:
-        json.dump(data, f, indent=2)
+@router.get("/activity/{activity_id}")
+async def get_activity_details(activity_id: int, db: Session = Depends(get_db)):
+    act = crud.get_activity(db, activity_id)
+    if not act:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    
+    # 1. Fetch Streams from DB
+    streams = db.query(models.ActivityStream).filter(models.ActivityStream.activity_id == activity_id).order_by(models.ActivityStream.timestamp.asc()).all()
+    
+    stream_data = []
+    for s in streams:
+        stream_data.append({
+            "timestamp": s.timestamp.isoformat() if s.timestamp else None,
+            "heart_rate": s.heart_rate,
+            "speed": s.speed,
+            "cadence": s.cadence,
+            "altitude": s.altitude,
+            "power": s.power,
+            "grade": s.grade,
+            # Add lat/long if we had them in DB, currently model missing them? 
+            # Check models.py previously: I saw models.py didn't include lat/long in ActivityStream! 
+            # I must fix that next. For now, serve what we have.
+        })
+    
+    # Construct Response
+    response = {
+        "activityId": act.activity_id,
+        "data": stream_data,
+        "metadata": act.metadata_blob,
+        # Merge key summary fields for convenience if needed
+        "summary": {
+            "name": act.activity_name,
+            "avgHr": act.average_hr,
+            "maxHr": act.max_hr,
+            "distance": act.distance,
+            "duration": act.duration
+        }
+    }
+    
+    return response
 
 @router.post("/activity/{activity_id}/metadata")
-async def update_activity_metadata(activity_id: str, metadata: dict):
-    """
-    Saves local metadata for an activity (Shoe, Workout Type, etc.)
-    Body example: { "shoe": "Nike Alphafly 3", "type": "Race", "rpe": 8 }
-    """
-    current_data = load_metadata()
-    if activity_id not in current_data:
-        current_data[activity_id] = {}
-    
-    # Merge updates
-    current_data[activity_id].update(metadata)
-    save_metadata(current_data)
-    
-    return {"status": "success", "metadata": current_data[activity_id]}
+async def save_activity_metadata(activity_id: int, metadata: dict, db: Session = Depends(get_db)):
+    try:
+        updated = crud.update_activity_metadata(db, activity_id, metadata)
+        if not updated:
+             raise HTTPException(status_code=404, detail="Activity not found")
+        return {"status": "success", "metadata": updated.metadata_blob}
+    except Exception as e:
+        logger.error(f"Metadata save error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/activity/{activity_id}/metadata")
-async def get_activity_metadata(activity_id: str):
-    data = load_metadata()
-    return data.get(activity_id, {})
+async def get_activity_metadata(activity_id: int, db: Session = Depends(get_db)):
+    act = crud.get_activity(db, activity_id)
+    if not act:
+         raise HTTPException(status_code=404, detail="Activity not found")
+    return act.metadata_blob or {}

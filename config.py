@@ -37,3 +37,7 @@ try:
     Settings.validate()
 except ValueError as e:
     print(f"UYARI: {e}")
+
+# Global Flags
+MOCK_MODE = False
+MOCK_BIOMETRICS = False

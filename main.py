@@ -3,6 +3,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from auth_service import router as auth_router
 from ingestion_service import router as ingestion_router
 
+from database import engine
+import models
+
+# Veritabanı tablolarını oluştur (Yoksa)
+# !!! DİKKAT: Schema değişikliği için Drop All ekliyoruz.
+# Canlıya alırken bunu kaldırmalıyız.
+# Veritabanı tablolarını oluştur (Yoksa)
+# !!! DİKKAT: Drop All kaldırıldı. Artık kalıcı.
+models.Base.metadata.create_all(bind=engine)
+
 # FastAPI Uygulamasını Başlat
 app = FastAPI(
     title="Garmin Entegrasyon Servisi",
