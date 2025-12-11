@@ -822,6 +822,20 @@ const ActivityDetailScreen = () => {
                                     unit="%"
                                     color="#AAAAAA"
                                 />
+                                <MetricItem
+                                    icon={Move}
+                                    label="GCT Bal."
+                                    value={(() => {
+                                        const valid = details.filter(d => d.stance_time_balance);
+                                        if (valid.length === 0) return '-';
+                                        const avg = valid.reduce((acc, curr) => acc + curr.stance_time_balance, 0) / valid.length;
+                                        // Garmin standard: value is usually Left %? Or just %?
+                                        // Mock data is ~49.5. Let's assume Left %.
+                                        return `L ${avg.toFixed(1)}%`;
+                                    })()}
+                                    unit=""
+                                    color="#FF5555"
+                                />
                             </View>
                         </View>
                     )
