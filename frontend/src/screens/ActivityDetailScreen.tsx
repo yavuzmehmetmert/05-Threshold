@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { Activity, ArrowUp, Battery, Brain, Calendar, ChevronLeft, Clock, Droplets, Flame, Footprints, Gauge, Heart, MapPin, Mountain, Move, Shield, Share2, Thermometer, Timer, TrendingUp, Wind, Zap } from 'lucide-react-native';
+import { Activity, ArrowUp, Battery, Brain, Calendar, ChevronLeft, Clock, Droplets, Flame, Footprints, Gauge, Heart, MapPin, Moon, Mountain, Move, Shield, Share2, Thermometer, Timer, TrendingUp, Wind, Zap } from 'lucide-react-native';
 import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryArea, VictoryScatter, VictoryBar, VictoryVoronoiContainer, VictoryTooltip, VictoryLabel, VictoryCursorContainer } from 'victory-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withRepeat, withTiming, interpolateColor, FadeInDown } from 'react-native-reanimated';
 import { Defs, LinearGradient, Stop } from 'react-native-svg';
@@ -157,10 +157,41 @@ const ActivityDetailScreen = () => {
     const [details, setDetails] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [weather, setWeather] = useState(activity.weather || null);
+    const [sleepData, setSleepData] = useState<any>(null);
+    const [hrvData, setHrvData] = useState<any>(null);
 
     useEffect(() => {
         fetchActivityDetails();
+        fetchSleepData();
+        fetchHrvData();
     }, []);
+
+    const fetchHrvData = async () => {
+        try {
+            const dateStr = activity.startTimeLocal.split(' ')[0];
+            const response = await fetch(`http://localhost:8000/ingestion/hrv/${dateStr}`);
+            const json = await response.json();
+            if (json) {
+                setHrvData(json);
+            }
+        } catch (error) {
+            console.error('Failed to fetch HRV data:', error);
+        }
+    };
+
+    const fetchSleepData = async () => {
+        try {
+            // Extract YYYY-MM-DD from activity.startTimeLocal (e.g., "2025-12-09 17:54:23")
+            const dateStr = activity.startTimeLocal.split(' ')[0];
+            const response = await fetch(`http://localhost:8000/ingestion/sleep/${dateStr}`);
+            const json = await response.json();
+            if (json.dailySleepDTO) {
+                setSleepData(json.dailySleepDTO);
+            }
+        } catch (error) {
+            console.error('Failed to fetch sleep data:', error);
+        }
+    };
 
     const fetchActivityDetails = async () => {
         try {
@@ -482,6 +513,68 @@ const ActivityDetailScreen = () => {
                     </View>
                 </View>
 
+                {/* --- RECOVERY CONTEXT (SLEEP & HRV) --- */}
+                <Animated.View entering={FadeInDown.delay(300).duration(600).springify()} style={{ paddingHorizontal: 16, marginTop: 10 }}>
+                    <View style={{ flexDirection: 'row', gap: 12 }}>
+                        {/* Sleep Card */}
+                        <View style={{ flex: 1, backgroundColor: '#111', borderRadius: 16, padding: 12, borderWidth: 1, borderColor: '#222' }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                                <Moon size={16} color="#9F7AEA" />
+                                <Text style={{ color: '#888', fontSize: 12, fontWeight: '600', marginLeft: 6 }}>SLEEP</Text>
+                            </View>
+
+                            {sleepData ? (
+                                <View>
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 4 }}>
+                                        <Text style={{ color: '#fff', fontSize: 24, fontWeight: 'bold' }}>
+                                            {formatDuration(sleepData.sleepTimeSeconds)}
+                                        </Text>
+                                    </View>
+                                    <Text style={{ color: sleepData.sleepScores?.overall?.value > 80 ? '#33FF33' : '#FFCC00', fontSize: 13, fontWeight: '500', marginTop: 4 }}>
+                                        Score: {sleepData.sleepScores?.overall?.value || '-'}
+                                    </Text>
+
+                                    {/* Sleep Stages Bar */}
+                                    <View style={{ flexDirection: 'row', height: 6, borderRadius: 3, overflow: 'hidden', marginTop: 8, width: '100%' }}>
+                                        <View style={{ flex: sleepData.deepSleepSeconds, backgroundColor: '#553C9A' }} />
+                                        <View style={{ flex: sleepData.lightSleepSeconds, backgroundColor: '#9F7AEA' }} />
+                                        <View style={{ flex: sleepData.remSleepSeconds, backgroundColor: '#38B2AC' }} />
+                                    </View>
+                                    <View style={{ flexDirection: 'row', gap: 6, marginTop: 4 }}>
+                                        <Text style={{ fontSize: 8, color: '#553C9A' }}>Deep</Text>
+                                        <Text style={{ fontSize: 8, color: '#9F7AEA' }}>Light</Text>
+                                        <Text style={{ fontSize: 8, color: '#38B2AC' }}>REM</Text>
+                                    </View>
+                                </View>
+                            ) : (
+                                <ActivityIndicator size="small" color="#9F7AEA" />
+                            )}
+                        </View>
+
+                        {/* HRV Card */}
+                        <View style={{ flex: 1, backgroundColor: '#111', borderRadius: 16, padding: 12, borderWidth: 1, borderColor: '#222' }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                                <Activity size={16} color="#38B2AC" />
+                                <Text style={{ color: '#888', fontSize: 12, fontWeight: '600', marginLeft: 6 }}>HRV (Night)</Text>
+                            </View>
+                            {hrvData ? (
+                                <>
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 4 }}>
+                                        <Text style={{ color: '#fff', fontSize: 24, fontWeight: 'bold' }}>
+                                            {hrvData.hrvSummary?.lastNightAvg || '-'}ms
+                                        </Text>
+                                    </View>
+                                    <Text style={{ color: '#38B2AC', fontSize: 13, fontWeight: '500', marginTop: 4 }}>
+                                        {hrvData.hrvSummary?.status || 'Balanced'}
+                                    </Text>
+                                </>
+                            ) : (
+                                <ActivityIndicator size="small" color="#38B2AC" />
+                            )}
+                        </View>
+                    </View>
+                </Animated.View>
+
                 {/* --- AI INSIGHT CARD (THE WIPE ANALYSIS) --- */}
                 {!loading && (
                     <Animated.View entering={FadeInDown.delay(400).duration(600).springify()} style={{ padding: 16, paddingBottom: 0 }}>
@@ -543,7 +636,15 @@ const ActivityDetailScreen = () => {
                             <MetricItem
                                 icon={Mountain}
                                 label="Elevation Gain"
-                                value={activity.elevationGain || 0}
+                                value={activity.elevationGain || (() => {
+                                    if (!details || details.length < 2) return 0;
+                                    let gain = 0;
+                                    for (let i = 1; i < details.length; i++) {
+                                        const diff = (details[i].altitude || 0) - (details[i - 1].altitude || 0);
+                                        if (diff > 0) gain += diff;
+                                    }
+                                    return Math.round(gain);
+                                })()}
                                 unit="m"
                                 color="#CC00FF"
                             />
@@ -946,38 +1047,7 @@ const ActivityDetailScreen = () => {
                             </View>
 
 
-                            {/* Running Dynamics Grid (New) */}
-                            {details.some(d => d.power) && (
-                                <View style={styles.chartCard}>
-                                    <Text style={styles.chartTitle}>Running Dynamics</Text>
-                                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 10 }}>
 
-                                        {/* Power */}
-                                        <View style={styles.dynamicsItem}>
-                                            <Text style={styles.dynamicsLabel}>AVG POWER</Text>
-                                            <Text style={[styles.dynamicsValue, { color: '#FFCC00' }]}>{Math.round(calcAvg('power'))} <Text style={{ fontSize: 14 }}>W</Text></Text>
-                                        </View>
-
-                                        {/* Cadence */}
-                                        <View style={styles.dynamicsItem}>
-                                            <Text style={styles.dynamicsLabel}>CADENCE</Text>
-                                            <Text style={[styles.dynamicsValue, { color: '#00FF99' }]}>{Math.round(calcAvg('cadence'))} <Text style={{ fontSize: 14 }}>spm</Text></Text>
-                                        </View>
-
-                                        {/* GCT */}
-                                        <View style={styles.dynamicsItem}>
-                                            <Text style={styles.dynamicsLabel}>GCT</Text>
-                                            <Text style={[styles.dynamicsValue, { color: '#CC00FF' }]}>{Math.round(avgGCT)} <Text style={{ fontSize: 14 }}>ms</Text></Text>
-                                        </View>
-
-                                        {/* Vertical Osc */}
-                                        <View style={styles.dynamicsItem}>
-                                            <Text style={styles.dynamicsLabel}>VERT OSC</Text>
-                                            <Text style={[styles.dynamicsValue, { color: '#00CCFF' }]}>{avgVertOsc.toFixed(1)} <Text style={{ fontSize: 14 }}>cm</Text></Text>
-                                        </View>
-                                    </View>
-                                </View>
-                            )}
 
                             {/* Power Chart (New) */}
                             {details.some(d => d.power) && (

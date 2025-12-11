@@ -16,6 +16,8 @@ logger = logging.getLogger(__name__)
 
 # Valid MOCK_MODE location
 MOCK_MODE = True
+MOCK_BIOMETRICS = True # User requested to switch back to Mock mode
+
 
 router = APIRouter()
 
@@ -248,6 +250,108 @@ async def get_user_profile():
             "lthr": 170
         }
 
+@router.get("/sleep/{date_str}")
+async def get_sleep_by_date(date_str: str):
+    """
+    Belirli bir tarihteki uyku verisini çeker.
+    Format: YYYY-MM-DD
+    """
+    if MOCK_BIOMETRICS:
+        # Generate deterministic mock data based on date hash
+        import random
+        # Seed random with date string ASCII sum to get consistent results for same date
+        seed = sum(ord(c) for c in date_str)
+        random.seed(seed)
+        
+        # Randomize Sleep Time (6h - 9h range)
+        sleep_time = random.randint(21600, 32400) 
+        
+        # Calculate stages roughly
+        deep = int(sleep_time * random.uniform(0.15, 0.25))
+        rem = int(sleep_time * random.uniform(0.20, 0.30))
+        awake = random.randint(300, 1800)
+        light = sleep_time - deep - rem - awake
+        
+        score = random.randint(45, 98)
+        
+        return {
+            "dailySleepDTO": {
+                "id": seed * 100,
+                "userProfileId": 12345,
+                "calendarDate": date_str,
+                "sleepTimeSeconds": sleep_time,
+                "napTimeSeconds": 0,
+                "sleepScores": {
+                    "overall": {
+                        "value": score,
+                        "qualifierKey": "EXCELLENT" if score > 90 else "GOOD" if score > 80 else "FAIR" if score > 60 else "POOR"
+                    }
+                },
+                "deepSleepSeconds": deep, 
+                "lightSleepSeconds": light, 
+                "remSleepSeconds": rem, 
+                "awakeSleepSeconds": awake, 
+                "unmeasurableSleepSeconds": 0
+            }
+        }
+
+    try:
+        client = get_garmin_client()
+        # Garmin API expects YYYY-MM-DD
+        sleep_data = client.get_sleep_data(date_str)
+        return sleep_data
+    except Exception as e:
+        logger.error(f"Uyku Verisi Çekme Hatası ({date_str}): {e}")
+        return {}
+
+@router.get("/hrv/{date_str}")
+async def get_hrv_by_date(date_str: str):
+    """
+    Belirli bir tarihteki HRV (gece) verisini çeker.
+    """
+    if MOCK_BIOMETRICS:
+        import random
+        seed = sum(ord(c) for c in date_str) + 50 # Diff seed from sleep
+        random.seed(seed)
+        hrv_val = random.randint(35, 85)
+        status = "Balanced" if hrv_val > 50 else "Unbalanced" if hrv_val > 40 else "Low"
+        return {
+            "hrvSummary": {
+                "weeklyAvg": hrv_val,
+                "lastNightAvg": hrv_val,
+                "status": status
+            }
+        }
+
+    try:
+        client = get_garmin_client()
+        logger.info(f"Fetching HRV for {date_str}...")
+        
+        # DEBUG: Log available methods
+        # with open("debug_backend.log", "a") as f:
+        #    f.write(f"Methods: {dir(client)}\n")
+
+        try:
+             # Try main method
+             hrv_data = client.get_hrv_data(date_str)
+             logger.info(f"HRV Data keys: {hrv_data.keys() if hrv_data else 'None'}")
+             return hrv_data
+        except AttributeError:
+             logger.warning("get_hrv_data not found in client.")
+             # Fallback
+             try:
+                stats = client.get_user_summary(date_str)
+                logger.info("Fetched user summary as fallback.")
+                # Map summary to expected structure if possible
+                return stats
+             except Exception as e2:
+                 logger.error(f"Fallback summary failed: {e2}")
+                 raise e2
+
+    except Exception as e:
+        logger.error(f"HRV Çekme Hatası ({date_str}): {e}")
+        return {}
+
 @router.get("/activities")
 async def get_recent_activities(limit: int = 50):
     if MOCK_MODE:
@@ -306,6 +410,25 @@ async def get_activity_details(activity_id: str):
             with open(mock_file, "r") as f:
                 print(f"Serving MOCK activity details from {mock_file}")
                 mock_data = json.load(f)
+                
+                # --- MOCK ELEVATION INJECTION ---
+                # User complaint: "Elevation gain wrong/0". Mock data is too flat.
+                # Inject distinct hills to verify calculation.
+                import math
+                base_alt = 10.0
+                for i, record in enumerate(mock_data):
+                    if isinstance(record, dict):
+                        # Create 3 hills over the activity duration (approx sine wave)
+                        # Use index as proxy for time/dist
+                        hill_factor = math.sin(i / len(mock_data) * 3 * math.pi) 
+                        # Amplitude 30m, shifted up so min is roughly 0 relative to base
+                        # hill_factor goes -1 to 1. (hill_factor + 1) goes 0 to 2. * 15 = 0 to 30.
+                        altitude_offset = (hill_factor + 1) * 15 
+                        
+                        # Add some random noise
+                        noise = (i % 5) * 0.2
+                        
+                        record['altitude'] = base_alt + altitude_offset + noise
                 
                 # --- WEATHER FOR MOCK DATA ---
                 # Scan for first valid GPS point
