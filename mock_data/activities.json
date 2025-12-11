@@ -9,7 +9,10 @@
         "averageHeartRate": 153.0,
         "calories": 664.0,
         "elevationGain": null,
-        "avgSpeed": 2.726999998092651
+        "avgSpeed": 2.726999998092651,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 21191147529,
@@ -21,7 +24,10 @@
         "averageHeartRate": 139.0,
         "calories": 981.0,
         "elevationGain": null,
-        "avgSpeed": 2.48799991607666
+        "avgSpeed": 2.48799991607666,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 21168464433,
@@ -33,7 +39,10 @@
         "averageHeartRate": 157.0,
         "calories": 682.0,
         "elevationGain": null,
-        "avgSpeed": 2.681999921798706
+        "avgSpeed": 2.681999921798706,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 21159728483,
@@ -45,7 +54,10 @@
         "averageHeartRate": 165.0,
         "calories": 983.0,
         "elevationGain": null,
-        "avgSpeed": 3.01200008392334
+        "avgSpeed": 3.01200008392334,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 21149961122,
@@ -57,7 +69,10 @@
         "averageHeartRate": 154.0,
         "calories": 669.0,
         "elevationGain": null,
-        "avgSpeed": 2.6760001182556152
+        "avgSpeed": 2.6760001182556152,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 21127956904,
@@ -69,7 +84,10 @@
         "averageHeartRate": 158.0,
         "calories": 1001.0,
         "elevationGain": null,
-        "avgSpeed": 2.859999895095825
+        "avgSpeed": 2.859999895095825,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 21119090141,
@@ -81,7 +99,10 @@
         "averageHeartRate": 150.0,
         "calories": 994.0,
         "elevationGain": null,
-        "avgSpeed": 2.617000102996826
+        "avgSpeed": 2.617000102996826,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 21106315226,
@@ -93,7 +114,10 @@
         "averageHeartRate": 160.0,
         "calories": 687.0,
         "elevationGain": null,
-        "avgSpeed": 2.7809998989105225
+        "avgSpeed": 2.7809998989105225,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 21087835001,
@@ -105,7 +129,10 @@
         "averageHeartRate": 154.0,
         "calories": 679.0,
         "elevationGain": null,
-        "avgSpeed": 2.687000036239624
+        "avgSpeed": 2.687000036239624,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 21065760218,
@@ -117,7 +144,10 @@
         "averageHeartRate": 141.0,
         "calories": 980.0,
         "elevationGain": null,
-        "avgSpeed": 2.509000062942505
+        "avgSpeed": 2.509000062942505,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 21056772673,
@@ -129,7 +159,10 @@
         "averageHeartRate": 161.0,
         "calories": 1388.0,
         "elevationGain": null,
-        "avgSpeed": 2.8710000514984126
+        "avgSpeed": 2.8710000514984126,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 21043843298,
@@ -141,7 +174,10 @@
         "averageHeartRate": 167.0,
         "calories": 537.0,
         "elevationGain": null,
-        "avgSpeed": 2.8540000915527344
+        "avgSpeed": 2.8540000915527344,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 21024665287,
@@ -153,7 +189,10 @@
         "averageHeartRate": 153.0,
         "calories": 670.0,
         "elevationGain": null,
-        "avgSpeed": 2.7880001068115234
+        "avgSpeed": 2.7880001068115234,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 21001742034,
@@ -165,7 +204,10 @@
         "averageHeartRate": 144.0,
         "calories": 916.0,
         "elevationGain": null,
-        "avgSpeed": 2.5950000286102295
+        "avgSpeed": 2.5950000286102295,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20992381742,
@@ -177,7 +219,10 @@
         "averageHeartRate": 155.0,
         "calories": 1350.0,
         "elevationGain": null,
-        "avgSpeed": 2.868000030517578
+        "avgSpeed": 2.868000030517578,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20978462209,
@@ -189,7 +234,10 @@
         "averageHeartRate": 144.0,
         "calories": 668.0,
         "elevationGain": null,
-        "avgSpeed": 2.8299999237060547
+        "avgSpeed": 2.8299999237060547,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20958956170,
@@ -201,7 +249,10 @@
         "averageHeartRate": 72.0,
         "calories": 0.0,
         "elevationGain": null,
-        "avgSpeed": 0.0
+        "avgSpeed": 0.0,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20958629027,
@@ -213,7 +264,10 @@
         "averageHeartRate": 148.0,
         "calories": 663.0,
         "elevationGain": null,
-        "avgSpeed": 2.6909999847412105
+        "avgSpeed": 2.6909999847412105,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20934702198,
@@ -225,7 +279,10 @@
         "averageHeartRate": 153.0,
         "calories": 1178.0,
         "elevationGain": null,
-        "avgSpeed": 2.6040000915527344
+        "avgSpeed": 2.6040000915527344,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20924835117,
@@ -237,7 +294,10 @@
         "averageHeartRate": 145.0,
         "calories": 819.0,
         "elevationGain": null,
-        "avgSpeed": 2.555999994277954
+        "avgSpeed": 2.555999994277954,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20910837265,
@@ -249,7 +309,10 @@
         "averageHeartRate": 153.0,
         "calories": 637.0,
         "elevationGain": null,
-        "avgSpeed": 2.6040000915527344
+        "avgSpeed": 2.6040000915527344,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20865952613,
@@ -261,7 +324,10 @@
         "averageHeartRate": 166.0,
         "calories": 1085.0,
         "elevationGain": null,
-        "avgSpeed": 2.874000072479248
+        "avgSpeed": 2.874000072479248,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20855528404,
@@ -273,7 +339,10 @@
         "averageHeartRate": 164.0,
         "calories": 811.0,
         "elevationGain": null,
-        "avgSpeed": 2.802999973297119
+        "avgSpeed": 2.802999973297119,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20842288377,
@@ -285,7 +354,10 @@
         "averageHeartRate": 167.0,
         "calories": 720.0,
         "elevationGain": null,
-        "avgSpeed": 2.924999952316284
+        "avgSpeed": 2.924999952316284,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20817632111,
@@ -297,7 +369,10 @@
         "averageHeartRate": 146.0,
         "calories": 654.0,
         "elevationGain": null,
-        "avgSpeed": 2.865999937057495
+        "avgSpeed": 2.865999937057495,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20799415842,
@@ -309,7 +384,10 @@
         "averageHeartRate": 149.0,
         "calories": 773.0,
         "elevationGain": null,
-        "avgSpeed": 2.4779999256134033
+        "avgSpeed": 2.4779999256134033,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20775578892,
@@ -321,7 +399,10 @@
         "averageHeartRate": 164.0,
         "calories": 697.0,
         "elevationGain": null,
-        "avgSpeed": 2.8259999752044678
+        "avgSpeed": 2.8259999752044678,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20756519231,
@@ -333,7 +414,10 @@
         "averageHeartRate": 153.0,
         "calories": 339.0,
         "elevationGain": null,
-        "avgSpeed": 2.720000028610229
+        "avgSpeed": 2.720000028610229,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20726132804,
@@ -345,7 +429,10 @@
         "averageHeartRate": 173.0,
         "calories": 3116.0,
         "elevationGain": null,
-        "avgSpeed": 2.2239999771118164
+        "avgSpeed": 2.2239999771118164,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20719218362,
@@ -357,7 +444,10 @@
         "averageHeartRate": 153.0,
         "calories": 320.0,
         "elevationGain": null,
-        "avgSpeed": 2.38100004196167
+        "avgSpeed": 2.38100004196167,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20692974238,
@@ -369,7 +459,10 @@
         "averageHeartRate": 148.0,
         "calories": 325.0,
         "elevationGain": null,
-        "avgSpeed": 2.609999895095825
+        "avgSpeed": 2.609999895095825,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20682450662,
@@ -381,7 +474,10 @@
         "averageHeartRate": 155.0,
         "calories": 496.0,
         "elevationGain": null,
-        "avgSpeed": 2.5690000057220455
+        "avgSpeed": 2.5690000057220455,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20662896752,
@@ -393,7 +489,10 @@
         "averageHeartRate": 161.0,
         "calories": 1211.0,
         "elevationGain": null,
-        "avgSpeed": 2.9159998893737793
+        "avgSpeed": 2.9159998893737793,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20652519575,
@@ -405,7 +504,10 @@
         "averageHeartRate": 153.0,
         "calories": 1257.0,
         "elevationGain": null,
-        "avgSpeed": 2.696000099182129
+        "avgSpeed": 2.696000099182129,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20634538824,
@@ -417,7 +519,10 @@
         "averageHeartRate": 153.0,
         "calories": 766.0,
         "elevationGain": null,
-        "avgSpeed": 2.9719998836517334
+        "avgSpeed": 2.9719998836517334,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20618257294,
@@ -429,7 +534,10 @@
         "averageHeartRate": 139.0,
         "calories": 561.0,
         "elevationGain": null,
-        "avgSpeed": 2.371000051498413
+        "avgSpeed": 2.371000051498413,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20592281082,
@@ -441,7 +549,10 @@
         "averageHeartRate": 144.0,
         "calories": 883.0,
         "elevationGain": null,
-        "avgSpeed": 2.438999891281128
+        "avgSpeed": 2.438999891281128,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20583469977,
@@ -453,7 +564,10 @@
         "averageHeartRate": 167.0,
         "calories": 1610.0,
         "elevationGain": null,
-        "avgSpeed": 2.4769999980926514
+        "avgSpeed": 2.4769999980926514,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20573754612,
@@ -465,7 +579,10 @@
         "averageHeartRate": 161.0,
         "calories": 699.0,
         "elevationGain": null,
-        "avgSpeed": 2.9130001068115234
+        "avgSpeed": 2.9130001068115234,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20553405817,
@@ -477,7 +594,10 @@
         "averageHeartRate": 136.0,
         "calories": 601.0,
         "elevationGain": null,
-        "avgSpeed": 2.8510000705718994
+        "avgSpeed": 2.8510000705718994,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20547828045,
@@ -489,7 +609,10 @@
         "averageHeartRate": 131.0,
         "calories": 451.0,
         "elevationGain": null,
-        "avgSpeed": 2.8889999389648438
+        "avgSpeed": 2.8889999389648438,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20514652143,
@@ -501,7 +624,10 @@
         "averageHeartRate": 161.0,
         "calories": 1999.0,
         "elevationGain": null,
-        "avgSpeed": 1.656999945640564
+        "avgSpeed": 1.656999945640564,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20502758816,
@@ -513,7 +639,10 @@
         "averageHeartRate": 158.0,
         "calories": 340.0,
         "elevationGain": null,
-        "avgSpeed": 2.755000114440918
+        "avgSpeed": 2.755000114440918,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20482819405,
@@ -525,7 +654,10 @@
         "averageHeartRate": 154.0,
         "calories": 334.0,
         "elevationGain": null,
-        "avgSpeed": 2.907000064849853
+        "avgSpeed": 2.907000064849853,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20478494474,
@@ -537,7 +669,10 @@
         "averageHeartRate": 144.0,
         "calories": 441.0,
         "elevationGain": null,
-        "avgSpeed": 2.3980000019073486
+        "avgSpeed": 2.3980000019073486,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20467385217,
@@ -549,7 +684,10 @@
         "averageHeartRate": 117.0,
         "calories": 141.0,
         "elevationGain": null,
-        "avgSpeed": 4.284999847412109
+        "avgSpeed": 4.284999847412109,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20451764072,
@@ -561,7 +699,10 @@
         "averageHeartRate": 159.0,
         "calories": 994.0,
         "elevationGain": null,
-        "avgSpeed": 2.8269999027252193
+        "avgSpeed": 2.8269999027252193,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20441348926,
@@ -573,7 +714,10 @@
         "averageHeartRate": 162.0,
         "calories": 1110.0,
         "elevationGain": null,
-        "avgSpeed": 2.7490000724792476
+        "avgSpeed": 2.7490000724792476,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20421143872,
@@ -585,7 +729,10 @@
         "averageHeartRate": 160.0,
         "calories": 856.0,
         "elevationGain": null,
-        "avgSpeed": 2.7820000648498535
+        "avgSpeed": 2.7820000648498535,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     },
     {
         "activityId": 20405928136,
@@ -597,6 +744,9 @@
         "averageHeartRate": 153.0,
         "calories": 803.0,
         "elevationGain": null,
-        "avgSpeed": 2.640000104904175
+        "avgSpeed": 2.640000104904175,
+        "perceivedEffort": null,
+        "feeling": null,
+        "userEvaluation": {}
     }
 ]

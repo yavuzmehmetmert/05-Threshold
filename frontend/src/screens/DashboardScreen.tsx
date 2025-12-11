@@ -156,12 +156,31 @@ const ActivityItem = ({ activity, index, onPress }: any) => {
 
 export default function DashboardScreen() {
     const navigation = useNavigation<any>();
-    const {
-        readinessScore,
-        bodyBattery,
-        todayWorkout,
-        activities
-    } = useDashboardStore();
+    const { readinessScore, activities, setActivities } = useDashboardStore();
+    const [refreshing, setRefreshing] = React.useState(false);
+
+    useEffect(() => {
+        fetchActivities();
+    }, []);
+
+    const fetchActivities = async () => {
+        try {
+            setRefreshing(true);
+            const response = await fetch('http://localhost:8000/ingestion/activities?limit=10');
+            const data = await response.json();
+            if (Array.isArray(data)) {
+                setActivities(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch activities:', error);
+        } finally {
+            setRefreshing(false);
+        }
+    };
+
+    // Assuming bodyBattery and todayWorkout are still available from the store or other means if needed
+    // For this change, they are removed from the direct destructuring as per instruction.
+    const { bodyBattery, todayWorkout } = useDashboardStore(); // Re-add if they are used later and not meant to be removed
 
     return (
         <Theme name="dark">

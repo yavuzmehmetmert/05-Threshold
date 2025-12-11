@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions, TextInput } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { Activity, ArrowUp, Battery, Brain, Calendar, ChevronLeft, Clock, Droplets, Flame, Footprints, Gauge, Heart, MapPin, Moon, Mountain, Move, Shield, Share2, Thermometer, Timer, TrendingUp, Wind, Zap } from 'lucide-react-native';
+import { Activity, ArrowUp, Battery, Brain, Calendar, ChevronLeft, Clock, Droplets, Flame, Footprints, Gauge, Heart, MapPin, Moon, Mountain, Move, Shield, Share2, Thermometer, Timer, TrendingUp, Wind, Zap, Edit2, Save, X } from 'lucide-react-native';
 import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryArea, VictoryScatter, VictoryBar, VictoryVoronoiContainer, VictoryTooltip, VictoryLabel, VictoryCursorContainer } from 'victory-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withRepeat, withTiming, interpolateColor, FadeInDown } from 'react-native-reanimated';
 import { Defs, LinearGradient, Stop } from 'react-native-svg';
@@ -145,6 +145,163 @@ const AIInsightCard = ({ type, data }: { type: 'HIIT' | 'ENDURANCE' | 'RECOVERY'
                     </View>
                 </View>
             </View>
+        </View>
+    );
+};
+
+// --------------------------------------------------------------------------------
+// ACTIVITY CONTEXT CARD (Editable Metadata)
+// --------------------------------------------------------------------------------
+const ActivityContextCard = ({ activity, activityId }: { activity: any, activityId: any }) => {
+    const [metadata, setMetadata] = useState<any>({ shoe: '', type: 'Training', rpe: null });
+    const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    // Initial State
+    const [tempShoe, setTempShoe] = useState('');
+    const [tempType, setTempType] = useState('');
+    const [showTypeModal, setShowTypeModal] = useState(false);
+
+    const WORKOUT_TYPES = ['Recovery', 'Base', 'Tempo', 'Threshold', 'VO2 Max', 'Race', 'Long Run'];
+
+    useEffect(() => {
+        fetchMetadata();
+    }, []);
+
+    const fetchMetadata = async () => {
+        try {
+            const response = await fetch(`http://localhost:8000/ingestion/activity/${activityId}/metadata`);
+            const json = await response.json();
+
+            // Merge with Garmin data if local is empty
+            const rpe = json.rpe || activity.perceivedEffort || null;
+
+            setMetadata({
+                shoe: json.shoe || '',
+                type: json.type || 'Training',
+                rpe: rpe
+            });
+            setTempShoe(json.shoe || '');
+            setTempType(json.type || 'Training');
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const save = async () => {
+        try {
+            await fetch(`http://localhost:8000/ingestion/activity/${activityId}/metadata`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    shoe: tempShoe,
+                    type: tempType,
+                    // We don't edit RPE here yet, just context. RPE usually locked.
+                })
+            });
+            setMetadata(prev => ({ ...prev, shoe: tempShoe, type: tempType }));
+            setIsEditing(false);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    if (loading) return null;
+
+    return (
+        <View style={{ marginHorizontal: 16, marginTop: 16, backgroundColor: '#1A1A1A', borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#333' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Brain size={18} color="#CCFF00" />
+                    <Text style={{ color: '#fff', fontSize: 14, fontWeight: 'bold', marginLeft: 8 }}>SESSION CONTEXT</Text>
+                </View>
+                {!isEditing ? (
+                    <TouchableOpacity onPress={() => setIsEditing(true)}>
+                        <Edit2 size={16} color="#888" />
+                    </TouchableOpacity>
+                ) : (
+                    <View style={{ flexDirection: 'row', gap: 16 }}>
+                        <TouchableOpacity onPress={() => setIsEditing(false)}>
+                            <X size={18} color="#FF3333" />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={save}>
+                            <Save size={18} color="#33FF33" />
+                        </TouchableOpacity>
+                    </View>
+                )}
+            </View>
+
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+                {/* RPE Display */}
+                <View style={{ flex: 1, backgroundColor: '#111', borderRadius: 12, padding: 10, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ color: '#888', fontSize: 10, marginBottom: 4 }}>RPE (1-10)</Text>
+                    <Text style={{ color: (metadata.rpe || 0) > 7 ? '#FF3333' : '#CCFF00', fontSize: 24, fontWeight: 'bold' }}>
+                        {metadata.rpe ? metadata.rpe : '-'}
+                    </Text>
+                </View>
+
+                {/* Editable Fields */}
+                <View style={{ flex: 3, gap: 8 }}>
+                    {/* Shoe */}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#111', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8 }}>
+                        <Footprints size={14} color="#888" style={{ marginRight: 8 }} />
+                        {isEditing ? (
+                            <TextInput
+                                value={tempShoe}
+                                onChangeText={setTempShoe}
+                                placeholder="Enter Shoe Model..."
+                                placeholderTextColor="#444"
+                                style={{ color: '#fff', flex: 1, padding: 0, fontSize: 13 }}
+                            />
+                        ) : (
+                            <Text style={{ color: metadata.shoe ? '#fff' : '#444', fontSize: 13 }}>
+                                {metadata.shoe || 'No Gear Selected'}
+                            </Text>
+                        )}
+                    </View>
+
+                    {/* Type/Purpose */}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#111', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8 }}>
+                        <TrendingUp size={14} color="#888" style={{ marginRight: 8 }} />
+                        {isEditing ? (
+                            <TouchableOpacity onPress={() => setShowTypeModal(true)} style={{ flex: 1 }}>
+                                <Text style={{ color: tempType ? '#fff' : '#444', fontSize: 13 }}>
+                                    {tempType || 'Select Type...'}
+                                </Text>
+                            </TouchableOpacity>
+                        ) : (
+                            <Text style={{ color: metadata.type ? '#3399FF' : '#444', fontSize: 13, fontWeight: '600' }}>
+                                {metadata.type || 'General Training'}
+                            </Text>
+                        )}
+                    </View>
+                </View>
+            </View>
+
+            {/* Type Selector Modal (Simple Overlay) */}
+            {showTypeModal && (
+                <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.9)', borderRadius: 16, padding: 16, zIndex: 99, justifyContent: 'center' }]}>
+                    <View style={{ backgroundColor: '#222', borderRadius: 12, padding: 8, borderWidth: 1, borderColor: '#444' }}>
+                        <Text style={{ color: '#888', fontSize: 12, marginBottom: 8, textAlign: 'center' }}>SELECT WORKOUT TYPE</Text>
+                        <ScrollView style={{ maxHeight: 200 }}>
+                            {WORKOUT_TYPES.map(type => (
+                                <TouchableOpacity
+                                    key={type}
+                                    style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#333', alignItems: 'center' }}
+                                    onPress={() => { setTempType(type); setShowTypeModal(false); }}
+                                >
+                                    <Text style={{ color: tempType === type ? '#CCFF00' : '#fff', fontWeight: tempType === type ? 'bold' : 'normal' }}>{type}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                        <TouchableOpacity style={{ marginTop: 8, padding: 8, alignItems: 'center' }} onPress={() => setShowTypeModal(false)}>
+                            <Text style={{ color: '#FF3333' }}>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
         </View>
     );
 };
@@ -581,6 +738,12 @@ const ActivityDetailScreen = () => {
                         <AIInsightCard type={activityType} data={{ drift: cardiacDrift }} />
                     </Animated.View>
                 )}
+
+                {/* --- ACTIVITY CONTEXT & METADATA (EDITABLE) --- */}
+                <ActivityContextCard
+                    activity={activity}
+                    activityId={activity.activityId}
+                />
 
                 {/* --- ANALYTICS CONTENT --- */}
                 <View style={styles.analyticsContainer}>

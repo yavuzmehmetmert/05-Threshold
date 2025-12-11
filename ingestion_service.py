@@ -5,6 +5,8 @@ import os
 import tempfile
 import logging
 import json
+import random
+import math
 from datetime import date, datetime
 import requests
 from auth_service import get_garmin_client
@@ -358,9 +360,34 @@ async def get_recent_activities(limit: int = 50):
         try:
             with open("mock_data/activities.json", "r") as f:
                 print("Serving MOCK activities")
-                return json.load(f)
+                data = json.load(f)
+                
+                # Fallback: Calculate RPE if missing in real data
+                for i, act in enumerate(data):
+                    # Check if RPE is missing or explicitly None
+                    current_rpe = act.get('userEvaluation', {}).get('perceivedEffort')
+                    
+                    if current_rpe is None and 'averageHeartRate' in act:
+                        # Fallback Calculation
+                        hr = act['averageHeartRate']
+                        calc_rpe = 3 if hr < 140 else 5 if hr < 155 else 8
+                        # Add randomness
+                        calc_rpe += random.randint(-1, 1)
+                        final_rpe = max(1, min(10, calc_rpe))
+                        
+                        if not act.get('userEvaluation'):
+                            act['userEvaluation'] = {}
+                        act['userEvaluation']['perceivedEffort'] = final_rpe
+                        act['userEvaluation']['feeling'] = random.randint(1, 5)
+
+                    # Ensure top-level flattening for frontend
+                    act['perceivedEffort'] = act.get('userEvaluation', {}).get('perceivedEffort')
+                    act['feeling'] = act.get('userEvaluation', {}).get('feeling')
+
+                print(f"Sample RPE (Post-Fix): {data[0].get('perceivedEffort')}")
+                return data
         except Exception as e:
-            print(f"Mock activities missing: {e}")
+            print(f"Mock activities missing or error: {e}")
 
     """
     Son aktiviteleri çeker.
@@ -381,7 +408,10 @@ async def get_recent_activities(limit: int = 50):
                 "averageHeartRate": act.get('averageHR'),
                 "calories": act.get('calories'),
                 "elevationGain": act.get('totalElevationGain'),
-                "avgSpeed": act.get('averageSpeed')
+                "avgSpeed": act.get('averageSpeed'),
+                # RPE / Evaluation
+                "perceivedEffort": act.get('userEvaluation', {}).get('perceivedEffort', None) if act.get('userEvaluation') else None,
+                "feeling": act.get('userEvaluation', {}).get('feeling', None) if act.get('userEvaluation') else None,
             })
             
         return processed_activities
@@ -632,3 +662,40 @@ def fetch_weather_history(lat, lon, timestamp_str):
     except Exception as e:
         logger.error(f"Weather Fetch Error: {e}")
         return None
+
+# --- Metadata Persistence (Local JSON) ---
+METADATA_FILE = "activity_metadata.json"
+
+def load_metadata():
+    if os.path.exists(METADATA_FILE):
+        try:
+            with open(METADATA_FILE, "r") as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def save_metadata(data):
+    with open(METADATA_FILE, "w") as f:
+        json.dump(data, f, indent=2)
+
+@router.post("/activity/{activity_id}/metadata")
+async def update_activity_metadata(activity_id: str, metadata: dict):
+    """
+    Saves local metadata for an activity (Shoe, Workout Type, etc.)
+    Body example: { "shoe": "Nike Alphafly 3", "type": "Race", "rpe": 8 }
+    """
+    current_data = load_metadata()
+    if activity_id not in current_data:
+        current_data[activity_id] = {}
+    
+    # Merge updates
+    current_data[activity_id].update(metadata)
+    save_metadata(current_data)
+    
+    return {"status": "success", "metadata": current_data[activity_id]}
+
+@router.get("/activity/{activity_id}/metadata")
+async def get_activity_metadata(activity_id: str):
+    data = load_metadata()
+    return data.get(activity_id, {})
