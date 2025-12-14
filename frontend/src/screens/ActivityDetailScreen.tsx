@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions, TextInput } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Activity, ArrowUp, Battery, Brain, Calendar, ChevronLeft, Clock, Droplets, Flame, Footprints, Gauge, Heart, MapPin, Moon, Mountain, Move, Shield, Share2, Thermometer, Timer, TrendingUp, Wind, Zap, Edit2, Save, X } from 'lucide-react-native';
-import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryArea, VictoryScatter, VictoryBar, VictoryVoronoiContainer, VictoryTooltip, VictoryLabel, VictoryCursorContainer } from 'victory-native';
+import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryArea, VictoryScatter, VictoryBar, VictoryVoronoiContainer, VictoryTooltip, VictoryLabel, VictoryCursorContainer, VictoryContainer } from 'victory-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withRepeat, withTiming, interpolateColor, FadeInDown } from 'react-native-reanimated';
 import { Defs, LinearGradient, Stop } from 'react-native-svg';
 import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
@@ -21,6 +21,45 @@ const MetricItem = ({ icon: Icon, label, value, unit, color }: any) => (
             <Text style={styles.metricLabel}>{label}</Text>
             <Text style={styles.metricValue}>{value} <Text style={styles.metricUnit}>{unit}</Text></Text>
         </View>
+    </View>
+);
+
+// --------------------------------------------------------------------------------
+// WEATHER CARD
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+// UI COMPONENTS
+// --------------------------------------------------------------------------------
+const ViewToggle = ({ value, onChange, options }: { value: string, onChange: (v: any) => void, options: { label: string, value: string }[] }) => (
+    <View style={{ flexDirection: 'row', backgroundColor: '#111', borderRadius: 8, padding: 3, borderWidth: 1, borderColor: '#333' }}>
+        {options.map((opt) => {
+            const isActive = value === opt.value;
+            return (
+                <TouchableOpacity
+                    key={opt.value}
+                    onPress={() => onChange(opt.value)}
+                    style={{
+                        paddingHorizontal: 16, // Wider touch area
+                        paddingVertical: 6,
+                        backgroundColor: isActive ? '#333' : 'transparent',
+                        borderRadius: 6,
+                        borderWidth: isActive ? 1 : 0,
+                        borderColor: isActive ? '#555' : 'transparent',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
+                >
+                    <Text style={{
+                        color: isActive ? '#fff' : '#666',
+                        fontSize: 11,
+                        fontWeight: isActive ? '700' : '500',
+                        letterSpacing: 0.5
+                    }}>
+                        {opt.label}
+                    </Text>
+                </TouchableOpacity>
+            );
+        })}
     </View>
 );
 
@@ -245,18 +284,27 @@ const ActivityContextCard = ({ activity, activityId, nativeRpe }: { activity: an
             const shoeResponse = await fetch(`http://localhost:8000/ingestion/activity/${activityId}/shoe`);
             const shoeData = shoeResponse.ok ? await shoeResponse.json() : null;
 
-            // Use nativeRpe if available, otherwise fall back to metadata
-            const rpe = nativeRpe ?? json.rpe ?? activity.rpe ?? activity.perceivedEffort ?? null;
+            // Priority: Metadata DB > Native RPE > Activity Summary > Activity Prop
+            // If nativeRpe is explicitly provided (from API summary), it usually overrides, but if it's missing, use DB.
+            // RACE CONDITION FIX:
+            // Don't blindly overwrite RPE with null.
+            // Only update RPE from metadata fetch IF the DB actually has a saved RPE (json.rpe).
+            // Otherwise, respect the 'nativeRpe' prop which is being set by the parent.
 
-            setMetadata({
-                shoe: shoeData?.name || json.shoe || '',
+            const dbRpe = (json && json.rpe !== undefined && json.rpe !== null) ? json.rpe : undefined;
+
+            setMetadata((prev: any) => ({
+                ...prev,
+                shoe: shoeData?.name || (json && json.shoe) || '',
                 shoeId: shoeData?.id || null,
-                type: json.type || 'Training',
-                rpe: rpe
-            });
+                type: (json && json.type) || 'Training',
+                // Only overwrite RPE if we have a specific DB value.
+                ...(dbRpe !== undefined ? { rpe: dbRpe } : {})
+            }));
+
             setTempShoeId(shoeData?.id || null);
-            setTempShoeName(shoeData?.name || json.shoe || '');
-            setTempType(json.type || 'Training');
+            setTempShoeName(shoeData?.name || (json && json.shoe) || '');
+            setTempType((json && json.type) || 'Training');
         } catch (e) {
             console.error(e);
         } finally {
@@ -455,6 +503,24 @@ const ActivityDetailScreen = () => {
     const [loadContext, setLoadContext] = useState<any>(null); // Training load context
     const [stressData, setStressData] = useState<any>(null); // Daily stress
 
+    // View Modes
+    const [paceViewMode, setPaceViewMode] = useState<'CONTINUOUS' | 'LAPS'>('CONTINUOUS');
+    const [hrViewMode, setHrViewMode] = useState<'CONTINUOUS' | 'LAPS'>('CONTINUOUS');
+    const [powerViewMode, setPowerViewMode] = useState<'CONTINUOUS' | 'LAPS'>('CONTINUOUS');
+    const [cadenceViewMode, setCadenceViewMode] = useState<'CONTINUOUS' | 'LAPS'>('CONTINUOUS');
+    const [elevationViewMode, setElevationViewMode] = useState<'CONTINUOUS' | 'LAPS'>('CONTINUOUS');
+    const [tableViewMode, setTableViewMode] = useState<'SPLITS' | 'LAPS'>('LAPS');
+
+    // Memoize large datasets for performance
+    const cadenceData = useMemo(() => {
+        if (!details) return [];
+        // Garmin/FIT often reports cadence as "cycles per minute" (one foot), so ~90.
+        // Runners usually expect "steps per minute" (both feet), so ~180.
+        // User confirmed they see 90 but expect 180.
+        return details.map((d, i) => ({ x: i, y: Number(d.cadence || 0) * 2 }));
+    }, [details]);
+
+
     useEffect(() => {
         fetchActivityDetails();
         fetchSleepData();
@@ -526,6 +592,7 @@ const ActivityDetailScreen = () => {
             // Handle new API structure { data: [...], weather: {...}, geoPolylineDTO: [...], summary: {...} }
             if (!Array.isArray(json) && json.data) {
                 fitData = json.data;
+                console.log('API FETCH SUCCESS:', { pointCount: fitData.length, summary: json.summary });
                 if (json.weather) {
                     setWeather(json.weather);
                 }
@@ -534,6 +601,7 @@ const ActivityDetailScreen = () => {
                 }
                 // Extract RPE from summary (this is the Cloud/Native RPE)
                 if (json.summary && json.summary.rpe !== undefined) {
+                    // Force a small delay to ensure child is mounted if needed, though prop update is safe
                     setActivityRpe(json.summary.rpe);
                 }
                 if (json.geoPolylineDTO) {
@@ -548,6 +616,9 @@ const ActivityDetailScreen = () => {
                 // Fallback for old/mock response
                 fitData = json;
             }
+
+            setDetails(fitData);
+            setLoading(false); // Enable charts immediately
 
             if (fitData.length > 0) {
                 // Post-process: Ensure distance and coordinates exist
@@ -792,8 +863,23 @@ const ActivityDetailScreen = () => {
     const activityType = classifyActivity();
 
     // --- ADVANCED CALCS: Laps & Normalized Power ---
-    const calculateAdvancedMetrics = () => {
-        if (!details || details.length === 0) return { laps: [], np: 0, work: 0 };
+    interface Lap {
+        id: number;
+        distance: string;
+        total_distance?: number;
+        time: string;
+        pace: string;
+        hr: number;
+        power: number;
+        cadence: number;
+        gain: number;
+        loss: number;
+        avgSpeedKmh: number; // For Chart
+        durationSeconds: number; // For Chart Width
+    }
+
+    const calculateAdvancedMetrics = (): { nativeLapsData: Lap[]; kmSplitsData: Lap[]; np: number; work: number; smoothedPower: { x: number; y: number }[] } => {
+        if (!details || details.length === 0) return { nativeLapsData: [], kmSplitsData: [], np: 0, work: 0, smoothedPower: [] };
 
         // 1. Normalized Power (NP)
         // Rolling 30s avg, raised to 4th power
@@ -816,19 +902,10 @@ const ActivityDetailScreen = () => {
         const avgPwr = powers.reduce((a, b) => a + b, 0) / powers.length;
         const work = Math.round((avgPwr * activity.duration) / 1000);
 
-        // 2. Auto-Laps (Native from Garmin preferred, else calculated 1km Splits)
-        interface Lap {
-            id: number;
-            distance: string;
-            time: string;
-            pace: string;
-            hr: number;
-            power: number;
-            gain: number;
-            loss: number;
-        }
-        const laps: Lap[] = [];
+        const nativeLapsData: Lap[] = [];
+        const kmSplitsData: Lap[] = [];
 
+        // A. Native Laps (Manual)
         if (nativeLaps && nativeLaps.length > 0) {
             // Use Auhoritative Garmin Laps
             nativeLaps.forEach((nl, i) => {
@@ -846,96 +923,131 @@ const ActivityDetailScreen = () => {
                 const m = Math.floor(avgPaceSecKm / 60);
                 const s = Math.round(avgPaceSecKm % 60);
 
-                laps.push({
+                nativeLapsData.push({
                     id: i + 1,
-                    distance: distKm.toFixed(2),
+                    distance: nl.total_distance || 0, // Store in meters (number), not string km
+                    total_distance: nl.total_distance,
                     time: formatDuration(timeSec),
                     pace: avgPaceSecKm > 0 ? `${m}:${s < 10 ? '0' : ''}${s}` : '-',
                     hr: Math.round(nl.avg_heart_rate || 0),
                     power: Math.round(nl.avg_power || 0),
+                    cadence: Math.round(nl.avg_running_cadence || nl.avg_cadence || 0) * 2, // Fix cadence scale here too
                     gain: Math.round(nl.total_ascent || 0),
-                    loss: Math.round(nl.total_descent || 0)
+                    loss: Math.round(nl.total_descent || 0),
+                    avgSpeedKmh: nl.avg_speed ? nl.avg_speed * 3.6 : (avgPaceSecKm > 0 ? 3600 / avgPaceSecKm : 0),
+                    durationSeconds: timeSec
                 });
             });
-        } else {
-            // Fallback: Client-side Calculation
-            let lapStartIdx = 0;
-            let nextKm = 1000;
-            details.forEach((d, i) => {
-                if (d.distance >= nextKm || i === details.length - 1) {
-                    const chunk = details.slice(lapStartIdx, i + 1);
-                    if (chunk.length > 0) {
-                        const lapDist = chunk[chunk.length - 1].distance - (chunk[0].distance || 0);
-                        const duration = (new Date(chunk[chunk.length - 1].timestamp).getTime() - new Date(chunk[0].timestamp).getTime()) / 1000;
+        }
 
-                        let movingSeconds = 0;
-                        for (let k = 1; k < chunk.length; k++) {
-                            const t1 = new Date(chunk[k - 1].timestamp).getTime();
-                            const t2 = new Date(chunk[k].timestamp).getTime();
-                            const delta = (t2 - t1) / 1000;
-                            const s = chunk[k].speed || 0;
-                            if (s > 0.1 && delta > 0 && delta < 10) movingSeconds += delta;
-                            else if (s > 0.1) movingSeconds += 1;
-                        }
-                        if (movingSeconds < 10) movingSeconds = duration;
-                        const activeDuration = movingSeconds;
+        // B. Splots Logic (Always Calculate 1km Splits)
+        // Client-side Calculation for 1km splits
+        let lapStartIdx = 0;
+        let nextKm = 1000;
+        details.forEach((d, i) => {
+            if (d.distance >= nextKm || i === details.length - 1) {
+                const chunk = details.slice(lapStartIdx, i + 1);
+                if (chunk.length > 0) {
+                    const lapDist = chunk[chunk.length - 1].distance - (chunk[0].distance || 0);
+                    const duration = (new Date(chunk[chunk.length - 1].timestamp).getTime() - new Date(chunk[0].timestamp).getTime()) / 1000;
 
-                        // Elevation Math
-                        let lapGain = 0;
-                        let lapLoss = 0;
+                    let calculatedTimerTime = 0;
 
-                        const hasGrade = chunk.some(p => p.grade !== undefined && p.grade !== null);
-                        if (hasGrade) {
-                            for (let k = 1; k < chunk.length; k++) {
-                                const p1 = chunk[k - 1];
-                                const p2 = chunk[k];
-                                let distDelta = (p2.distance || 0) - (p1.distance || 0);
-                                if (distDelta < 0) distDelta = 0;
-                                if (distDelta > 100) distDelta = 0;
-                                const grade = p1.grade || 0;
-                                const dh = distDelta * (grade / 100);
-                                if (dh > 0) lapGain += dh;
-                                else lapLoss += Math.abs(dh);
-                            }
-                        } else {
-                            let lastValidElev = chunk[0].altitude || 0;
-                            for (let k = 1; k < chunk.length; k++) {
-                                const currAlt = chunk[k].altitude || lastValidElev;
-                                const diff = currAlt - lastValidElev;
-                                if (diff > 0.8) {
-                                    lapGain += diff;
-                                    lastValidElev = currAlt;
-                                } else if (diff < -0.8) {
-                                    lapLoss += Math.abs(diff);
-                                    lastValidElev = currAlt;
-                                }
-                            }
+                    // Fix for First Split: Add time from "Timer Start" to "First GPS Point"
+                    // We prioritize nativeLaps start time as it represents the true Timer Start event
+                    if (lapStartIdx === 0 && chunk.length > 0) {
+                        const firstPointTime = new Date(chunk[0].timestamp).getTime();
+
+                        let timerStartTime = new Date(activity.startTimeLocal).getTime();
+                        if (nativeLaps && nativeLaps.length > 0 && nativeLaps[0].startTime) {
+                            timerStartTime = new Date(nativeLaps[0].startTime).getTime();
                         }
 
-                        if (activeDuration > 0) {
-                            const avgPace = activeDuration / (lapDist / 1000);
-                            const lapAvgHr = Math.round(chunk.reduce((a, c) => a + (c.heart_rate || 0), 0) / chunk.length);
-                            const lapAvgPwr = Math.round(chunk.reduce((a, c) => a + (c.power || 0), 0) / chunk.length);
-                            const m = Math.floor(avgPace / 60);
-                            const s = Math.round(avgPace % 60);
+                        const startGap = (firstPointTime - timerStartTime) / 1000;
 
-                            laps.push({
-                                id: laps.length + 1,
-                                distance: (lapDist / 1000).toFixed(2),
-                                time: formatDuration(activeDuration),
-                                pace: `${m}:${s < 10 ? '0' : ''}${s}`,
-                                hr: lapAvgHr,
-                                power: lapAvgPwr,
-                                gain: Math.round(lapGain),
-                                loss: Math.round(lapLoss)
-                            });
+                        // Add gap if reasonable (positive and less than 60s)
+                        if (startGap > 0 && startGap < 60) {
+                            calculatedTimerTime += startGap;
                         }
                     }
-                    lapStartIdx = i;
-                    nextKm += 1000;
+
+                    for (let k = 1; k < chunk.length; k++) {
+                        const t1 = new Date(chunk[k - 1].timestamp).getTime();
+                        const t2 = new Date(chunk[k].timestamp).getTime();
+                        const delta = (t2 - t1) / 1000;
+
+                        // Treat gaps < 30 seconds as "active timer" (including stops/slow gps)
+                        // This matches Garmin's "Timer Time" behavior which includes stops unless paused
+                        // It effectively filters out only LONG pauses (auto-pauses or manual stops)
+                        if (delta < 30) {
+                            calculatedTimerTime += delta;
+                        }
+                    }
+
+                    // Fallback to duration if something is off, but trust calculatedTimerTime primarily
+                    const activeDuration = calculatedTimerTime > 0 ? calculatedTimerTime : duration;
+
+                    // Elevation Math (Define here so it's accessible)
+                    let lapGain = 0;
+                    let lapLoss = 0;
+
+                    const hasGrade = chunk.some(p => p.grade !== undefined && p.grade !== null);
+                    if (hasGrade) {
+                        for (let k = 1; k < chunk.length; k++) {
+                            const p1 = chunk[k - 1];
+                            const p2 = chunk[k];
+                            let distDelta = (p2.distance || 0) - (p1.distance || 0);
+                            if (distDelta < 0) distDelta = 0;
+                            if (distDelta > 100) distDelta = 0;
+                            const grade = p1.grade || 0;
+                            const dh = distDelta * (grade / 100);
+                            if (dh > 0) lapGain += dh;
+                            else lapLoss += Math.abs(dh);
+                        }
+                    } else {
+                        let lastValidElev = chunk[0].altitude || 0;
+                        for (let k = 1; k < chunk.length; k++) {
+                            const currAlt = chunk[k].altitude || lastValidElev;
+                            const diff = currAlt - lastValidElev;
+                            if (diff > 0.8) {
+                                lapGain += diff;
+                                lastValidElev = currAlt;
+                            } else if (diff < -0.8) {
+                                lapLoss += Math.abs(diff);
+                                lastValidElev = currAlt;
+                            }
+                        }
+                    }
+
+                    if (activeDuration > 0) {
+                        const avgPace = activeDuration / (lapDist / 1000);
+                        const lapAvgHr = Math.round(chunk.reduce((a, c) => a + (c.heart_rate || 0), 0) / chunk.length);
+                        const lapAvgPwr = Math.round(chunk.reduce((a, c) => a + (c.power || 0), 0) / chunk.length);
+                        const m = Math.floor(avgPace / 60);
+                        const s = Math.round(avgPace % 60);
+
+                        const avgSpeedKmh = avgPace > 0 ? 3600 / avgPace : 0;
+                        const lapAvgCadence = Math.round(chunk.reduce((a, c) => a + (c.cadence || 0), 0) / chunk.length);
+
+                        kmSplitsData.push({
+                            id: kmSplitsData.length + 1,
+                            distance: (lapDist / 1000).toFixed(2),
+                            time: formatDuration(activeDuration),
+                            pace: `${m}:${s < 10 ? '0' : ''}${s}`,
+                            hr: lapAvgHr,
+                            power: lapAvgPwr,
+                            cadence: lapAvgCadence,
+                            gain: Math.round(lapGain),
+                            loss: Math.round(lapLoss),
+                            avgSpeedKmh: avgSpeedKmh,
+                            durationSeconds: activeDuration
+                        });
+                    }
                 }
-            });
-        }
+                lapStartIdx = i;
+                nextKm += 1000;
+            }
+        });
 
         // 3. Smoothed Power for Chart (10s Avg)
         const smoothedPower: { x: number; y: number }[] = [];
@@ -946,15 +1058,24 @@ const ActivityDetailScreen = () => {
             smoothedPower.push({ x: i, y: avg });
         }
 
-        return { laps, np, work, smoothedPower };
+        return { nativeLapsData, kmSplitsData, np, work, smoothedPower };
     };
 
-    const { laps, np, work, smoothedPower } = calculateAdvancedMetrics();
+    const { nativeLapsData, kmSplitsData, np, work, smoothedPower } = calculateAdvancedMetrics();
+
+    // Select data based on view mode
+    const paceLapsData = paceViewMode === 'LAPS' ? (nativeLapsData.length > 0 ? nativeLapsData : kmSplitsData) : [];
+    const powerLapsData = powerViewMode === 'LAPS' ? (nativeLapsData.length > 0 ? nativeLapsData : kmSplitsData) : [];
+    const cadenceLapsData = cadenceViewMode === 'LAPS' ? (nativeLapsData.length > 0 ? nativeLapsData : kmSplitsData) : [];
+
+    // Table Data
+    const activeTableData = tableViewMode === 'LAPS' ? (nativeLapsData.length > 0 ? nativeLapsData : []) : kmSplitsData;
 
 
     return (
         <ErrorBoundary>
             <ScrollView contentContainerStyle={styles.container}>
+
                 <View style={styles.header}>
                     <View style={styles.headerContent}>
                         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -1268,24 +1389,45 @@ const ActivityDetailScreen = () => {
                         </View>
                     </View>
 
-                    {/* Laps Table */}
-                    {laps.length > 0 && (
+                    {/* Laps / Splits Table */}
+                    {activeTableData.length > 0 && (
                         <View style={[styles.section, { marginTop: 24 }]}>
-                            <Text style={[styles.sectionTitle, { marginBottom: 16 }]}>Splits (1km)</Text>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                                <Text style={styles.sectionTitle}>{tableViewMode === 'SPLITS' ? 'Splits (1km)' : 'Laps (Manual)'}</Text>
+                                {nativeLapsData.length > 0 && (
+                                    <ViewToggle
+                                        value={tableViewMode}
+                                        onChange={setTableViewMode}
+                                        options={[
+                                            { label: 'Splits', value: 'SPLITS' },
+                                            { label: 'Laps', value: 'LAPS' }
+                                        ]}
+                                    />
+                                )}
+                            </View>
                             <View style={{ backgroundColor: '#1A1A1A', borderRadius: 12, padding: 16, overflow: 'hidden' }}>
                                 {/* Header */}
                                 <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#333', paddingBottom: 12, marginBottom: 8 }}>
-                                    <Text style={{ width: 40, color: '#888', fontSize: 13, fontWeight: '600' }}>Lap</Text>
+                                    <Text style={{ width: 40, color: '#888', fontSize: 13, fontWeight: '600' }}>{tableViewMode === 'SPLITS' ? '#' : 'Lap'}</Text>
+
+                                    {/* Additional Columns for Laps View */}
+                                    {tableViewMode === 'LAPS' && (
+                                        <>
+                                            <Text style={{ width: 45, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>Dist</Text>
+                                            <Text style={{ width: 50, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>Time</Text>
+                                        </>
+                                    )}
+
                                     <Text style={{ flex: 1, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>Pace</Text>
                                     <Text style={{ width: 50, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>HR</Text>
                                     <Text style={{ width: 70, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>Elev (+/-)</Text>
                                     <Text style={{ width: 50, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'right' }}>Pwr</Text>
                                 </View>
-                                {laps.map((lap, i) => (
+                                {activeTableData.map((lap: Lap, i: number) => (
                                     <View key={i} style={{
                                         flexDirection: 'row',
                                         paddingVertical: 12,
-                                        borderBottomWidth: i === laps.length - 1 ? 0 : 1,
+                                        borderBottomWidth: i === activeTableData.length - 1 ? 0 : 1,
                                         borderBottomColor: '#2A2A2A',
                                         alignItems: 'center'
                                     }}>
@@ -1294,6 +1436,28 @@ const ActivityDetailScreen = () => {
                                                 <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>{lap.id}</Text>
                                             </View>
                                         </View>
+
+                                        {/* Lap-Specific Data Columns */}
+                                        {tableViewMode === 'LAPS' && (
+                                            <>
+                                                {/* Distance (km) */}
+                                                <Text style={{ width: 45, color: '#ccc', fontSize: 13, fontWeight: '500', textAlign: 'center' }}>
+                                                    {(() => {
+                                                        const dist = lap.distance || lap.total_distance;
+                                                        return dist ? (Number(dist) / 1000).toFixed(1) + 'k' : '-';
+                                                    })()}
+                                                </Text>
+                                                {/* Duration (mm:ss) */}
+                                                <Text style={{ width: 50, color: '#ccc', fontSize: 13, fontWeight: '500', textAlign: 'center' }}>
+                                                    {(() => {
+                                                        if (!lap.durationSeconds) return '-';
+                                                        const m = Math.floor(lap.durationSeconds / 60);
+                                                        const s = Math.round(lap.durationSeconds % 60);
+                                                        return `${m}:${s < 10 ? '0' : ''}${s}`;
+                                                    })()}
+                                                </Text>
+                                            </>
+                                        )}
                                         <Text style={{ flex: 1, color: '#fff', fontSize: 16, fontWeight: 'bold', fontFamily: 'System', textAlign: 'center' }}>
                                             {lap.pace}
                                         </Text>
@@ -1314,24 +1478,6 @@ const ActivityDetailScreen = () => {
                         </View>
                     )}
 
-                    {/* Elevation Chart */}
-                    <View style={[styles.section, { marginBottom: 20 }]}>
-                        <Text style={styles.sectionTitle}>Elevation Profile</Text>
-                        <View style={styles.chartCard}>
-                            <VictoryChart
-                                width={width - 40}
-                                height={150}
-                                theme={VictoryTheme.material}
-                            >
-                                <VictoryArea
-                                    data={elevationData}
-                                    style={{ data: { fill: "#CC00FF", fillOpacity: 0.3, stroke: "#CC00FF", strokeWidth: 2 } }}
-                                    interpolation="natural"
-                                />
-                                <VictoryAxis style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#666", fontSize: 10 } }} />
-                            </VictoryChart>
-                        </View>
-                    </View>
 
                     {/* Cardiac Drift Visual Gauge */}
                     <View style={{ marginTop: 20, backgroundColor: '#111', padding: 16, borderRadius: 12 }}>
@@ -1512,32 +1658,60 @@ const ActivityDetailScreen = () => {
 
                                     return (
                                         <>
-                                            <Text style={[styles.chartTitle, { color: '#FF3333' }]}>Heart Rate</Text>
+                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, width: '100%' }}>
+                                                <Text style={[styles.chartTitle, { color: '#FF3333', marginBottom: 0 }]}>Heart Rate</Text>
+                                                <ViewToggle
+                                                    value={hrViewMode}
+                                                    onChange={setHrViewMode}
+                                                    options={[
+                                                        { label: 'Continuous', value: 'CONTINUOUS' },
+                                                        { label: 'Lap Avg', value: 'LAPS' }
+                                                    ]}
+                                                />
+                                            </View>
                                             <VictoryChart
                                                 width={width - 40}
                                                 height={220}
                                                 theme={VictoryTheme.material}
+                                                padding={{ top: 20, bottom: 40, left: 80, right: 20 }} // Increased left padding for Y-axis labels
                                                 domain={{ y: [minY, maxY] }} // Explicit domain for alignment
+                                                domainPadding={hrViewMode === 'LAPS' ? { x: 50 } : 0}
                                                 containerComponent={
-                                                    <VictoryCursorContainer
-                                                        cursorDimension="x"
-                                                        cursorLabel={({ datum }) => {
-                                                            if (!datum || !datum.x) return "";
-                                                            const mins = Math.floor(datum.x / 60);
-                                                            const secs = Math.floor(datum.x % 60);
-                                                            return `${Math.round(datum.y)} bpm\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-                                                        }}
-                                                        cursorLabelComponent={
-                                                            <VictoryLabel
-                                                                style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                                backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
-                                                                backgroundPadding={8}
-                                                            />
-                                                        }
-                                                        cursorComponent={
-                                                            <VictoryLine style={{ data: { stroke: "#CCFF00", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
-                                                        }
-                                                    />
+                                                    hrViewMode === 'CONTINUOUS' ? (
+                                                        <VictoryCursorContainer
+                                                            cursorDimension="x"
+                                                            cursorLabel={({ datum }) => {
+                                                                if (!datum || !datum.x) return "";
+                                                                const mins = Math.floor(datum.x / 60);
+                                                                const secs = Math.floor(datum.x % 60);
+                                                                return `${Math.round(datum.y)} bpm\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                                                            }}
+                                                            cursorLabelComponent={
+                                                                <VictoryLabel
+                                                                    style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                                    backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
+                                                                    backgroundPadding={8}
+                                                                />
+                                                            }
+                                                            cursorComponent={
+                                                                <VictoryLine style={{ data: { stroke: "#CCFF00", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        <VictoryVoronoiContainer
+                                                            voronoiDimension="x"
+                                                            labels={({ datum }) => `${Math.round(datum.y)} bpm`}
+                                                            labelComponent={
+                                                                <VictoryTooltip
+                                                                    constrainToVisibleArea
+                                                                    style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                                    flyoutStyle={{ fill: "#333", opacity: 0.9, stroke: "#666", strokeWidth: 1 }}
+                                                                    flyoutPadding={8}
+                                                                    renderInPortal={false}
+                                                                />
+                                                            }
+                                                        />
+                                                    )
                                                 }
                                             >
                                                 <Defs>
@@ -1583,8 +1757,8 @@ const ActivityDetailScreen = () => {
                                                     }}
                                                 />
 
-                                                {/* KM Markers (Thick Dashed Lines) - NEON HIGHLIGHT */}
-                                                {kmMarkers.map((marker, i) => (
+                                                {/* KM Markers (Thick Dashed Lines) - NEON HIGHLIGHT - Only in CONTINUOUS mode */}
+                                                {hrViewMode === 'CONTINUOUS' && kmMarkers.map((marker, i) => (
                                                     <VictoryLine
                                                         key={`km-${i}`}
                                                         data={[{ x: marker.x, y: minY }, { x: marker.x, y: maxY }]}
@@ -1596,24 +1770,77 @@ const ActivityDetailScreen = () => {
                                                 {/* Interaction is now handled by VictoryCursorContainer */}
 
                                                 {/* Main Heart Rate Line - Gradient */}
-                                                <VictoryLine
-                                                    data={hrData}
-                                                    interpolation="catmullRom"
-                                                    style={{
-                                                        data: {
-                                                            stroke: "url(#hrZoneGradient)",
-                                                            strokeWidth: 3
-                                                        }
-                                                    }}
-                                                />
+                                                {hrViewMode === 'CONTINUOUS' && (
+                                                    <VictoryLine
+                                                        data={hrData}
+                                                        interpolation="catmullRom"
+                                                        style={{
+                                                            data: {
+                                                                stroke: "url(#hrZoneGradient)",
+                                                                strokeWidth: 3
+                                                            }
+                                                        }}
+                                                    />
+                                                )}
 
-                                                <VictoryArea
-                                                    data={hrData}
-                                                    interpolation="catmullRom"
-                                                    style={{
-                                                        data: { fill: "url(#hrZoneGradient)", fillOpacity: 0.1, stroke: "none" }
-                                                    }}
-                                                />
+                                                {hrViewMode === 'CONTINUOUS' && (
+                                                    <VictoryArea
+                                                        data={hrData}
+                                                        interpolation="catmullRom"
+                                                        style={{
+                                                            data: { fill: "url(#hrZoneGradient)", fillOpacity: 0.1, stroke: "none" }
+                                                        }}
+                                                    />
+                                                )}
+
+                                                {hrViewMode === 'LAPS' && (() => {
+                                                    const activeLaps = nativeLapsData.length > 0 ? nativeLapsData : kmSplitsData;
+                                                    const totalTime = activeLaps.reduce((acc, l) => acc + l.durationSeconds, 0);
+                                                    // Account for padding (80 left, 20 right) AND domainPadding (50 on each side)
+                                                    const chartWidth = width - 40 - 80 - 20 - 100;
+                                                    let accumulatedTime = 0;
+
+                                                    const barData = activeLaps.map((lap, index) => {
+                                                        const start = accumulatedTime;
+                                                        const mid = start + (lap.durationSeconds / 2);
+                                                        accumulatedTime += lap.durationSeconds;
+
+                                                        // Calculate proportional width with min/max constraints
+                                                        const rawWidth = (lap.durationSeconds / totalTime) * chartWidth;
+                                                        const minWidth = 6;
+                                                        const maxWidth = chartWidth / 3;
+                                                        const barW = Math.max(minWidth, Math.min(maxWidth, rawWidth - 2));
+
+                                                        return {
+                                                            x: mid,
+                                                            y: lap.hr,
+                                                            barWidth: barW,
+                                                            // Smart label: only show if bar is wide enough
+                                                            label: barW > 35 ? Math.round(lap.hr).toString() : ""
+                                                        };
+                                                    });
+
+                                                    return (
+                                                        <VictoryBar
+                                                            data={barData}
+                                                            barWidth={({ datum }) => datum.barWidth}
+                                                            style={{
+                                                                data: {
+                                                                    fill: ({ datum }) => getZoneColor(datum.y)
+                                                                }
+                                                            }}
+                                                            labels={({ datum }) => datum.label}
+                                                            labelComponent={
+                                                                <VictoryLabel
+                                                                    style={{ fill: "#fff", fontSize: 10, fontWeight: 'bold' }}
+                                                                    dy={-10}
+                                                                    textAnchor="middle"
+                                                                />
+                                                            }
+                                                            cornerRadius={{ top: 4, bottom: 4 }}
+                                                        />
+                                                    );
+                                                })()}
 
 
                                                 <VictoryAxis
@@ -1636,30 +1863,59 @@ const ActivityDetailScreen = () => {
                             {/* Power Chart (New) */}
                             {details.some(d => d.power) && (
                                 <View style={styles.chartCard}>
-                                    <Text style={[styles.chartTitle, { color: '#FFCC00' }]}>Power (10s Smoothing)</Text>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, width: '100%' }}>
+                                        <Text style={[styles.chartTitle, { color: '#FFCC00', marginBottom: 0 }]}>Power</Text>
+                                        <ViewToggle
+                                            value={powerViewMode}
+                                            onChange={setPowerViewMode}
+                                            options={[
+                                                { label: 'Continuous', value: 'CONTINUOUS' },
+                                                { label: 'Lap', value: 'LAPS' }
+                                            ]}
+                                        />
+                                    </View>
+
                                     <VictoryChart
                                         width={width - 50}
                                         height={200}
                                         theme={VictoryTheme.material}
+                                        padding={{ top: 20, bottom: 40, left: 80, right: 20 }}
+                                        domainPadding={powerViewMode === 'LAPS' ? { x: 50 } : 0}
                                         containerComponent={
-                                            <VictoryCursorContainer
-                                                cursorDimension="x"
-                                                cursorLabel={({ datum }) => {
-                                                    if (!datum || !datum.x) return "";
-                                                    const mins = Math.floor(datum.x / 60);
-                                                    return `${Math.round(datum.y)} W\n@ ${mins}m`;
-                                                }}
-                                                cursorLabelComponent={
-                                                    <VictoryLabel
-                                                        style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                        backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
-                                                        backgroundPadding={8}
-                                                    />
-                                                }
-                                                cursorComponent={
-                                                    <VictoryLine style={{ data: { stroke: "#CCFF00", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
-                                                }
-                                            />
+                                            powerViewMode === 'CONTINUOUS' ? (
+                                                <VictoryCursorContainer
+                                                    cursorDimension="x"
+                                                    cursorLabel={({ datum }) => {
+                                                        if (!datum || !datum.x) return "";
+                                                        const mins = Math.floor(datum.x / 60);
+                                                        return `${Math.round(datum.y)} W\n@ ${mins}m`;
+                                                    }}
+                                                    cursorLabelComponent={
+                                                        <VictoryLabel
+                                                            style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                            backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
+                                                            backgroundPadding={8}
+                                                        />
+                                                    }
+                                                    cursorComponent={
+                                                        <VictoryLine style={{ data: { stroke: "#CCFF00", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
+                                                    }
+                                                />
+                                            ) : (
+                                                <VictoryVoronoiContainer
+                                                    voronoiDimension="x"
+                                                    labels={({ datum }) => `${Math.round(datum.y)} W`}
+                                                    labelComponent={
+                                                        <VictoryTooltip
+                                                            constrainToVisibleArea
+                                                            style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                            flyoutStyle={{ fill: "#333", opacity: 0.9, stroke: "#666", strokeWidth: 1 }}
+                                                            flyoutPadding={8}
+                                                            renderInPortal={false}
+                                                        />
+                                                    }
+                                                />
+                                            )
                                         }
                                     >
                                         <Defs>
@@ -1668,28 +1924,96 @@ const ActivityDetailScreen = () => {
                                                 <Stop offset="100%" stopColor="#FFFF00" stopOpacity={0.0} />
                                             </LinearGradient>
                                         </Defs>
-                                        <VictoryArea
-                                            data={smoothedPower}
-                                            style={{
-                                                data: { fill: "url(#powerGradient)", stroke: "#FFFF00", strokeWidth: 2 }
+                                        {powerViewMode === 'CONTINUOUS' ? (
+                                            <VictoryArea
+                                                data={smoothedPower}
+                                                style={{
+                                                    data: { fill: "url(#powerGradient)", stroke: "#FFFF00", strokeWidth: 2 }
+                                                }}
+                                                interpolation="monotoneX" // Smooth curves
+                                            />
+                                        ) : (
+                                            <VictoryBar
+                                                data={(() => {
+                                                    const totalTime = powerLapsData.reduce((acc, l) => acc + l.durationSeconds, 0);
+                                                    // Account for padding AND domainPadding (50 on each side)
+                                                    const chartWidth = width - 50 - 80 - 20 - 100;
+                                                    let accumulatedTime = 0;
+
+                                                    return powerLapsData.map((lap, index) => {
+                                                        const start = accumulatedTime;
+                                                        const mid = start + (lap.durationSeconds / 2);
+                                                        accumulatedTime += lap.durationSeconds;
+
+                                                        // Calculate proportional width with min/max constraints
+                                                        const rawWidth = (lap.durationSeconds / totalTime) * chartWidth;
+                                                        const minWidth = 6;
+                                                        const maxWidth = chartWidth / 3;
+                                                        const barW = Math.max(minWidth, Math.min(maxWidth, rawWidth - 2));
+
+                                                        return {
+                                                            x: mid,
+                                                            y: lap.power,
+                                                            barWidth: barW,
+                                                            label: barW > 35 ? Math.round(lap.power).toString() : ""
+                                                        };
+                                                    });
+                                                })()}
+                                                barWidth={({ datum }) => datum.barWidth}
+                                                style={{
+                                                    data: {
+                                                        fill: "#FFFF00",
+                                                        fillOpacity: 0.9
+                                                    }
+                                                }}
+                                                labels={({ datum }) => datum.label}
+                                                labelComponent={
+                                                    <VictoryLabel
+                                                        style={{ fill: "#fff", fontSize: 10, fontWeight: 'bold' }}
+                                                        dy={-10}
+                                                        textAnchor="middle"
+                                                    />
+                                                }
+                                                cornerRadius={{ top: 4 }}
+                                            />
+                                        )}
+                                        <VictoryAxis
+                                            tickCount={6}
+                                            tickFormat={(t) => {
+                                                const mins = Math.floor(t / 60);
+                                                return `${mins}m`;
                                             }}
-                                            interpolation="monotoneX" // Smooth curves
+                                            style={{ axis: { stroke: "#333" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#222" } }}
                                         />
-                                        <VictoryAxis tickCount={6} tickFormat={(t) => `${Math.floor(t / 60)}'`} style={{ axis: { stroke: "#333" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#222" } }} />
                                         <VictoryAxis dependentAxis tickCount={4} style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#333" } }} />
                                     </VictoryChart>
                                 </View>
                             )}
 
-                            {/* Cadence Chart (New) */}
-                            {details.some(d => d.cadence) && (
-                                <View style={styles.chartCard}>
-                                    <Text style={[styles.chartTitle, { color: '#00FF99' }]}>Cadence (spm)</Text>
-                                    <VictoryChart
-                                        width={width - 50}
-                                        height={200}
-                                        theme={VictoryTheme.material}
-                                        containerComponent={
+                            {/* Cadence Chart (New) - Forced Render for Debug */}
+                            <View style={styles.chartCard}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, width: '100%' }}>
+                                    <Text style={[styles.chartTitle, { color: '#00FF99', marginBottom: 0 }]}>Cadence</Text>
+                                    <ViewToggle
+                                        value={cadenceViewMode}
+                                        onChange={setCadenceViewMode}
+                                        options={[
+                                            { label: 'Continuous', value: 'CONTINUOUS' },
+                                            { label: 'Lap', value: 'LAPS' }
+                                        ]}
+                                    />
+                                </View>
+                                {(!details || !details.some(d => d.cadence)) && (
+                                    <Text style={{ color: 'orange', padding: 10 }}>Warning: No Cadence Data Detected in {details?.length} points</Text>
+                                )}
+                                <VictoryChart
+                                    width={width - 50}
+                                    height={200}
+                                    theme={VictoryTheme.material}
+                                    padding={{ top: 20, bottom: 40, left: 80, right: 20 }}
+                                    domainPadding={cadenceViewMode === 'LAPS' ? { x: 50 } : 0}
+                                    containerComponent={
+                                        cadenceViewMode === 'CONTINUOUS' ? (
                                             <VictoryCursorContainer
                                                 cursorDimension="x"
                                                 cursorLabel={({ datum }) => {
@@ -1708,59 +2032,145 @@ const ActivityDetailScreen = () => {
                                                     <VictoryLine style={{ data: { stroke: "#00FF99", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
                                                 }
                                             />
-                                        }
-                                    >
-                                        <Defs>
-                                            <LinearGradient id="cadenceGradient" x1="0" y1="0" x2="0" y2="1">
-                                                <Stop offset="0%" stopColor="#00FF99" stopOpacity={0.8} />
-                                                <Stop offset="100%" stopColor="#009966" stopOpacity={0.2} />
-                                            </LinearGradient>
-                                        </Defs>
+                                        ) : (
+                                            <VictoryVoronoiContainer
+                                                voronoiDimension="x"
+                                                labels={({ datum }) => `${Math.round(datum.y)} spm`}
+                                                labelComponent={
+                                                    <VictoryTooltip
+                                                        constrainToVisibleArea
+                                                        style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                        flyoutStyle={{ fill: "#333", opacity: 0.9, stroke: "#666", strokeWidth: 1 }}
+                                                        flyoutPadding={8}
+                                                        renderInPortal={false}
+                                                    />
+                                                }
+                                            />
+                                        )
+                                    }
+                                >
+                                    {cadenceViewMode === 'CONTINUOUS' ? (
                                         <VictoryLine
-                                            data={details.map((d, i) => ({ x: i, y: (d.cadence || 0) * 2 }))}
+                                            data={cadenceData}
                                             style={{
                                                 data: { stroke: "#00FF99", strokeWidth: 2 }
                                             }}
                                         />
-                                        <VictoryArea
-                                            data={details.map((d, i) => ({ x: i, y: (d.cadence || 0) * 2 }))}
+                                    ) : (
+                                        <VictoryBar
+                                            data={(() => {
+                                                const validLaps = cadenceLapsData.filter(l => l.durationSeconds > 0);
+                                                const totalTime = validLaps.reduce((acc, l) => acc + l.durationSeconds, 0);
+                                                // Account for padding AND domainPadding (50 on each side)
+                                                const chartWidth = width - 50 - 80 - 20 - 100;
+                                                let accumulatedTime = 0;
+
+                                                return validLaps.map((lap, index) => {
+                                                    const start = accumulatedTime;
+                                                    const mid = start + (lap.durationSeconds / 2);
+                                                    accumulatedTime += lap.durationSeconds;
+
+                                                    // Calculate proportional width with min/max constraints
+                                                    const rawWidth = (lap.durationSeconds / totalTime) * chartWidth;
+                                                    const minWidth = 6;
+                                                    const maxWidth = chartWidth / 3;
+                                                    const barW = Math.max(minWidth, Math.min(maxWidth, rawWidth - 2));
+
+                                                    return {
+                                                        x: mid,
+                                                        y: lap.cadence * 2,
+                                                        barWidth: barW,
+                                                        label: barW > 35 ? Math.round(lap.cadence * 2).toString() : ""
+                                                    };
+                                                });
+                                            })()}
+                                            barWidth={({ datum }) => datum.barWidth}
                                             style={{
-                                                data: { fill: "url(#cadenceGradient)", fillOpacity: 0.3, stroke: "none" }
+                                                data: {
+                                                    fill: "#00FF99",
+                                                    fillOpacity: 0.9
+                                                }
                                             }}
+                                            labels={({ datum }) => datum.label}
+                                            labelComponent={
+                                                <VictoryLabel
+                                                    style={{ fill: "#fff", fontSize: 10, fontWeight: 'bold' }}
+                                                    dy={-10}
+                                                    textAnchor="middle"
+                                                />
+                                            }
+                                            cornerRadius={{ top: 4 }}
                                         />
-                                        <VictoryAxis tickCount={6} tickFormat={(t) => `${Math.floor(t / 60)}'`} style={{ axis: { stroke: "#333" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#222" } }} />
-                                        <VictoryAxis dependentAxis domain={[0, 220]} tickCount={4} style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#222" } }} />
-                                    </VictoryChart>
-                                </View>
-                            )}
+                                    )}
+                                    <VictoryAxis
+                                        tickCount={6}
+                                        tickFormat={(t) => {
+                                            const mins = Math.floor(t / 60);
+                                            return `${mins}m`;
+                                        }}
+                                        style={{ axis: { stroke: "#333" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#222" } }}
+                                    />
+                                    <VictoryAxis dependentAxis domain={[0, 220]} tickCount={4} style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#222" } }} />
+                                </VictoryChart>
+                            </View>
+
 
                             {/* Pace Chart */}
                             <View style={styles.chartCard}>
-                                <Text style={[styles.chartTitle, { color: '#00CCFF' }]}>Pace (km/h)</Text>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, width: '100%' }}>
+                                    <Text style={[styles.chartTitle, { color: '#00CCFF', marginBottom: 0 }]}>Pace</Text>
+                                    <ViewToggle
+                                        value={paceViewMode}
+                                        onChange={setPaceViewMode}
+                                        options={[
+                                            { label: 'Continuous', value: 'CONTINUOUS' },
+                                            { label: 'Lap', value: 'LAPS' }
+                                        ]}
+                                    />
+                                </View>
+
                                 <VictoryChart
                                     width={width - 40}
                                     height={220}
                                     theme={VictoryTheme.material}
+                                    padding={{ top: 20, bottom: 40, left: 80, right: 20 }}
+                                    domainPadding={paceViewMode === 'LAPS' ? { x: 50 } : 0}
                                     containerComponent={
-                                        <VictoryCursorContainer
-                                            cursorDimension="x"
-                                            cursorLabel={({ datum }) => {
-                                                if (!datum || !datum.x) return "";
-                                                const mins = Math.floor(datum.x / 60);
-                                                const secs = Math.floor(datum.x % 60);
-                                                return `${datum.y.toFixed(1)} km/h\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-                                            }}
-                                            cursorLabelComponent={
-                                                <VictoryLabel
-                                                    style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                    backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
-                                                    backgroundPadding={8}
-                                                />
-                                            }
-                                            cursorComponent={
-                                                <VictoryLine style={{ data: { stroke: "#00CCFF", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
-                                            }
-                                        />
+                                        paceViewMode === 'CONTINUOUS' ? (
+                                            <VictoryCursorContainer
+                                                cursorDimension="x"
+                                                cursorLabel={({ datum }) => {
+                                                    if (!datum || !datum.x) return "";
+                                                    const mins = Math.floor(datum.x / 60);
+                                                    const secs = Math.floor(datum.x % 60);
+                                                    return `${datum.y.toFixed(1)} km/h\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                                                }}
+                                                cursorLabelComponent={
+                                                    <VictoryLabel
+                                                        style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                        backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
+                                                        backgroundPadding={8}
+                                                    />
+                                                }
+                                                cursorComponent={
+                                                    <VictoryLine style={{ data: { stroke: "#00CCFF", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
+                                                }
+                                            />
+                                        ) : (
+                                            <VictoryVoronoiContainer
+                                                voronoiDimension="x"
+                                                labels={({ datum }) => `${datum.pace}\n${datum.y.toFixed(1)} km/h`}
+                                                labelComponent={
+                                                    <VictoryTooltip
+                                                        constrainToVisibleArea
+                                                        style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                        flyoutStyle={{ fill: "#333", opacity: 0.9, stroke: "#666", strokeWidth: 1 }}
+                                                        flyoutPadding={8}
+                                                        renderInPortal={false}
+                                                    />
+                                                }
+                                            />
+                                        )
                                     }
                                 >
                                     <Defs>
@@ -1769,21 +2179,71 @@ const ActivityDetailScreen = () => {
                                             <Stop offset="100%" stopColor="#0066FF" stopOpacity={0.2} />
                                         </LinearGradient>
                                     </Defs>
-                                    <VictoryArea
-                                        data={paceData}
-                                        interpolation="catmullRom"
-                                        style={{
-                                            data: { fill: "url(#paceGradient)", stroke: "#00CCFF", strokeWidth: 2 }
-                                        }}
-                                    />
+                                    {paceViewMode === 'CONTINUOUS' ? (
+                                        <VictoryArea
+                                            data={paceData}
+                                            interpolation="catmullRom"
+                                            style={{
+                                                data: { fill: "url(#paceGradient)", stroke: "#00CCFF", strokeWidth: 2 }
+                                            }}
+                                        />
+                                    ) : (
+                                        <VictoryBar
+                                            data={(() => {
+                                                const totalTime = paceLapsData.reduce((acc, l) => acc + l.durationSeconds, 0);
+                                                // Account for padding AND domainPadding (50 on each side)
+                                                const chartWidth = width - 40 - 80 - 20 - 100;
+                                                let accumulatedTime = 0;
+
+                                                return paceLapsData.map((lap, index) => {
+                                                    const start = accumulatedTime;
+                                                    const mid = start + (lap.durationSeconds / 2);
+                                                    accumulatedTime += lap.durationSeconds;
+
+                                                    // Calculate proportional width with min/max constraints
+                                                    const rawWidth = (lap.durationSeconds / totalTime) * chartWidth;
+                                                    const minWidth = 6;
+                                                    const maxWidth = chartWidth / 3;
+                                                    const barW = Math.max(minWidth, Math.min(maxWidth, rawWidth - 2));
+
+                                                    return {
+                                                        x: mid,
+                                                        y: lap.avgSpeedKmh,
+                                                        pace: lap.pace,
+                                                        barWidth: barW,
+                                                        label: barW > 35 ? lap.pace : ""
+                                                    };
+                                                });
+                                            })()}
+                                            barWidth={({ datum }) => datum.barWidth}
+                                            style={{
+                                                data: {
+                                                    fill: "#00CCFF",
+                                                    fillOpacity: 0.9
+                                                }
+                                            }}
+                                            labels={({ datum }) => datum.label}
+                                            labelComponent={
+                                                <VictoryLabel
+                                                    style={{ fill: "#fff", fontSize: 10, fontWeight: 'bold' }}
+                                                    dy={-10}
+                                                    textAnchor="middle"
+                                                />
+                                            }
+                                            cornerRadius={{ top: 4 }}
+                                        />
+                                    )}
                                     <VictoryAxis
                                         tickCount={6}
                                         style={{
                                             axis: { stroke: "#333" },
-                                            tickLabels: { fill: "#888", fontSize: 11, fontWeight: "500" },
-                                            grid: { stroke: "#222", strokeWidth: 1 }
+                                            tickLabels: { fill: "#888", fontSize: 11 },
+                                            grid: { stroke: "#222" }
                                         }}
-                                        tickFormat={(t) => `${Math.floor(t / 60)}'`}
+                                        tickFormat={(t) => {
+                                            const mins = Math.floor(t / 60);
+                                            return `${mins}m`;
+                                        }}
                                     />
                                     <VictoryAxis
                                         dependentAxis
@@ -1792,37 +2252,74 @@ const ActivityDetailScreen = () => {
                                             tickLabels: { fill: "#666", fontSize: 10 },
                                             grid: { stroke: "#222", strokeDasharray: "4, 4" }
                                         }}
+                                        tickFormat={(t) => {
+                                            // t is speed in km/h
+                                            // Pace = 60 / speed
+                                            if (t <= 0) return "";
+                                            const pace = 60 / t;
+                                            const m = Math.floor(pace);
+                                            const s = Math.round((pace - m) * 60);
+                                            return `${m}:${s < 10 ? '0' : ''}${s}`;
+                                        }}
                                     />
                                 </VictoryChart>
                             </View>
 
                             {/* Elevation Chart */}
                             <View style={styles.chartCard}>
-                                <Text style={[styles.chartTitle, { color: '#CC00FF' }]}>Elevation</Text>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, width: '100%' }}>
+                                    <Text style={[styles.chartTitle, { color: '#CC00FF', marginBottom: 0 }]}>Elevation</Text>
+                                    <ViewToggle
+                                        value={elevationViewMode}
+                                        onChange={setElevationViewMode}
+                                        options={[
+                                            { label: 'Continuous', value: 'CONTINUOUS' },
+                                            { label: 'Lap Gain', value: 'LAPS' }
+                                        ]}
+                                    />
+                                </View>
                                 <VictoryChart
                                     width={width - 40}
                                     height={220}
                                     theme={VictoryTheme.material}
+                                    padding={{ top: 20, bottom: 40, left: 80, right: 20 }}
+                                    domainPadding={elevationViewMode === 'LAPS' ? { x: 50 } : 0}
                                     containerComponent={
-                                        <VictoryCursorContainer
-                                            cursorDimension="x"
-                                            cursorLabel={({ datum }) => {
-                                                if (!datum || !datum.x) return "";
-                                                const mins = Math.floor(datum.x / 60);
-                                                const secs = Math.floor(datum.x % 60);
-                                                return `${Math.round(datum.y)} m\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-                                            }}
-                                            cursorLabelComponent={
-                                                <VictoryLabel
-                                                    style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                    backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
-                                                    backgroundPadding={8}
-                                                />
-                                            }
-                                            cursorComponent={
-                                                <VictoryLine style={{ data: { stroke: "#CC00FF", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
-                                            }
-                                        />
+                                        elevationViewMode === 'CONTINUOUS' ? (
+                                            <VictoryCursorContainer
+                                                cursorDimension="x"
+                                                cursorLabel={({ datum }) => {
+                                                    if (!datum || !datum.x) return "";
+                                                    const mins = Math.floor(datum.x / 60);
+                                                    const secs = Math.floor(datum.x % 60);
+                                                    return `${Math.round(datum.y)} m\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                                                }}
+                                                cursorLabelComponent={
+                                                    <VictoryLabel
+                                                        style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                        backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
+                                                        backgroundPadding={8}
+                                                    />
+                                                }
+                                                cursorComponent={
+                                                    <VictoryLine style={{ data: { stroke: "#CC00FF", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
+                                                }
+                                            />
+                                        ) : (
+                                            <VictoryVoronoiContainer
+                                                voronoiDimension="x"
+                                                labels={({ datum }) => datum.y > 0 ? `+${datum.y}m gain` : `${datum.y}m`}
+                                                labelComponent={
+                                                    <VictoryTooltip
+                                                        constrainToVisibleArea
+                                                        style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                        flyoutStyle={{ fill: "#333", opacity: 0.9, stroke: "#666", strokeWidth: 1 }}
+                                                        flyoutPadding={8}
+                                                        renderInPortal={false}
+                                                    />
+                                                }
+                                            />
+                                        )
                                     }
                                 >
                                     <Defs>
@@ -1831,13 +2328,60 @@ const ActivityDetailScreen = () => {
                                             <Stop offset="100%" stopColor="#6600FF" stopOpacity={0.2} />
                                         </LinearGradient>
                                     </Defs>
-                                    <VictoryArea
-                                        data={elevationData}
-                                        interpolation="step"
-                                        style={{
-                                            data: { fill: "url(#elevationGradient)", stroke: "#CC00FF", strokeWidth: 2 }
-                                        }}
-                                    />
+                                    {elevationViewMode === 'CONTINUOUS' ? (
+                                        <VictoryArea
+                                            data={elevationData}
+                                            interpolation="step"
+                                            style={{
+                                                data: { fill: "url(#elevationGradient)", stroke: "#CC00FF", strokeWidth: 2 }
+                                            }}
+                                        />
+                                    ) : (
+                                        <VictoryBar
+                                            data={(() => {
+                                                const activeLaps = nativeLapsData.length > 0 ? nativeLapsData : kmSplitsData;
+                                                const totalTime = activeLaps.reduce((acc, l) => acc + l.durationSeconds, 0);
+                                                // Account for padding AND domainPadding (50 on each side)
+                                                const chartWidth = width - 40 - 80 - 20 - 100;
+                                                let accumulatedTime = 0;
+
+                                                return activeLaps.map(lap => {
+                                                    const start = accumulatedTime;
+                                                    const mid = start + (lap.durationSeconds / 2);
+                                                    accumulatedTime += lap.durationSeconds;
+
+                                                    // Calculate proportional width with min/max constraints
+                                                    const rawWidth = (lap.durationSeconds / totalTime) * chartWidth;
+                                                    const minWidth = 6;
+                                                    const maxWidth = chartWidth / 3;
+                                                    const barW = Math.max(minWidth, Math.min(maxWidth, rawWidth - 2));
+
+                                                    return {
+                                                        x: mid,
+                                                        y: lap.gain,
+                                                        barWidth: barW,
+                                                        label: barW > 35 && lap.gain > 0 ? `+${lap.gain}m` : ""
+                                                    };
+                                                });
+                                            })()}
+                                            barWidth={({ datum }) => datum.barWidth}
+                                            style={{
+                                                data: {
+                                                    fill: "#CC00FF",
+                                                    fillOpacity: 0.9
+                                                }
+                                            }}
+                                            labels={({ datum }) => datum.label}
+                                            labelComponent={
+                                                <VictoryLabel
+                                                    style={{ fill: "#fff", fontSize: 10, fontWeight: 'bold' }}
+                                                    dy={-10}
+                                                    textAnchor="middle"
+                                                />
+                                            }
+                                            cornerRadius={{ top: 4 }}
+                                        />
+                                    )}
                                     <VictoryAxis
                                         tickCount={6}
                                         style={{
