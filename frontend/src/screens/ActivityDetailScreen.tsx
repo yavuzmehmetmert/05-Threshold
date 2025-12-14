@@ -12,6 +12,11 @@ import ActivityMap from '../components/ActivityMap';
 
 const { width } = Dimensions.get('window');
 
+// Mobile chart constants for horizontal scroll
+const MOBILE_THRESHOLD = 600; // Below this width, we're on mobile
+const MIN_BAR_WIDTH_PX = 45; // Minimum pixels per bar/lap for comfortable viewing
+const CHART_PADDING_TOTAL = 200; // Total padding (left + right + domainPadding both sides)
+
 const MetricItem = ({ icon: Icon, label, value, unit, color }: any) => (
     <View style={styles.metricItem}>
         <View style={[styles.iconBox, { backgroundColor: color + '20' }]}>
@@ -1669,189 +1674,215 @@ const ActivityDetailScreen = () => {
                                                     ]}
                                                 />
                                             </View>
-                                            <VictoryChart
-                                                width={width - 40}
-                                                height={220}
-                                                theme={VictoryTheme.material}
-                                                padding={{ top: 20, bottom: 40, left: 80, right: 20 }} // Increased left padding for Y-axis labels
-                                                domain={{ y: [minY, maxY] }} // Explicit domain for alignment
-                                                domainPadding={hrViewMode === 'LAPS' ? { x: 50 } : 0}
-                                                containerComponent={
-                                                    hrViewMode === 'CONTINUOUS' ? (
-                                                        <VictoryCursorContainer
-                                                            cursorDimension="x"
-                                                            cursorLabel={({ datum }) => {
-                                                                if (!datum || !datum.x) return "";
-                                                                const mins = Math.floor(datum.x / 60);
-                                                                const secs = Math.floor(datum.x % 60);
-                                                                return `${Math.round(datum.y)} bpm\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-                                                            }}
-                                                            cursorLabelComponent={
-                                                                <VictoryLabel
-                                                                    style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                                    backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
-                                                                    backgroundPadding={8}
+                                            {(() => {
+                                                const activeLaps = nativeLapsData.length > 0 ? nativeLapsData : kmSplitsData;
+                                                const numLaps = activeLaps.length;
+                                                const screenWidth = width - 40;
+                                                // Calculate minimum width needed for comfortable bar display
+                                                const minChartWidth = numLaps * MIN_BAR_WIDTH_PX + CHART_PADDING_TOTAL;
+                                                // Use larger of screen width or minimum needed, but only in LAPS mode
+                                                const chartWidthToUse = hrViewMode === 'LAPS' && minChartWidth > screenWidth
+                                                    ? minChartWidth
+                                                    : screenWidth;
+                                                const needsScroll = hrViewMode === 'LAPS' && minChartWidth > screenWidth;
+
+                                                const chartContent = (
+                                                    <VictoryChart
+                                                        width={chartWidthToUse}
+                                                        height={220}
+                                                        theme={VictoryTheme.material}
+                                                        padding={{ top: 20, bottom: 40, left: 80, right: 20 }} // Increased left padding for Y-axis labels
+                                                        domain={{ y: [minY, maxY] }} // Explicit domain for alignment
+                                                        domainPadding={hrViewMode === 'LAPS' ? { x: 50 } : 0}
+                                                        containerComponent={
+                                                            hrViewMode === 'CONTINUOUS' ? (
+                                                                <VictoryCursorContainer
+                                                                    cursorDimension="x"
+                                                                    cursorLabel={({ datum }) => {
+                                                                        if (!datum || !datum.x) return "";
+                                                                        const mins = Math.floor(datum.x / 60);
+                                                                        const secs = Math.floor(datum.x % 60);
+                                                                        return `${Math.round(datum.y)} bpm\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                                                                    }}
+                                                                    cursorLabelComponent={
+                                                                        <VictoryLabel
+                                                                            style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                                            backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
+                                                                            backgroundPadding={8}
+                                                                        />
+                                                                    }
+                                                                    cursorComponent={
+                                                                        <VictoryLine style={{ data: { stroke: "#CCFF00", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
+                                                                    }
                                                                 />
-                                                            }
-                                                            cursorComponent={
-                                                                <VictoryLine style={{ data: { stroke: "#CCFF00", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
-                                                            }
-                                                        />
-                                                    ) : (
-                                                        <VictoryVoronoiContainer
-                                                            voronoiDimension="x"
-                                                            labels={({ datum }) => `${Math.round(datum.y)} bpm`}
-                                                            labelComponent={
-                                                                <VictoryTooltip
-                                                                    constrainToVisibleArea
-                                                                    style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                                    flyoutStyle={{ fill: "#333", opacity: 0.9, stroke: "#666", strokeWidth: 1 }}
-                                                                    flyoutPadding={8}
-                                                                    renderInPortal={false}
+                                                            ) : (
+                                                                <VictoryVoronoiContainer
+                                                                    voronoiDimension="x"
+                                                                    labels={({ datum }) => `${Math.round(datum.y)} bpm`}
+                                                                    labelComponent={
+                                                                        <VictoryTooltip
+                                                                            constrainToVisibleArea
+                                                                            style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                                            flyoutStyle={{ fill: "#333", opacity: 0.9, stroke: "#666", strokeWidth: 1 }}
+                                                                            flyoutPadding={8}
+                                                                            renderInPortal={false}
+                                                                        />
+                                                                    }
                                                                 />
-                                                            }
-                                                        />
-                                                    )
-                                                }
-                                            >
-                                                <Defs>
-                                                    {/* Gradient Definition */}
-                                                    {(() => {
-                                                        const safeZones = (hrZones && hrZones.length >= 5) ? hrZones : [100, 120, 140, 160, 180];
-                                                        const safeOffset = (val: number | undefined) => {
-                                                            if (val === undefined || isNaN(val)) return "0%";
-                                                            const ratio = (val - minY) / (range || 1);
-                                                            const invRatio = 1 - ratio;
-                                                            const clamped = Math.max(0, Math.min(1, invRatio));
-                                                            return isNaN(clamped) ? "0%" : `${clamped}`;
-                                                        };
+                                                            )
+                                                        }
+                                                    >
+                                                        <Defs>
+                                                            {/* Gradient Definition */}
+                                                            {(() => {
+                                                                const safeZones = (hrZones && hrZones.length >= 5) ? hrZones : [100, 120, 140, 160, 180];
+                                                                const safeOffset = (val: number | undefined) => {
+                                                                    if (val === undefined || isNaN(val)) return "0%";
+                                                                    const ratio = (val - minY) / (range || 1);
+                                                                    const invRatio = 1 - ratio;
+                                                                    const clamped = Math.max(0, Math.min(1, invRatio));
+                                                                    return isNaN(clamped) ? "0%" : `${clamped}`;
+                                                                };
 
-                                                        return (
-                                                            <LinearGradient id="hrZoneGradient" x1="0" y1="0" x2="0" y2="1">
-                                                                <Stop offset="0%" stopColor="#FF3333" />
-                                                                <Stop offset={safeOffset(safeZones[4])} stopColor="#FF3333" />
-                                                                <Stop offset={safeOffset(safeZones[4])} stopColor="#FFCC00" />
-                                                                <Stop offset={safeOffset(safeZones[3])} stopColor="#FFCC00" />
-                                                                <Stop offset={safeOffset(safeZones[3])} stopColor="#33FF33" />
-                                                                <Stop offset={safeOffset(safeZones[2])} stopColor="#33FF33" />
-                                                                <Stop offset={safeOffset(safeZones[2])} stopColor="#3399FF" />
-                                                                <Stop offset={safeOffset(safeZones[1])} stopColor="#3399FF" />
-                                                                <Stop offset={safeOffset(safeZones[1])} stopColor="#999999" />
-                                                                <Stop offset="100%" stopColor="#999999" />
-                                                            </LinearGradient>
-                                                        );
-                                                    })()}
-                                                </Defs>
+                                                                return (
+                                                                    <LinearGradient id="hrZoneGradient" x1="0" y1="0" x2="0" y2="1">
+                                                                        <Stop offset="0%" stopColor="#FF3333" />
+                                                                        <Stop offset={safeOffset(safeZones[4])} stopColor="#FF3333" />
+                                                                        <Stop offset={safeOffset(safeZones[4])} stopColor="#FFCC00" />
+                                                                        <Stop offset={safeOffset(safeZones[3])} stopColor="#FFCC00" />
+                                                                        <Stop offset={safeOffset(safeZones[3])} stopColor="#33FF33" />
+                                                                        <Stop offset={safeOffset(safeZones[2])} stopColor="#33FF33" />
+                                                                        <Stop offset={safeOffset(safeZones[2])} stopColor="#3399FF" />
+                                                                        <Stop offset={safeOffset(safeZones[1])} stopColor="#3399FF" />
+                                                                        <Stop offset={safeOffset(safeZones[1])} stopColor="#999999" />
+                                                                        <Stop offset="100%" stopColor="#999999" />
+                                                                    </LinearGradient>
+                                                                );
+                                                            })()}
+                                                        </Defs>
 
-                                                {/* Minute Grids (Vertical) - Smart Tick Intervals */}
-                                                <VictoryAxis
-                                                    style={{
-                                                        axis: { stroke: "#333" },
-                                                        tickLabels: { fill: "#888", fontSize: 11, fontWeight: "500" },
-                                                        grid: { stroke: "#222", strokeWidth: 1 }
-                                                    }}
-                                                    tickCount={6}
-                                                    tickFormat={(t) => {
-                                                        const mins = Math.floor(t / 60);
-                                                        return `${mins}'`;
-                                                    }}
-                                                />
-
-                                                {/* KM Markers (Thick Dashed Lines) - NEON HIGHLIGHT - Only in CONTINUOUS mode */}
-                                                {hrViewMode === 'CONTINUOUS' && kmMarkers.map((marker, i) => (
-                                                    <VictoryLine
-                                                        key={`km-${i}`}
-                                                        data={[{ x: marker.x, y: minY }, { x: marker.x, y: maxY }]}
-                                                        style={{ data: { stroke: "#CCFF00", strokeWidth: 2, strokeDasharray: "8, 4", opacity: 0.8 } }}
-                                                    />
-                                                ))}
-
-                                                {/* REMOVED STATIC LABELS (VictoryScatter) TO REDUCE CLUTTER */}
-                                                {/* Interaction is now handled by VictoryCursorContainer */}
-
-                                                {/* Main Heart Rate Line - Gradient */}
-                                                {hrViewMode === 'CONTINUOUS' && (
-                                                    <VictoryLine
-                                                        data={hrData}
-                                                        interpolation="catmullRom"
-                                                        style={{
-                                                            data: {
-                                                                stroke: "url(#hrZoneGradient)",
-                                                                strokeWidth: 3
-                                                            }
-                                                        }}
-                                                    />
-                                                )}
-
-                                                {hrViewMode === 'CONTINUOUS' && (
-                                                    <VictoryArea
-                                                        data={hrData}
-                                                        interpolation="catmullRom"
-                                                        style={{
-                                                            data: { fill: "url(#hrZoneGradient)", fillOpacity: 0.1, stroke: "none" }
-                                                        }}
-                                                    />
-                                                )}
-
-                                                {hrViewMode === 'LAPS' && (() => {
-                                                    const activeLaps = nativeLapsData.length > 0 ? nativeLapsData : kmSplitsData;
-                                                    const totalTime = activeLaps.reduce((acc, l) => acc + l.durationSeconds, 0);
-                                                    // Account for padding (80 left, 20 right) AND domainPadding (50 on each side)
-                                                    const chartWidth = width - 40 - 80 - 20 - 100;
-                                                    let accumulatedTime = 0;
-
-                                                    const barData = activeLaps.map((lap, index) => {
-                                                        const start = accumulatedTime;
-                                                        const mid = start + (lap.durationSeconds / 2);
-                                                        accumulatedTime += lap.durationSeconds;
-
-                                                        // Calculate proportional width with min/max constraints
-                                                        const rawWidth = (lap.durationSeconds / totalTime) * chartWidth;
-                                                        const minWidth = 6;
-                                                        const maxWidth = chartWidth / 3;
-                                                        const barW = Math.max(minWidth, Math.min(maxWidth, rawWidth - 2));
-
-                                                        return {
-                                                            x: mid,
-                                                            y: lap.hr,
-                                                            barWidth: barW,
-                                                            // Smart label: only show if bar is wide enough
-                                                            label: barW > 35 ? Math.round(lap.hr).toString() : ""
-                                                        };
-                                                    });
-
-                                                    return (
-                                                        <VictoryBar
-                                                            data={barData}
-                                                            barWidth={({ datum }) => datum.barWidth}
+                                                        {/* Minute Grids (Vertical) - Smart Tick Intervals */}
+                                                        <VictoryAxis
                                                             style={{
-                                                                data: {
-                                                                    fill: ({ datum }) => getZoneColor(datum.y)
-                                                                }
+                                                                axis: { stroke: "#333" },
+                                                                tickLabels: { fill: "#888", fontSize: 11, fontWeight: "500" },
+                                                                grid: { stroke: "#222", strokeWidth: 1 }
                                                             }}
-                                                            labels={({ datum }) => datum.label}
-                                                            labelComponent={
-                                                                <VictoryLabel
-                                                                    style={{ fill: "#fff", fontSize: 10, fontWeight: 'bold' }}
-                                                                    dy={-10}
-                                                                    textAnchor="middle"
-                                                                />
-                                                            }
-                                                            cornerRadius={{ top: 4, bottom: 4 }}
+                                                            tickCount={6}
+                                                            tickFormat={(t) => {
+                                                                const mins = Math.floor(t / 60);
+                                                                return `${mins}'`;
+                                                            }}
                                                         />
-                                                    );
-                                                })()}
+
+                                                        {/* KM Markers (Thick Dashed Lines) - NEON HIGHLIGHT - Only in CONTINUOUS mode */}
+                                                        {hrViewMode === 'CONTINUOUS' && kmMarkers.map((marker, i) => (
+                                                            <VictoryLine
+                                                                key={`km-${i}`}
+                                                                data={[{ x: marker.x, y: minY }, { x: marker.x, y: maxY }]}
+                                                                style={{ data: { stroke: "#CCFF00", strokeWidth: 2, strokeDasharray: "8, 4", opacity: 0.8 } }}
+                                                            />
+                                                        ))}
+
+                                                        {/* REMOVED STATIC LABELS (VictoryScatter) TO REDUCE CLUTTER */}
+                                                        {/* Interaction is now handled by VictoryCursorContainer */}
+
+                                                        {/* Main Heart Rate Line - Gradient */}
+                                                        {hrViewMode === 'CONTINUOUS' && (
+                                                            <VictoryLine
+                                                                data={hrData}
+                                                                interpolation="catmullRom"
+                                                                style={{
+                                                                    data: {
+                                                                        stroke: "url(#hrZoneGradient)",
+                                                                        strokeWidth: 3
+                                                                    }
+                                                                }}
+                                                            />
+                                                        )}
+
+                                                        {hrViewMode === 'CONTINUOUS' && (
+                                                            <VictoryArea
+                                                                data={hrData}
+                                                                interpolation="catmullRom"
+                                                                style={{
+                                                                    data: { fill: "url(#hrZoneGradient)", fillOpacity: 0.1, stroke: "none" }
+                                                                }}
+                                                            />
+                                                        )}
+
+                                                        {hrViewMode === 'LAPS' && (() => {
+                                                            const activeLaps = nativeLapsData.length > 0 ? nativeLapsData : kmSplitsData;
+                                                            const totalTime = activeLaps.reduce((acc, l) => acc + l.durationSeconds, 0);
+                                                            // Account for padding (80 left, 20 right) AND domainPadding (50 on each side)
+                                                            const chartWidth = width - 40 - 80 - 20 - 100;
+                                                            let accumulatedTime = 0;
+
+                                                            const barData = activeLaps.map((lap, index) => {
+                                                                const start = accumulatedTime;
+                                                                const mid = start + (lap.durationSeconds / 2);
+                                                                accumulatedTime += lap.durationSeconds;
+
+                                                                // Calculate proportional width with min/max constraints
+                                                                const rawWidth = (lap.durationSeconds / totalTime) * chartWidth;
+                                                                const minWidth = 6;
+                                                                const maxWidth = chartWidth / 3;
+                                                                const barW = Math.max(minWidth, Math.min(maxWidth, rawWidth - 2));
+
+                                                                return {
+                                                                    x: mid,
+                                                                    y: lap.hr,
+                                                                    barWidth: barW,
+                                                                    // Smart label: only show if bar is wide enough
+                                                                    label: barW > 35 ? Math.round(lap.hr).toString() : ""
+                                                                };
+                                                            });
+
+                                                            return (
+                                                                <VictoryBar
+                                                                    data={barData}
+                                                                    barWidth={({ datum }) => datum.barWidth}
+                                                                    style={{
+                                                                        data: {
+                                                                            fill: ({ datum }) => getZoneColor(datum.y)
+                                                                        }
+                                                                    }}
+                                                                    labels={({ datum }) => datum.label}
+                                                                    labelComponent={
+                                                                        <VictoryLabel
+                                                                            style={{ fill: "#fff", fontSize: 10, fontWeight: 'bold' }}
+                                                                            dy={-10}
+                                                                            textAnchor="middle"
+                                                                        />
+                                                                    }
+                                                                    cornerRadius={{ top: 4, bottom: 4 }}
+                                                                />
+                                                            );
+                                                        })()}
 
 
-                                                <VictoryAxis
-                                                    dependentAxis
-                                                    style={{
-                                                        axis: { stroke: "transparent" },
-                                                        tickLabels: { fill: "#666", fontSize: 10 },
-                                                        grid: { stroke: "#222", strokeDasharray: "2, 4" }
-                                                    }}
-                                                />
-                                            </VictoryChart>
+                                                        <VictoryAxis
+                                                            dependentAxis
+                                                            style={{
+                                                                axis: { stroke: "transparent" },
+                                                                tickLabels: { fill: "#666", fontSize: 10 },
+                                                                grid: { stroke: "#222", strokeDasharray: "2, 4" }
+                                                            }}
+                                                        />
+                                                    </VictoryChart>
+                                                );
+
+                                                return needsScroll ? (
+                                                    <ScrollView
+                                                        horizontal
+                                                        showsHorizontalScrollIndicator={true}
+                                                        style={{ marginHorizontal: -10 }}
+                                                        contentContainerStyle={{ paddingHorizontal: 10 }}
+                                                    >
+                                                        {chartContent}
+                                                    </ScrollView>
+                                                ) : chartContent;
+                                            })()}
                                         </>
                                     );
                                 })()}
@@ -1874,119 +1905,139 @@ const ActivityDetailScreen = () => {
                                             ]}
                                         />
                                     </View>
+                                    {(() => {
+                                        const numLaps = powerLapsData.length;
+                                        const screenWidth = width - 50;
+                                        const minChartWidth = numLaps * MIN_BAR_WIDTH_PX + CHART_PADDING_TOTAL;
+                                        const chartWidthToUse = powerViewMode === 'LAPS' && minChartWidth > screenWidth
+                                            ? minChartWidth
+                                            : screenWidth;
+                                        const needsScroll = powerViewMode === 'LAPS' && minChartWidth > screenWidth;
 
-                                    <VictoryChart
-                                        width={width - 50}
-                                        height={200}
-                                        theme={VictoryTheme.material}
-                                        padding={{ top: 20, bottom: 40, left: 80, right: 20 }}
-                                        domainPadding={powerViewMode === 'LAPS' ? { x: 50 } : 0}
-                                        containerComponent={
-                                            powerViewMode === 'CONTINUOUS' ? (
-                                                <VictoryCursorContainer
-                                                    cursorDimension="x"
-                                                    cursorLabel={({ datum }) => {
-                                                        if (!datum || !datum.x) return "";
-                                                        const mins = Math.floor(datum.x / 60);
-                                                        return `${Math.round(datum.y)} W\n@ ${mins}m`;
-                                                    }}
-                                                    cursorLabelComponent={
-                                                        <VictoryLabel
-                                                            style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                            backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
-                                                            backgroundPadding={8}
+                                        const chartContent = (
+                                            <VictoryChart
+                                                width={chartWidthToUse}
+                                                height={200}
+                                                theme={VictoryTheme.material}
+                                                padding={{ top: 20, bottom: 40, left: 80, right: 20 }}
+                                                domainPadding={powerViewMode === 'LAPS' ? { x: 50 } : 0}
+                                                containerComponent={
+                                                    powerViewMode === 'CONTINUOUS' ? (
+                                                        <VictoryCursorContainer
+                                                            cursorDimension="x"
+                                                            cursorLabel={({ datum }) => {
+                                                                if (!datum || !datum.x) return "";
+                                                                const mins = Math.floor(datum.x / 60);
+                                                                return `${Math.round(datum.y)} W\n@ ${mins}m`;
+                                                            }}
+                                                            cursorLabelComponent={
+                                                                <VictoryLabel
+                                                                    style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                                    backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
+                                                                    backgroundPadding={8}
+                                                                />
+                                                            }
+                                                            cursorComponent={
+                                                                <VictoryLine style={{ data: { stroke: "#CCFF00", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
+                                                            }
                                                         />
-                                                    }
-                                                    cursorComponent={
-                                                        <VictoryLine style={{ data: { stroke: "#CCFF00", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
-                                                    }
-                                                />
-                                            ) : (
-                                                <VictoryVoronoiContainer
-                                                    voronoiDimension="x"
-                                                    labels={({ datum }) => `${Math.round(datum.y)} W`}
-                                                    labelComponent={
-                                                        <VictoryTooltip
-                                                            constrainToVisibleArea
-                                                            style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                            flyoutStyle={{ fill: "#333", opacity: 0.9, stroke: "#666", strokeWidth: 1 }}
-                                                            flyoutPadding={8}
-                                                            renderInPortal={false}
+                                                    ) : (
+                                                        <VictoryVoronoiContainer
+                                                            voronoiDimension="x"
+                                                            labels={({ datum }) => `${Math.round(datum.y)} W`}
+                                                            labelComponent={
+                                                                <VictoryTooltip
+                                                                    constrainToVisibleArea
+                                                                    style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                                    flyoutStyle={{ fill: "#333", opacity: 0.9, stroke: "#666", strokeWidth: 1 }}
+                                                                    flyoutPadding={8}
+                                                                    renderInPortal={false}
+                                                                />
+                                                            }
                                                         />
-                                                    }
-                                                />
-                                            )
-                                        }
-                                    >
-                                        <Defs>
-                                            <LinearGradient id="powerGradient" x1="0" y1="0" x2="0" y2="1">
-                                                <Stop offset="0%" stopColor="#FFFF00" stopOpacity={0.8} />
-                                                <Stop offset="100%" stopColor="#FFFF00" stopOpacity={0.0} />
-                                            </LinearGradient>
-                                        </Defs>
-                                        {powerViewMode === 'CONTINUOUS' ? (
-                                            <VictoryArea
-                                                data={smoothedPower}
-                                                style={{
-                                                    data: { fill: "url(#powerGradient)", stroke: "#FFFF00", strokeWidth: 2 }
-                                                }}
-                                                interpolation="monotoneX" // Smooth curves
-                                            />
-                                        ) : (
-                                            <VictoryBar
-                                                data={(() => {
-                                                    const totalTime = powerLapsData.reduce((acc, l) => acc + l.durationSeconds, 0);
-                                                    // Account for padding AND domainPadding (50 on each side)
-                                                    const chartWidth = width - 50 - 80 - 20 - 100;
-                                                    let accumulatedTime = 0;
-
-                                                    return powerLapsData.map((lap, index) => {
-                                                        const start = accumulatedTime;
-                                                        const mid = start + (lap.durationSeconds / 2);
-                                                        accumulatedTime += lap.durationSeconds;
-
-                                                        // Calculate proportional width with min/max constraints
-                                                        const rawWidth = (lap.durationSeconds / totalTime) * chartWidth;
-                                                        const minWidth = 6;
-                                                        const maxWidth = chartWidth / 3;
-                                                        const barW = Math.max(minWidth, Math.min(maxWidth, rawWidth - 2));
-
-                                                        return {
-                                                            x: mid,
-                                                            y: lap.power,
-                                                            barWidth: barW,
-                                                            label: barW > 35 ? Math.round(lap.power).toString() : ""
-                                                        };
-                                                    });
-                                                })()}
-                                                barWidth={({ datum }) => datum.barWidth}
-                                                style={{
-                                                    data: {
-                                                        fill: "#FFFF00",
-                                                        fillOpacity: 0.9
-                                                    }
-                                                }}
-                                                labels={({ datum }) => datum.label}
-                                                labelComponent={
-                                                    <VictoryLabel
-                                                        style={{ fill: "#fff", fontSize: 10, fontWeight: 'bold' }}
-                                                        dy={-10}
-                                                        textAnchor="middle"
-                                                    />
+                                                    )
                                                 }
-                                                cornerRadius={{ top: 4 }}
-                                            />
-                                        )}
-                                        <VictoryAxis
-                                            tickCount={6}
-                                            tickFormat={(t) => {
-                                                const mins = Math.floor(t / 60);
-                                                return `${mins}m`;
-                                            }}
-                                            style={{ axis: { stroke: "#333" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#222" } }}
-                                        />
-                                        <VictoryAxis dependentAxis tickCount={4} style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#333" } }} />
-                                    </VictoryChart>
+                                            >
+                                                <Defs>
+                                                    <LinearGradient id="powerGradient" x1="0" y1="0" x2="0" y2="1">
+                                                        <Stop offset="0%" stopColor="#FFFF00" stopOpacity={0.8} />
+                                                        <Stop offset="100%" stopColor="#FFFF00" stopOpacity={0.0} />
+                                                    </LinearGradient>
+                                                </Defs>
+                                                {powerViewMode === 'CONTINUOUS' ? (
+                                                    <VictoryArea
+                                                        data={smoothedPower}
+                                                        style={{
+                                                            data: { fill: "url(#powerGradient)", stroke: "#FFFF00", strokeWidth: 2 }
+                                                        }}
+                                                        interpolation="monotoneX"
+                                                    />
+                                                ) : (
+                                                    <VictoryBar
+                                                        data={(() => {
+                                                            const totalTime = powerLapsData.reduce((acc, l) => acc + l.durationSeconds, 0);
+                                                            const barChartWidth = chartWidthToUse - 80 - 20 - 100;
+                                                            let accumulatedTime = 0;
+
+                                                            return powerLapsData.map((lap, index) => {
+                                                                const start = accumulatedTime;
+                                                                const mid = start + (lap.durationSeconds / 2);
+                                                                accumulatedTime += lap.durationSeconds;
+
+                                                                const rawWidth = (lap.durationSeconds / totalTime) * barChartWidth;
+                                                                const minWidth = 6;
+                                                                const maxWidth = barChartWidth / 3;
+                                                                const barW = Math.max(minWidth, Math.min(maxWidth, rawWidth - 2));
+
+                                                                return {
+                                                                    x: mid,
+                                                                    y: lap.power,
+                                                                    barWidth: barW,
+                                                                    label: barW > 35 ? Math.round(lap.power).toString() : ""
+                                                                };
+                                                            });
+                                                        })()}
+                                                        barWidth={({ datum }) => datum.barWidth}
+                                                        style={{
+                                                            data: {
+                                                                fill: "#FFFF00",
+                                                                fillOpacity: 0.9
+                                                            }
+                                                        }}
+                                                        labels={({ datum }) => datum.label}
+                                                        labelComponent={
+                                                            <VictoryLabel
+                                                                style={{ fill: "#fff", fontSize: 10, fontWeight: 'bold' }}
+                                                                dy={-10}
+                                                                textAnchor="middle"
+                                                            />
+                                                        }
+                                                        cornerRadius={{ top: 4 }}
+                                                    />
+                                                )}
+                                                <VictoryAxis
+                                                    tickCount={6}
+                                                    tickFormat={(t) => {
+                                                        const mins = Math.floor(t / 60);
+                                                        return `${mins}m`;
+                                                    }}
+                                                    style={{ axis: { stroke: "#333" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#222" } }}
+                                                />
+                                                <VictoryAxis dependentAxis tickCount={4} style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#333" } }} />
+                                            </VictoryChart>
+                                        );
+
+                                        return needsScroll ? (
+                                            <ScrollView
+                                                horizontal
+                                                showsHorizontalScrollIndicator={true}
+                                                style={{ marginHorizontal: -10 }}
+                                                contentContainerStyle={{ paddingHorizontal: 10 }}
+                                            >
+                                                {chartContent}
+                                            </ScrollView>
+                                        ) : chartContent;
+                                    })()}
                                 </View>
                             )}
 
@@ -2006,112 +2057,133 @@ const ActivityDetailScreen = () => {
                                 {(!details || !details.some(d => d.cadence)) && (
                                     <Text style={{ color: 'orange', padding: 10 }}>Warning: No Cadence Data Detected in {details?.length} points</Text>
                                 )}
-                                <VictoryChart
-                                    width={width - 50}
-                                    height={200}
-                                    theme={VictoryTheme.material}
-                                    padding={{ top: 20, bottom: 40, left: 80, right: 20 }}
-                                    domainPadding={cadenceViewMode === 'LAPS' ? { x: 50 } : 0}
-                                    containerComponent={
-                                        cadenceViewMode === 'CONTINUOUS' ? (
-                                            <VictoryCursorContainer
-                                                cursorDimension="x"
-                                                cursorLabel={({ datum }) => {
-                                                    if (!datum || !datum.x) return "";
-                                                    const mins = Math.floor(datum.x / 60);
-                                                    return `${Math.round(datum.y)} spm\n@ ${mins}m`;
-                                                }}
-                                                cursorLabelComponent={
-                                                    <VictoryLabel
-                                                        style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                        backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
-                                                        backgroundPadding={8}
+                                {(() => {
+                                    const validLaps = cadenceLapsData.filter(l => l.durationSeconds > 0);
+                                    const numLaps = validLaps.length;
+                                    const screenWidth = width - 50;
+                                    const minChartWidth = numLaps * MIN_BAR_WIDTH_PX + CHART_PADDING_TOTAL;
+                                    const chartWidthToUse = cadenceViewMode === 'LAPS' && minChartWidth > screenWidth
+                                        ? minChartWidth
+                                        : screenWidth;
+                                    const needsScroll = cadenceViewMode === 'LAPS' && minChartWidth > screenWidth;
+
+                                    const chartContent = (
+                                        <VictoryChart
+                                            width={chartWidthToUse}
+                                            height={200}
+                                            theme={VictoryTheme.material}
+                                            padding={{ top: 20, bottom: 40, left: 80, right: 20 }}
+                                            domainPadding={cadenceViewMode === 'LAPS' ? { x: 50 } : 0}
+                                            containerComponent={
+                                                cadenceViewMode === 'CONTINUOUS' ? (
+                                                    <VictoryCursorContainer
+                                                        cursorDimension="x"
+                                                        cursorLabel={({ datum }) => {
+                                                            if (!datum || !datum.x) return "";
+                                                            const mins = Math.floor(datum.x / 60);
+                                                            return `${Math.round(datum.y)} spm\n@ ${mins}m`;
+                                                        }}
+                                                        cursorLabelComponent={
+                                                            <VictoryLabel
+                                                                style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                                backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
+                                                                backgroundPadding={8}
+                                                            />
+                                                        }
+                                                        cursorComponent={
+                                                            <VictoryLine style={{ data: { stroke: "#00FF99", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
+                                                        }
                                                     />
-                                                }
-                                                cursorComponent={
-                                                    <VictoryLine style={{ data: { stroke: "#00FF99", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
-                                                }
-                                            />
-                                        ) : (
-                                            <VictoryVoronoiContainer
-                                                voronoiDimension="x"
-                                                labels={({ datum }) => `${Math.round(datum.y)} spm`}
-                                                labelComponent={
-                                                    <VictoryTooltip
-                                                        constrainToVisibleArea
-                                                        style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                        flyoutStyle={{ fill: "#333", opacity: 0.9, stroke: "#666", strokeWidth: 1 }}
-                                                        flyoutPadding={8}
-                                                        renderInPortal={false}
+                                                ) : (
+                                                    <VictoryVoronoiContainer
+                                                        voronoiDimension="x"
+                                                        labels={({ datum }) => `${Math.round(datum.y)} spm`}
+                                                        labelComponent={
+                                                            <VictoryTooltip
+                                                                constrainToVisibleArea
+                                                                style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                                flyoutStyle={{ fill: "#333", opacity: 0.9, stroke: "#666", strokeWidth: 1 }}
+                                                                flyoutPadding={8}
+                                                                renderInPortal={false}
+                                                            />
+                                                        }
                                                     />
-                                                }
-                                            />
-                                        )
-                                    }
-                                >
-                                    {cadenceViewMode === 'CONTINUOUS' ? (
-                                        <VictoryLine
-                                            data={cadenceData}
-                                            style={{
-                                                data: { stroke: "#00FF99", strokeWidth: 2 }
-                                            }}
-                                        />
-                                    ) : (
-                                        <VictoryBar
-                                            data={(() => {
-                                                const validLaps = cadenceLapsData.filter(l => l.durationSeconds > 0);
-                                                const totalTime = validLaps.reduce((acc, l) => acc + l.durationSeconds, 0);
-                                                // Account for padding AND domainPadding (50 on each side)
-                                                const chartWidth = width - 50 - 80 - 20 - 100;
-                                                let accumulatedTime = 0;
-
-                                                return validLaps.map((lap, index) => {
-                                                    const start = accumulatedTime;
-                                                    const mid = start + (lap.durationSeconds / 2);
-                                                    accumulatedTime += lap.durationSeconds;
-
-                                                    // Calculate proportional width with min/max constraints
-                                                    const rawWidth = (lap.durationSeconds / totalTime) * chartWidth;
-                                                    const minWidth = 6;
-                                                    const maxWidth = chartWidth / 3;
-                                                    const barW = Math.max(minWidth, Math.min(maxWidth, rawWidth - 2));
-
-                                                    return {
-                                                        x: mid,
-                                                        y: lap.cadence * 2,
-                                                        barWidth: barW,
-                                                        label: barW > 35 ? Math.round(lap.cadence * 2).toString() : ""
-                                                    };
-                                                });
-                                            })()}
-                                            barWidth={({ datum }) => datum.barWidth}
-                                            style={{
-                                                data: {
-                                                    fill: "#00FF99",
-                                                    fillOpacity: 0.9
-                                                }
-                                            }}
-                                            labels={({ datum }) => datum.label}
-                                            labelComponent={
-                                                <VictoryLabel
-                                                    style={{ fill: "#fff", fontSize: 10, fontWeight: 'bold' }}
-                                                    dy={-10}
-                                                    textAnchor="middle"
-                                                />
+                                                )
                                             }
-                                            cornerRadius={{ top: 4 }}
-                                        />
-                                    )}
-                                    <VictoryAxis
-                                        tickCount={6}
-                                        tickFormat={(t) => {
-                                            const mins = Math.floor(t / 60);
-                                            return `${mins}m`;
-                                        }}
-                                        style={{ axis: { stroke: "#333" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#222" } }}
-                                    />
-                                    <VictoryAxis dependentAxis domain={[0, 220]} tickCount={4} style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#222" } }} />
-                                </VictoryChart>
+                                        >
+                                            {cadenceViewMode === 'CONTINUOUS' ? (
+                                                <VictoryLine
+                                                    data={cadenceData}
+                                                    style={{
+                                                        data: { stroke: "#00FF99", strokeWidth: 2 }
+                                                    }}
+                                                />
+                                            ) : (
+                                                <VictoryBar
+                                                    data={(() => {
+                                                        const totalTime = validLaps.reduce((acc, l) => acc + l.durationSeconds, 0);
+                                                        const barChartWidth = chartWidthToUse - 80 - 20 - 100;
+                                                        let accumulatedTime = 0;
+
+                                                        return validLaps.map((lap, index) => {
+                                                            const start = accumulatedTime;
+                                                            const mid = start + (lap.durationSeconds / 2);
+                                                            accumulatedTime += lap.durationSeconds;
+
+                                                            const rawWidth = (lap.durationSeconds / totalTime) * barChartWidth;
+                                                            const minWidth = 6;
+                                                            const maxWidth = barChartWidth / 3;
+                                                            const barW = Math.max(minWidth, Math.min(maxWidth, rawWidth - 2));
+
+                                                            return {
+                                                                x: mid,
+                                                                y: lap.cadence * 2,
+                                                                barWidth: barW,
+                                                                label: barW > 35 ? Math.round(lap.cadence * 2).toString() : ""
+                                                            };
+                                                        });
+                                                    })()}
+                                                    barWidth={({ datum }) => datum.barWidth}
+                                                    style={{
+                                                        data: {
+                                                            fill: "#00FF99",
+                                                            fillOpacity: 0.9
+                                                        }
+                                                    }}
+                                                    labels={({ datum }) => datum.label}
+                                                    labelComponent={
+                                                        <VictoryLabel
+                                                            style={{ fill: "#fff", fontSize: 10, fontWeight: 'bold' }}
+                                                            dy={-10}
+                                                            textAnchor="middle"
+                                                        />
+                                                    }
+                                                    cornerRadius={{ top: 4 }}
+                                                />
+                                            )}
+                                            <VictoryAxis
+                                                tickCount={6}
+                                                tickFormat={(t) => {
+                                                    const mins = Math.floor(t / 60);
+                                                    return `${mins}m`;
+                                                }}
+                                                style={{ axis: { stroke: "#333" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#222" } }}
+                                            />
+                                            <VictoryAxis dependentAxis domain={[0, 220]} tickCount={4} style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#222" } }} />
+                                        </VictoryChart>
+                                    );
+
+                                    return needsScroll ? (
+                                        <ScrollView
+                                            horizontal
+                                            showsHorizontalScrollIndicator={true}
+                                            style={{ marginHorizontal: -10 }}
+                                            contentContainerStyle={{ paddingHorizontal: 10 }}
+                                        >
+                                            {chartContent}
+                                        </ScrollView>
+                                    ) : chartContent;
+                                })()}
                             </View>
 
 
@@ -2128,141 +2200,159 @@ const ActivityDetailScreen = () => {
                                         ]}
                                     />
                                 </View>
+                                {(() => {
+                                    const numLaps = paceLapsData.length;
+                                    const screenWidth = width - 40;
+                                    const minChartWidth = numLaps * MIN_BAR_WIDTH_PX + CHART_PADDING_TOTAL;
+                                    const chartWidthToUse = paceViewMode === 'LAPS' && minChartWidth > screenWidth
+                                        ? minChartWidth
+                                        : screenWidth;
+                                    const needsScroll = paceViewMode === 'LAPS' && minChartWidth > screenWidth;
 
-                                <VictoryChart
-                                    width={width - 40}
-                                    height={220}
-                                    theme={VictoryTheme.material}
-                                    padding={{ top: 20, bottom: 40, left: 80, right: 20 }}
-                                    domainPadding={paceViewMode === 'LAPS' ? { x: 50 } : 0}
-                                    containerComponent={
-                                        paceViewMode === 'CONTINUOUS' ? (
-                                            <VictoryCursorContainer
-                                                cursorDimension="x"
-                                                cursorLabel={({ datum }) => {
-                                                    if (!datum || !datum.x) return "";
-                                                    const mins = Math.floor(datum.x / 60);
-                                                    const secs = Math.floor(datum.x % 60);
-                                                    return `${datum.y.toFixed(1)} km/h\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-                                                }}
-                                                cursorLabelComponent={
-                                                    <VictoryLabel
-                                                        style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                        backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
-                                                        backgroundPadding={8}
+                                    const chartContent = (
+                                        <VictoryChart
+                                            width={chartWidthToUse}
+                                            height={220}
+                                            theme={VictoryTheme.material}
+                                            padding={{ top: 20, bottom: 40, left: 80, right: 20 }}
+                                            domainPadding={paceViewMode === 'LAPS' ? { x: 50 } : 0}
+                                            containerComponent={
+                                                paceViewMode === 'CONTINUOUS' ? (
+                                                    <VictoryCursorContainer
+                                                        cursorDimension="x"
+                                                        cursorLabel={({ datum }) => {
+                                                            if (!datum || !datum.x) return "";
+                                                            const mins = Math.floor(datum.x / 60);
+                                                            const secs = Math.floor(datum.x % 60);
+                                                            return `${datum.y.toFixed(1)} km/h\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                                                        }}
+                                                        cursorLabelComponent={
+                                                            <VictoryLabel
+                                                                style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                                backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
+                                                                backgroundPadding={8}
+                                                            />
+                                                        }
+                                                        cursorComponent={
+                                                            <VictoryLine style={{ data: { stroke: "#00CCFF", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
+                                                        }
                                                     />
-                                                }
-                                                cursorComponent={
-                                                    <VictoryLine style={{ data: { stroke: "#00CCFF", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
-                                                }
-                                            />
-                                        ) : (
-                                            <VictoryVoronoiContainer
-                                                voronoiDimension="x"
-                                                labels={({ datum }) => `${datum.pace}\n${datum.y.toFixed(1)} km/h`}
-                                                labelComponent={
-                                                    <VictoryTooltip
-                                                        constrainToVisibleArea
-                                                        style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                        flyoutStyle={{ fill: "#333", opacity: 0.9, stroke: "#666", strokeWidth: 1 }}
-                                                        flyoutPadding={8}
-                                                        renderInPortal={false}
+                                                ) : (
+                                                    <VictoryVoronoiContainer
+                                                        voronoiDimension="x"
+                                                        labels={({ datum }) => `${datum.pace}\n${datum.y.toFixed(1)} km/h`}
+                                                        labelComponent={
+                                                            <VictoryTooltip
+                                                                constrainToVisibleArea
+                                                                style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                                flyoutStyle={{ fill: "#333", opacity: 0.9, stroke: "#666", strokeWidth: 1 }}
+                                                                flyoutPadding={8}
+                                                                renderInPortal={false}
+                                                            />
+                                                        }
                                                     />
-                                                }
-                                            />
-                                        )
-                                    }
-                                >
-                                    <Defs>
-                                        <LinearGradient id="paceGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <Stop offset="0%" stopColor="#00CCFF" stopOpacity={0.8} />
-                                            <Stop offset="100%" stopColor="#0066FF" stopOpacity={0.2} />
-                                        </LinearGradient>
-                                    </Defs>
-                                    {paceViewMode === 'CONTINUOUS' ? (
-                                        <VictoryArea
-                                            data={paceData}
-                                            interpolation="catmullRom"
-                                            style={{
-                                                data: { fill: "url(#paceGradient)", stroke: "#00CCFF", strokeWidth: 2 }
-                                            }}
-                                        />
-                                    ) : (
-                                        <VictoryBar
-                                            data={(() => {
-                                                const totalTime = paceLapsData.reduce((acc, l) => acc + l.durationSeconds, 0);
-                                                // Account for padding AND domainPadding (50 on each side)
-                                                const chartWidth = width - 40 - 80 - 20 - 100;
-                                                let accumulatedTime = 0;
-
-                                                return paceLapsData.map((lap, index) => {
-                                                    const start = accumulatedTime;
-                                                    const mid = start + (lap.durationSeconds / 2);
-                                                    accumulatedTime += lap.durationSeconds;
-
-                                                    // Calculate proportional width with min/max constraints
-                                                    const rawWidth = (lap.durationSeconds / totalTime) * chartWidth;
-                                                    const minWidth = 6;
-                                                    const maxWidth = chartWidth / 3;
-                                                    const barW = Math.max(minWidth, Math.min(maxWidth, rawWidth - 2));
-
-                                                    return {
-                                                        x: mid,
-                                                        y: lap.avgSpeedKmh,
-                                                        pace: lap.pace,
-                                                        barWidth: barW,
-                                                        label: barW > 35 ? lap.pace : ""
-                                                    };
-                                                });
-                                            })()}
-                                            barWidth={({ datum }) => datum.barWidth}
-                                            style={{
-                                                data: {
-                                                    fill: "#00CCFF",
-                                                    fillOpacity: 0.9
-                                                }
-                                            }}
-                                            labels={({ datum }) => datum.label}
-                                            labelComponent={
-                                                <VictoryLabel
-                                                    style={{ fill: "#fff", fontSize: 10, fontWeight: 'bold' }}
-                                                    dy={-10}
-                                                    textAnchor="middle"
-                                                />
+                                                )
                                             }
-                                            cornerRadius={{ top: 4 }}
-                                        />
-                                    )}
-                                    <VictoryAxis
-                                        tickCount={6}
-                                        style={{
-                                            axis: { stroke: "#333" },
-                                            tickLabels: { fill: "#888", fontSize: 11 },
-                                            grid: { stroke: "#222" }
-                                        }}
-                                        tickFormat={(t) => {
-                                            const mins = Math.floor(t / 60);
-                                            return `${mins}m`;
-                                        }}
-                                    />
-                                    <VictoryAxis
-                                        dependentAxis
-                                        style={{
-                                            axis: { stroke: "transparent" },
-                                            tickLabels: { fill: "#666", fontSize: 10 },
-                                            grid: { stroke: "#222", strokeDasharray: "4, 4" }
-                                        }}
-                                        tickFormat={(t) => {
-                                            // t is speed in km/h
-                                            // Pace = 60 / speed
-                                            if (t <= 0) return "";
-                                            const pace = 60 / t;
-                                            const m = Math.floor(pace);
-                                            const s = Math.round((pace - m) * 60);
-                                            return `${m}:${s < 10 ? '0' : ''}${s}`;
-                                        }}
-                                    />
-                                </VictoryChart>
+                                        >
+                                            <Defs>
+                                                <LinearGradient id="paceGradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <Stop offset="0%" stopColor="#00CCFF" stopOpacity={0.8} />
+                                                    <Stop offset="100%" stopColor="#0066FF" stopOpacity={0.2} />
+                                                </LinearGradient>
+                                            </Defs>
+                                            {paceViewMode === 'CONTINUOUS' ? (
+                                                <VictoryArea
+                                                    data={paceData}
+                                                    interpolation="catmullRom"
+                                                    style={{
+                                                        data: { fill: "url(#paceGradient)", stroke: "#00CCFF", strokeWidth: 2 }
+                                                    }}
+                                                />
+                                            ) : (
+                                                <VictoryBar
+                                                    data={(() => {
+                                                        const totalTime = paceLapsData.reduce((acc, l) => acc + l.durationSeconds, 0);
+                                                        const barChartWidth = chartWidthToUse - 80 - 20 - 100;
+                                                        let accumulatedTime = 0;
+
+                                                        return paceLapsData.map((lap, index) => {
+                                                            const start = accumulatedTime;
+                                                            const mid = start + (lap.durationSeconds / 2);
+                                                            accumulatedTime += lap.durationSeconds;
+
+                                                            const rawWidth = (lap.durationSeconds / totalTime) * barChartWidth;
+                                                            const minWidth = 6;
+                                                            const maxWidth = barChartWidth / 3;
+                                                            const barW = Math.max(minWidth, Math.min(maxWidth, rawWidth - 2));
+
+                                                            return {
+                                                                x: mid,
+                                                                y: lap.avgSpeedKmh,
+                                                                pace: lap.pace,
+                                                                barWidth: barW,
+                                                                label: barW > 35 ? lap.pace : ""
+                                                            };
+                                                        });
+                                                    })()}
+                                                    barWidth={({ datum }) => datum.barWidth}
+                                                    style={{
+                                                        data: {
+                                                            fill: "#00CCFF",
+                                                            fillOpacity: 0.9
+                                                        }
+                                                    }}
+                                                    labels={({ datum }) => datum.label}
+                                                    labelComponent={
+                                                        <VictoryLabel
+                                                            style={{ fill: "#fff", fontSize: 10, fontWeight: 'bold' }}
+                                                            dy={-10}
+                                                            textAnchor="middle"
+                                                        />
+                                                    }
+                                                    cornerRadius={{ top: 4 }}
+                                                />
+                                            )}
+                                            <VictoryAxis
+                                                tickCount={6}
+                                                style={{
+                                                    axis: { stroke: "#333" },
+                                                    tickLabels: { fill: "#888", fontSize: 11 },
+                                                    grid: { stroke: "#222" }
+                                                }}
+                                                tickFormat={(t) => {
+                                                    const mins = Math.floor(t / 60);
+                                                    return `${mins}m`;
+                                                }}
+                                            />
+                                            <VictoryAxis
+                                                dependentAxis
+                                                style={{
+                                                    axis: { stroke: "transparent" },
+                                                    tickLabels: { fill: "#666", fontSize: 10 },
+                                                    grid: { stroke: "#222", strokeDasharray: "4, 4" }
+                                                }}
+                                                tickFormat={(t) => {
+                                                    if (t <= 0) return "";
+                                                    const pace = 60 / t;
+                                                    const m = Math.floor(pace);
+                                                    const s = Math.round((pace - m) * 60);
+                                                    return `${m}:${s < 10 ? '0' : ''}${s}`;
+                                                }}
+                                            />
+                                        </VictoryChart>
+                                    );
+
+                                    return needsScroll ? (
+                                        <ScrollView
+                                            horizontal
+                                            showsHorizontalScrollIndicator={true}
+                                            style={{ marginHorizontal: -10 }}
+                                            contentContainerStyle={{ paddingHorizontal: 10 }}
+                                        >
+                                            {chartContent}
+                                        </ScrollView>
+                                    ) : chartContent;
+                                })()}
                             </View>
 
                             {/* Elevation Chart */}
@@ -2278,129 +2368,150 @@ const ActivityDetailScreen = () => {
                                         ]}
                                     />
                                 </View>
-                                <VictoryChart
-                                    width={width - 40}
-                                    height={220}
-                                    theme={VictoryTheme.material}
-                                    padding={{ top: 20, bottom: 40, left: 80, right: 20 }}
-                                    domainPadding={elevationViewMode === 'LAPS' ? { x: 50 } : 0}
-                                    containerComponent={
-                                        elevationViewMode === 'CONTINUOUS' ? (
-                                            <VictoryCursorContainer
-                                                cursorDimension="x"
-                                                cursorLabel={({ datum }) => {
-                                                    if (!datum || !datum.x) return "";
-                                                    const mins = Math.floor(datum.x / 60);
-                                                    const secs = Math.floor(datum.x % 60);
-                                                    return `${Math.round(datum.y)} m\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-                                                }}
-                                                cursorLabelComponent={
-                                                    <VictoryLabel
-                                                        style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                        backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
-                                                        backgroundPadding={8}
+                                {(() => {
+                                    const activeLaps = nativeLapsData.length > 0 ? nativeLapsData : kmSplitsData;
+                                    const numLaps = activeLaps.length;
+                                    const screenWidth = width - 40;
+                                    const minChartWidth = numLaps * MIN_BAR_WIDTH_PX + CHART_PADDING_TOTAL;
+                                    const chartWidthToUse = elevationViewMode === 'LAPS' && minChartWidth > screenWidth
+                                        ? minChartWidth
+                                        : screenWidth;
+                                    const needsScroll = elevationViewMode === 'LAPS' && minChartWidth > screenWidth;
+
+                                    const chartContent = (
+                                        <VictoryChart
+                                            width={chartWidthToUse}
+                                            height={220}
+                                            theme={VictoryTheme.material}
+                                            padding={{ top: 20, bottom: 40, left: 80, right: 20 }}
+                                            domainPadding={elevationViewMode === 'LAPS' ? { x: 50 } : 0}
+                                            containerComponent={
+                                                elevationViewMode === 'CONTINUOUS' ? (
+                                                    <VictoryCursorContainer
+                                                        cursorDimension="x"
+                                                        cursorLabel={({ datum }) => {
+                                                            if (!datum || !datum.x) return "";
+                                                            const mins = Math.floor(datum.x / 60);
+                                                            const secs = Math.floor(datum.x % 60);
+                                                            return `${Math.round(datum.y)} m\n@ ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                                                        }}
+                                                        cursorLabelComponent={
+                                                            <VictoryLabel
+                                                                style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                                backgroundStyle={{ fill: "#333", opacity: 0.9, rx: 4 }}
+                                                                backgroundPadding={8}
+                                                            />
+                                                        }
+                                                        cursorComponent={
+                                                            <VictoryLine style={{ data: { stroke: "#CC00FF", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
+                                                        }
                                                     />
-                                                }
-                                                cursorComponent={
-                                                    <VictoryLine style={{ data: { stroke: "#CC00FF", strokeWidth: 1, strokeDasharray: "4, 4" } }} />
-                                                }
-                                            />
-                                        ) : (
-                                            <VictoryVoronoiContainer
-                                                voronoiDimension="x"
-                                                labels={({ datum }) => datum.y > 0 ? `+${datum.y}m gain` : `${datum.y}m`}
-                                                labelComponent={
-                                                    <VictoryTooltip
-                                                        constrainToVisibleArea
-                                                        style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
-                                                        flyoutStyle={{ fill: "#333", opacity: 0.9, stroke: "#666", strokeWidth: 1 }}
-                                                        flyoutPadding={8}
-                                                        renderInPortal={false}
+                                                ) : (
+                                                    <VictoryVoronoiContainer
+                                                        voronoiDimension="x"
+                                                        labels={({ datum }) => datum.y > 0 ? `+${datum.y}m gain` : `${datum.y}m`}
+                                                        labelComponent={
+                                                            <VictoryTooltip
+                                                                constrainToVisibleArea
+                                                                style={{ fill: "white", fontSize: 12, fontWeight: "bold" }}
+                                                                flyoutStyle={{ fill: "#333", opacity: 0.9, stroke: "#666", strokeWidth: 1 }}
+                                                                flyoutPadding={8}
+                                                                renderInPortal={false}
+                                                            />
+                                                        }
                                                     />
-                                                }
-                                            />
-                                        )
-                                    }
-                                >
-                                    <Defs>
-                                        <LinearGradient id="elevationGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <Stop offset="0%" stopColor="#CC00FF" stopOpacity={0.8} />
-                                            <Stop offset="100%" stopColor="#6600FF" stopOpacity={0.2} />
-                                        </LinearGradient>
-                                    </Defs>
-                                    {elevationViewMode === 'CONTINUOUS' ? (
-                                        <VictoryArea
-                                            data={elevationData}
-                                            interpolation="step"
-                                            style={{
-                                                data: { fill: "url(#elevationGradient)", stroke: "#CC00FF", strokeWidth: 2 }
-                                            }}
-                                        />
-                                    ) : (
-                                        <VictoryBar
-                                            data={(() => {
-                                                const activeLaps = nativeLapsData.length > 0 ? nativeLapsData : kmSplitsData;
-                                                const totalTime = activeLaps.reduce((acc, l) => acc + l.durationSeconds, 0);
-                                                // Account for padding AND domainPadding (50 on each side)
-                                                const chartWidth = width - 40 - 80 - 20 - 100;
-                                                let accumulatedTime = 0;
-
-                                                return activeLaps.map(lap => {
-                                                    const start = accumulatedTime;
-                                                    const mid = start + (lap.durationSeconds / 2);
-                                                    accumulatedTime += lap.durationSeconds;
-
-                                                    // Calculate proportional width with min/max constraints
-                                                    const rawWidth = (lap.durationSeconds / totalTime) * chartWidth;
-                                                    const minWidth = 6;
-                                                    const maxWidth = chartWidth / 3;
-                                                    const barW = Math.max(minWidth, Math.min(maxWidth, rawWidth - 2));
-
-                                                    return {
-                                                        x: mid,
-                                                        y: lap.gain,
-                                                        barWidth: barW,
-                                                        label: barW > 35 && lap.gain > 0 ? `+${lap.gain}m` : ""
-                                                    };
-                                                });
-                                            })()}
-                                            barWidth={({ datum }) => datum.barWidth}
-                                            style={{
-                                                data: {
-                                                    fill: "#CC00FF",
-                                                    fillOpacity: 0.9
-                                                }
-                                            }}
-                                            labels={({ datum }) => datum.label}
-                                            labelComponent={
-                                                <VictoryLabel
-                                                    style={{ fill: "#fff", fontSize: 10, fontWeight: 'bold' }}
-                                                    dy={-10}
-                                                    textAnchor="middle"
-                                                />
+                                                )
                                             }
-                                            cornerRadius={{ top: 4 }}
-                                        />
-                                    )}
-                                    <VictoryAxis
-                                        tickCount={6}
-                                        style={{
-                                            axis: { stroke: "#333" },
-                                            tickLabels: { fill: "#888", fontSize: 11, fontWeight: "500" },
-                                            grid: { stroke: "#222", strokeWidth: 1 }
-                                        }}
-                                        tickFormat={(t) => `${Math.floor(t / 60)}'`}
-                                    />
-                                    <VictoryAxis
-                                        dependentAxis
-                                        tickCount={4}
-                                        style={{
-                                            axis: { stroke: "transparent" },
-                                            tickLabels: { fill: "#888", fontSize: 11 },
-                                            grid: { stroke: "#222" }
-                                        }}
-                                    />
-                                </VictoryChart>
+                                        >
+                                            <Defs>
+                                                <LinearGradient id="elevationGradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <Stop offset="0%" stopColor="#CC00FF" stopOpacity={0.8} />
+                                                    <Stop offset="100%" stopColor="#6600FF" stopOpacity={0.2} />
+                                                </LinearGradient>
+                                            </Defs>
+                                            {elevationViewMode === 'CONTINUOUS' ? (
+                                                <VictoryArea
+                                                    data={elevationData}
+                                                    interpolation="step"
+                                                    style={{
+                                                        data: { fill: "url(#elevationGradient)", stroke: "#CC00FF", strokeWidth: 2 }
+                                                    }}
+                                                />
+                                            ) : (
+                                                <VictoryBar
+                                                    data={(() => {
+                                                        const totalTime = activeLaps.reduce((acc, l) => acc + l.durationSeconds, 0);
+                                                        const barChartWidth = chartWidthToUse - 80 - 20 - 100;
+                                                        let accumulatedTime = 0;
+
+                                                        return activeLaps.map(lap => {
+                                                            const start = accumulatedTime;
+                                                            const mid = start + (lap.durationSeconds / 2);
+                                                            accumulatedTime += lap.durationSeconds;
+
+                                                            const rawWidth = (lap.durationSeconds / totalTime) * barChartWidth;
+                                                            const minWidth = 6;
+                                                            const maxWidth = barChartWidth / 3;
+                                                            const barW = Math.max(minWidth, Math.min(maxWidth, rawWidth - 2));
+
+                                                            return {
+                                                                x: mid,
+                                                                y: lap.gain,
+                                                                barWidth: barW,
+                                                                label: barW > 35 && lap.gain > 0 ? `+${lap.gain}m` : ""
+                                                            };
+                                                        });
+                                                    })()}
+                                                    barWidth={({ datum }) => datum.barWidth}
+                                                    style={{
+                                                        data: {
+                                                            fill: "#CC00FF",
+                                                            fillOpacity: 0.9
+                                                        }
+                                                    }}
+                                                    labels={({ datum }) => datum.label}
+                                                    labelComponent={
+                                                        <VictoryLabel
+                                                            style={{ fill: "#fff", fontSize: 10, fontWeight: 'bold' }}
+                                                            dy={-10}
+                                                            textAnchor="middle"
+                                                        />
+                                                    }
+                                                    cornerRadius={{ top: 4 }}
+                                                />
+                                            )}
+                                            <VictoryAxis
+                                                tickCount={6}
+                                                style={{
+                                                    axis: { stroke: "#333" },
+                                                    tickLabels: { fill: "#888", fontSize: 11, fontWeight: "500" },
+                                                    grid: { stroke: "#222", strokeWidth: 1 }
+                                                }}
+                                                tickFormat={(t) => `${Math.floor(t / 60)}'`}
+                                            />
+                                            <VictoryAxis
+                                                dependentAxis
+                                                tickCount={4}
+                                                style={{
+                                                    axis: { stroke: "transparent" },
+                                                    tickLabels: { fill: "#888", fontSize: 11 },
+                                                    grid: { stroke: "#222" }
+                                                }}
+                                            />
+                                        </VictoryChart>
+                                    );
+
+                                    return needsScroll ? (
+                                        <ScrollView
+                                            horizontal
+                                            showsHorizontalScrollIndicator={true}
+                                            style={{ marginHorizontal: -10 }}
+                                            contentContainerStyle={{ paddingHorizontal: 10 }}
+                                        >
+                                            {chartContent}
+                                        </ScrollView>
+                                    ) : chartContent;
+                                })()}
                             </View>
                         </View>
                     )
