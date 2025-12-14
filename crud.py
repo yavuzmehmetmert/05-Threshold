@@ -248,6 +248,75 @@ def get_stress_log(db: Session, user_id: int, date_obj):
         models.StressLog.calendar_date == date_obj
     ).first()
 
+
+# --- Physiological Log CRUD ---
+
+def upsert_physiological_log(db: Session, user_id: int, date_obj, data: dict):
+    """
+    Upsert physiological metrics log for a given date.
+    data should contain: weight, resting_hr, max_hr, lactate_threshold_hr, vo2_max, etc.
+    """
+    existing = db.query(models.PhysiologicalLog).filter(
+        models.PhysiologicalLog.user_id == user_id,
+        models.PhysiologicalLog.calendar_date == date_obj
+    ).first()
+    
+    obj_in = models.PhysiologicalLog(
+        user_id=user_id,
+        calendar_date=date_obj,
+        weight=data.get('weight'),
+        resting_hr=data.get('resting_hr') or data.get('restingHr'),
+        max_hr=data.get('max_hr') or data.get('maxHr'),
+        lactate_threshold_hr=data.get('lactate_threshold_hr') or data.get('lthr'),
+        vo2_max=data.get('vo2_max') or data.get('vo2max'),
+        threshold_pace=data.get('threshold_pace'),
+        ftp=data.get('ftp'),
+        body_fat_pct=data.get('body_fat_pct'),
+        avg_stress=data.get('avg_stress') or data.get('avgStress'),
+        raw_json=data.get('raw_json') or data
+    )
+    
+    if existing:
+        for k, v in obj_in.__dict__.items():
+            if k != '_sa_instance_state' and k != 'id' and v is not None:
+                setattr(existing, k, v)
+    else:
+        db.add(obj_in)
+    
+    db.commit()
+    if existing:
+        db.refresh(existing)
+    else:
+        db.refresh(obj_in)
+    return existing or obj_in
+
+
+def get_physiological_log(db: Session, user_id: int, date_obj):
+    """Get physiological log for a specific date."""
+    return db.query(models.PhysiologicalLog).filter(
+        models.PhysiologicalLog.user_id == user_id,
+        models.PhysiologicalLog.calendar_date == date_obj
+    ).first()
+
+
+def get_physiological_history(db: Session, user_id: int, days: int = 30):
+    """Get physiological history for the last N days, ordered by date descending."""
+    from datetime import timedelta
+    from datetime import date as date_type
+    
+    start_date = date_type.today() - timedelta(days=days)
+    return db.query(models.PhysiologicalLog).filter(
+        models.PhysiologicalLog.user_id == user_id,
+        models.PhysiologicalLog.calendar_date >= start_date
+    ).order_by(models.PhysiologicalLog.calendar_date.desc()).all()
+
+
+def get_latest_physiological_log(db: Session, user_id: int):
+    """Get the most recent physiological log for a user."""
+    return db.query(models.PhysiologicalLog).filter(
+        models.PhysiologicalLog.user_id == user_id
+    ).order_by(models.PhysiologicalLog.calendar_date.desc()).first()
+
 # --- Stream CRUD ---
 
 def save_activity_streams_batch(db: Session, activity_id: int, streams: list):

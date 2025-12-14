@@ -15,6 +15,7 @@ class User(Base):
     # Simple profile metrics for caching
     vo2_max_running = Column(Integer, nullable=True)
     resting_hr = Column(Integer, nullable=True)
+    birth_date = Column(Date, nullable=True)  # For calculating Max HR (220 - age)
     
     activities = relationship("Activity", back_populates="user")
     shoes = relationship("Shoe", back_populates="user")
@@ -180,4 +181,38 @@ class StressLog(Base):
 
     __table_args__ = (
         UniqueConstraint('user_id', 'calendar_date', name='uq_stress_user_date'),
+    )
+
+
+class PhysiologicalLog(Base):
+    """
+    Historical log of user physiological metrics.
+    Captured daily during sync to track trends over time.
+    AI agents can analyze this data to detect improvements, declines, or anomalies.
+    """
+    __tablename__ = "physiological_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    calendar_date = Column(Date, index=True)
+    
+    # Core metrics from Garmin (as shown in ProfileScreen)
+    weight = Column(Float, nullable=True)              # kg
+    resting_hr = Column(Integer, nullable=True)        # bpm
+    max_hr = Column(Integer, nullable=True)            # bpm (can be estimated or from settings)
+    lactate_threshold_hr = Column(Integer, nullable=True)  # bpm (LTHR)
+    vo2_max = Column(Integer, nullable=True)           # ml/kg/min
+    
+    # Additional physiological metrics
+    threshold_pace = Column(Float, nullable=True)      # min/km (calculated from activities)
+    ftp = Column(Integer, nullable=True)               # Functional Threshold Power (watts)
+    body_fat_pct = Column(Float, nullable=True)        # Body fat percentage
+    
+    # Stress snapshot for the day (from daily summary)
+    avg_stress = Column(Integer, nullable=True)
+    
+    raw_json = Column(JSON)  # Store full Garmin response for debugging/future use
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'calendar_date', name='uq_physio_user_date'),
     )

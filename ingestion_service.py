@@ -297,6 +297,211 @@ async def sync_hrv_only(days: int = 7, db: Session = Depends(get_db)):
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+
+@router.post("/sync/profile")
+async def sync_profile_only(days: int = 7, db: Session = Depends(get_db)):
+    """
+    Sync physiological profile metrics for last N days.
+    Captures: weight, resting HR, max HR, VO2max, lactate threshold, stress, FTP.
+    This creates a historical log that AI agents can analyze for trends.
+    """
+    if MOCK_MODE:
+        # In mock mode, just log a single entry with mock data
+        today = date.today()
+        mock_data = {
+            "weight": 70.0,
+            "resting_hr": 50,
+            "max_hr": 190,
+            "lactate_threshold_hr": 170,
+            "vo2_max": 50,
+            "avg_stress": 25,
+            "ftp": 250
+        }
+        crud.upsert_physiological_log(db, 1, today, mock_data)
+        return {"status": "ok", "synced_days": 1, "mode": "mock"}
+    
+    try:
+        client = get_garmin_client()
+        user_id = 1
+        synced = 0
+        
+        # --- Fetch STATIC metrics once (don't change daily) ---
+        static_data = {}
+        
+        # 1. User Profile - contains weight, VO2max, LTHR
+        try:
+            user_profile = client.get_user_profile()
+            if user_profile and 'userData' in user_profile:
+                ud = user_profile['userData']
+                # Weight in grams -> kg
+                if ud.get('weight'):
+                    static_data['weight'] = ud['weight'] / 1000.0
+                static_data['vo2_max'] = ud.get('vo2MaxRunning')
+                static_data['lactate_threshold_hr'] = ud.get('lactateThresholdHeartRate')
+                # Save birth_date to user record
+                if ud.get('birthDate'):
+                    try:
+                        birth_date = datetime.strptime(ud['birthDate'], '%Y-%m-%d').date()
+                        user = db.query(models.User).filter(models.User.id == user_id).first()
+                        if user:
+                            user.birth_date = birth_date
+                            db.commit()
+                            logger.info(f"Birth date saved: {birth_date}")
+                    except Exception as e:
+                        logger.warning(f"Birth date parse failed: {e}")
+            logger.info(f"User profile fetched: weight={static_data.get('weight')}kg, VO2max={static_data.get('vo2_max')}, LTHR={static_data.get('lactate_threshold_hr')}")
+        except Exception as e:
+            logger.warning(f"User profile fetch failed: {e}")
+        
+        # 2. Lactate Threshold endpoint - contains FTP
+        try:
+            lt_data = client.get_lactate_threshold()
+            if lt_data and 'power' in lt_data:
+                static_data['ftp'] = lt_data['power'].get('functionalThresholdPower')
+                logger.info(f"FTP fetched: {static_data.get('ftp')}W")
+            if lt_data and 'speed_and_heart_rate' in lt_data:
+                # Backup LTHR from this endpoint if not from user profile
+                if not static_data.get('lactate_threshold_hr'):
+                    static_data['lactate_threshold_hr'] = lt_data['speed_and_heart_rate'].get('heartRate')
+        except Exception as e:
+            logger.warning(f"Lactate threshold fetch failed: {e}")
+        
+        # 3. Max Metrics - VO2max (backup)
+        try:
+            today_str = date.today().strftime("%Y-%m-%d")
+            max_metrics = client.get_max_metrics(today_str)
+            if max_metrics and len(max_metrics) > 0 and 'generic' in max_metrics[0]:
+                if not static_data.get('vo2_max'):
+                    static_data['vo2_max'] = max_metrics[0]['generic'].get('vo2MaxValue')
+        except Exception as e:
+            logger.warning(f"Max metrics fetch failed: {e}")
+        
+        # --- Now sync DAILY metrics for each day ---
+        for i in range(days):
+            d = date.today() - timedelta(days=i)
+            date_str = d.strftime("%Y-%m-%d")
+            
+            # Start with static data (same for all days)
+            physio_data = static_data.copy()
+            summary = None
+            
+            try:
+                # Get daily summary for resting HR and stress
+                summary = client.get_user_summary(date_str)
+                if summary:
+                    physio_data['resting_hr'] = summary.get('restingHeartRate')
+                    physio_data['avg_stress'] = summary.get('averageStressLevel')
+                    # Note: Not saving daily max HR - will calculate from age (220 - age)
+            except Exception as e:
+                logger.warning(f"User summary fetch failed for {date_str}: {e}")
+            
+            # Get VO2max from activities for this specific day (VO2max changes over time)
+            try:
+                day_activity = db.query(models.Activity).filter(
+                    models.Activity.local_start_date == d,
+                    models.Activity.vo2_max.isnot(None)
+                ).order_by(models.Activity.start_time_local.desc()).first()
+                if day_activity and day_activity.vo2_max:
+                    physio_data['vo2_max'] = day_activity.vo2_max
+            except Exception as e:
+                logger.warning(f"Activity VO2max fetch failed for {date_str}: {e}")
+            
+            # Only save if we have some data
+            if any(v is not None for v in physio_data.values()):
+                physio_data['raw_json'] = {
+                    'summary': summary,
+                    'date': date_str
+                }
+                crud.upsert_physiological_log(db, user_id, d, physio_data)
+                synced += 1
+                logger.info(f"Physiological log saved for {date_str}: weight={physio_data.get('weight')}, rhr={physio_data.get('resting_hr')}, vo2max={physio_data.get('vo2_max')}")
+            else:
+                logger.info(f"No physiological data available for {date_str}")
+        
+        return {"status": "ok", "synced_days": synced, "static_metrics": {
+            "weight": static_data.get('weight'),
+            "vo2_max": static_data.get('vo2_max'),
+            "lthr": static_data.get('lactate_threshold_hr'),
+            "ftp": static_data.get('ftp')
+        }}
+    except Exception as e:
+        logger.error(f"Profile sync error: {e}")
+        return {"status": "error", "message": str(e)}
+
+
+@router.get("/profile/history")
+async def get_profile_history(days: int = 30, db: Session = Depends(get_db)):
+    """
+    Get historical physiological profile data for the last N days.
+    Returns: list of daily physiological snapshots for AI analysis.
+    """
+    user_id = 1
+    logs = crud.get_physiological_history(db, user_id, days)
+    
+    return [
+        {
+            "date": log.calendar_date.isoformat(),
+            "weight": log.weight,
+            "restingHr": log.resting_hr,
+            "maxHr": log.max_hr,
+            "lthr": log.lactate_threshold_hr,
+            "vo2max": log.vo2_max,
+            "thresholdPace": log.threshold_pace,
+            "ftp": log.ftp,
+            "bodyFatPct": log.body_fat_pct,
+            "avgStress": log.avg_stress
+        }
+        for log in logs
+    ]
+
+
+@router.get("/profile/latest")
+async def get_latest_profile(db: Session = Depends(get_db)):
+    """
+    Get the most recent physiological profile data.
+    Used by frontend ProfileScreen to display current metrics.
+    Max HR is calculated from age using formula: 220 - age
+    """
+    user_id = 1
+    log = crud.get_latest_physiological_log(db, user_id)
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    
+    # Calculate Max HR from age (220 - age formula)
+    max_hr = 190  # default
+    birth_date_str = None
+    if user and user.birth_date:
+        today = date.today()
+        age = today.year - user.birth_date.year - ((today.month, today.day) < (user.birth_date.month, user.birth_date.day))
+        max_hr = 220 - age
+        birth_date_str = user.birth_date.isoformat()
+    
+    if not log:
+        # Return defaults if no log exists
+        return {
+            "weight": 70,
+            "restingHr": 50,
+            "maxHr": max_hr,
+            "lthr": 170,
+            "vo2max": 50,
+            "stressScore": 25,
+            "birthDate": birth_date_str
+        }
+    
+    return {
+        "date": log.calendar_date.isoformat(),
+        "weight": log.weight or 70,
+        "restingHr": log.resting_hr or 50,
+        "maxHr": max_hr,  # Calculated from age (220 - age)
+        "lthr": log.lactate_threshold_hr or 170,
+        "vo2max": log.vo2_max or 50,
+        "thresholdPace": log.threshold_pace,
+        "ftp": log.ftp,
+        "bodyFatPct": log.body_fat_pct,
+        "stressScore": log.avg_stress or 25,
+        "birthDate": birth_date_str
+    }
+
+
 @router.post("/sync")
 def sync_all(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """
