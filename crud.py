@@ -215,6 +215,39 @@ def get_hrv_log(db: Session, user_id: int, date_obj):
         models.HRVLog.calendar_date == date_obj
     ).first()
 
+def upsert_stress_log(db: Session, user_id: int, date_obj, data: dict):
+    """Upsert stress log for a given date"""
+    existing = db.query(models.StressLog).filter(
+        models.StressLog.user_id == user_id,
+        models.StressLog.calendar_date == date_obj
+    ).first()
+    
+    obj_in = models.StressLog(
+        user_id=user_id,
+        calendar_date=date_obj,
+        avg_stress=data.get('avgStress'),
+        max_stress=data.get('maxStress'),
+        min_stress=data.get('minStress'),
+        status=data.get('status'),
+        raw_json=data
+    )
+    
+    if existing:
+        for k, v in obj_in.__dict__.items():
+            if k != '_sa_instance_state' and k != 'id' and v is not None:
+                setattr(existing, k, v)
+    else:
+        db.add(obj_in)
+    
+    db.commit()
+    return existing or obj_in
+
+def get_stress_log(db: Session, user_id: int, date_obj):
+    return db.query(models.StressLog).filter(
+        models.StressLog.user_id == user_id,
+        models.StressLog.calendar_date == date_obj
+    ).first()
+
 # --- Stream CRUD ---
 
 def save_activity_streams_batch(db: Session, activity_id: int, streams: list):

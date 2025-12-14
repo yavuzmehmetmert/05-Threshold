@@ -162,3 +162,22 @@ class HRVLog(Base):
     __table_args__ = (
         UniqueConstraint('user_id', 'calendar_date', name='uq_hrv_user_date'),
     )
+
+
+class StressLog(Base):
+    __tablename__ = "stress_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    calendar_date = Column(Date, index=True)
+    
+    avg_stress = Column(Integer)
+    max_stress = Column(Integer)
+    min_stress = Column(Integer, nullable=True)
+    status = Column(String, nullable=True)  # "Low", "Medium", "High", "Very High"
+    
+    raw_json = Column(JSON)
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'calendar_date', name='uq_stress_user_date'),
+    )

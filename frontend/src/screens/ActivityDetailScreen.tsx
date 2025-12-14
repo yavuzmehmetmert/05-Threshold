@@ -432,7 +432,17 @@ const ActivityContextCard = ({ activity, activityId, nativeRpe }: { activity: an
 const ActivityDetailScreen = () => {
     const navigation = useNavigation();
     const route = useRoute<any>();
-    const { activity } = route.params;
+    const activity = route.params?.activity;
+
+    // Guard: if activity is not provided, show loading or error
+    if (!activity) {
+        return (
+            <View style={{ flex: 1, backgroundColor: '#050505', justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ color: '#888' }}>Loading activity...</Text>
+            </View>
+        );
+    }
+
     const isMock = false; // activity.activityId < 1000;
     const [details, setDetails] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -443,12 +453,14 @@ const ActivityDetailScreen = () => {
     const [nativeLaps, setNativeLaps] = useState<any[]>([]);
     const [activityRpe, setActivityRpe] = useState<number | null>(null); // Native RPE from FIT/API
     const [loadContext, setLoadContext] = useState<any>(null); // Training load context
+    const [stressData, setStressData] = useState<any>(null); // Daily stress
 
     useEffect(() => {
         fetchActivityDetails();
         fetchSleepData();
         fetchHrvData();
         fetchLoadContext();
+        fetchStressData();
     }, []);
 
     const fetchLoadContext = async () => {
@@ -485,6 +497,22 @@ const ActivityDetailScreen = () => {
             }
         } catch (error) {
             console.error('Failed to fetch sleep data:', error);
+        }
+    };
+
+    const fetchStressData = async () => {
+        try {
+            // Get PREVIOUS day's stress (bir önceki günün stress'i)
+            const activityDate = new Date(activity.startTimeLocal.replace(' ', 'T'));
+            activityDate.setDate(activityDate.getDate() - 1);
+            const prevDateStr = activityDate.toISOString().split('T')[0];
+            const response = await fetch(`http://localhost:8000/ingestion/stress/${prevDateStr}`);
+            const json = await response.json();
+            if (json.avgStress !== null) {
+                setStressData(json);
+            }
+        } catch (error) {
+            console.error('Failed to fetch stress data:', error);
         }
     };
 
@@ -1013,6 +1041,33 @@ const ActivityDetailScreen = () => {
                                 </>
                             ) : (
                                 <ActivityIndicator size="small" color="#38B2AC" />
+                            )}
+                        </View>
+
+                        {/* Stress Card */}
+                        <View style={{ flex: 1, backgroundColor: '#111', borderRadius: 16, padding: 12, borderWidth: 1, borderColor: '#222' }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                                <Zap size={16} color="#FF6B6B" />
+                                <Text style={{ color: '#888', fontSize: 12, fontWeight: '600', marginLeft: 6 }}>STRESS</Text>
+                            </View>
+                            {stressData ? (
+                                <>
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 4 }}>
+                                        <Text style={{ color: '#fff', fontSize: 24, fontWeight: 'bold' }}>
+                                            {stressData.avgStress || '-'}
+                                        </Text>
+                                        <Text style={{ color: '#888', fontSize: 12, marginBottom: 4 }}>avg</Text>
+                                    </View>
+                                    <Text style={{
+                                        color: stressData.status === 'Low' ? '#33FF33' :
+                                            stressData.status === 'Medium' ? '#FFCC00' : '#FF6B6B',
+                                        fontSize: 13, fontWeight: '500', marginTop: 4
+                                    }}>
+                                        {stressData.status || 'Unknown'}
+                                    </Text>
+                                </>
+                            ) : (
+                                <ActivityIndicator size="small" color="#FF6B6B" />
                             )}
                         </View>
                     </View>

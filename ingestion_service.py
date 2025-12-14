@@ -7,7 +7,7 @@ import logging
 import json
 import random
 import math
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import requests
 from auth_service import get_garmin_client
 from config import MOCK_MODE, MOCK_BIOMETRICS
@@ -217,6 +217,86 @@ async def sync_garmin_stats_background():
     except Exception as e:
         logger.error(f"Biyo-Sync Hatası: {e}")
 
+# --- LIGHTWEIGHT SYNC ENDPOINTS FOR DEVELOPMENT ---
+
+@router.post("/sync/stress")
+async def sync_stress_only(days: int = 7, db: Session = Depends(get_db)):
+    """Sync only stress data for last N days (default: 7)"""
+    try:
+        client = get_garmin_client()
+        user_id = 1
+        synced = 0
+        
+        for i in range(days):
+            d = date.today() - timedelta(days=i)
+            date_str = d.strftime("%Y-%m-%d")
+            try:
+                stress_data = client.get_stress_data(date_str)
+                if stress_data:
+                    values = stress_data.get('stressValuesArray', [])
+                    valid = [v[1] for v in values if v[1] is not None and v[1] >= 0]
+                    if valid:
+                        avg = sum(valid) / len(valid)
+                        crud.upsert_stress_log(db, user_id, d, {
+                            'avgStress': round(avg),
+                            'maxStress': max(valid),
+                            'minStress': min(valid),
+                            'status': "Low" if avg < 25 else "Medium" if avg < 50 else "High" if avg < 75 else "Very High"
+                        })
+                        synced += 1
+            except Exception as e:
+                logger.warning(f"Stress sync failed for {date_str}: {e}")
+        
+        return {"status": "ok", "synced_days": synced}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@router.post("/sync/sleep")
+async def sync_sleep_only(days: int = 7, db: Session = Depends(get_db)):
+    """Sync only sleep data for last N days (default: 7)"""
+    try:
+        client = get_garmin_client()
+        user_id = 1
+        synced = 0
+        
+        for i in range(days):
+            d = date.today() - timedelta(days=i)
+            date_str = d.strftime("%Y-%m-%d")
+            try:
+                sleep_data = client.get_sleep_data(date_str)
+                if sleep_data and 'dailySleepDTO' in sleep_data:
+                    crud.upsert_sleep_log(db, user_id, d, sleep_data['dailySleepDTO'])
+                    synced += 1
+            except Exception as e:
+                logger.warning(f"Sleep sync failed for {date_str}: {e}")
+        
+        return {"status": "ok", "synced_days": synced}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@router.post("/sync/hrv")
+async def sync_hrv_only(days: int = 7, db: Session = Depends(get_db)):
+    """Sync only HRV data for last N days (default: 7)"""
+    try:
+        client = get_garmin_client()
+        user_id = 1
+        synced = 0
+        
+        for i in range(days):
+            d = date.today() - timedelta(days=i)
+            date_str = d.strftime("%Y-%m-%d")
+            try:
+                hrv_data = client.get_hrv_data(date_str)
+                if hrv_data and 'hrvSummary' in hrv_data:
+                    crud.upsert_hrv_log(db, user_id, d, hrv_data['hrvSummary'])
+                    synced += 1
+            except Exception as e:
+                logger.warning(f"HRV sync failed for {date_str}: {e}")
+        
+        return {"status": "ok", "synced_days": synced}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 @router.post("/sync")
 def sync_all(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """
@@ -251,9 +331,27 @@ def sync_all(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
             with open("mock_data/activities.json", "r") as f:
                 activities = json.load(f)
         else:
+            # Fetch ALL activities using pagination
             client = get_garmin_client()
-            activities = client.get_activities(0, 50) # Increased to 50 as requested
-            logger.info(f"Fetched {len(activities)} activities.")
+            activities = []
+            start = 0
+            batch_size = 100  # Garmin API typically allows up to 100 per request
+            
+            logger.info("Fetching ALL activities from Garmin (this may take a while)...")
+            while True:
+                batch = client.get_activities(start, batch_size)
+                if not batch:
+                    break
+                activities.extend(batch)
+                logger.info(f"Fetched {len(activities)} activities so far... (batch {start//batch_size + 1})")
+                start += batch_size
+                
+                # Safety limit to prevent infinite loops (adjust if you have more than 5000 activities)
+                if start > 5000:
+                    logger.warning("Reached 5000 activity limit - stopping pagination")
+                    break
+            
+            logger.info(f"Total activities fetched: {len(activities)}")
         
         for act in activities:
             # RPE: Use existing userEvaluation from Garmin API directly
@@ -335,6 +433,28 @@ def sync_all(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
                                  logger.info("HRV Data Upserted.")
                          except Exception as e:
                               logger.warning(f"HRV fetch failed for {date_str}: {e}")
+                         
+                         # Stress
+                         try:
+                             logger.info(f"Fetching Stress Data for {date_str}...")
+                             stress_data = client.get_stress_data(date_str)
+                             if stress_data:
+                                 values = stress_data.get('stressValuesArray', [])
+                                 if values:
+                                     valid_values = [v[1] for v in values if v[1] is not None and v[1] >= 0]
+                                     if valid_values:
+                                         stress_summary = {
+                                             'avgStress': round(sum(valid_values) / len(valid_values)),
+                                             'maxStress': max(valid_values),
+                                             'minStress': min(valid_values),
+                                             'status': "Low" if sum(valid_values)/len(valid_values) < 25 else 
+                                                       "Medium" if sum(valid_values)/len(valid_values) < 50 else 
+                                                       "High" if sum(valid_values)/len(valid_values) < 75 else "Very High"
+                                         }
+                                         crud.upsert_stress_log(db, user_id, date_obj, stress_summary)
+                                         logger.info("Stress Data Upserted.")
+                         except Exception as e:
+                              logger.warning(f"Stress fetch failed for {date_str}: {e}")
 
             except Exception as bio_e:
                 logger.error(f"Biometrics Sync Error: {bio_e}")
@@ -524,10 +644,9 @@ async def get_sleep_by_date(date_str: str, db: Session = Depends(get_db)):
             }
         }
     
-    # 2. Try DB Persistence
+    # 2. Try DB only - no API fallback for speed
     try:
-        user_id = 1 # Single user for now, or fetch from context
-        # Handle ISO string (e.g. 2025-12-09T17:54:23)
+        user_id = 1
         clean_date_str = date_str.split('T')[0]
         date_obj = datetime.strptime(clean_date_str, "%Y-%m-%d").date()
         
@@ -536,15 +655,8 @@ async def get_sleep_by_date(date_str: str, db: Session = Depends(get_db)):
             return {"dailySleepDTO": log.raw_json} 
     except Exception as e:
         logger.warning(f"DB Sleep Read Error: {e}")
-
-    # 3. Fallback to API (and upsert?)
-    try:
-        clean_date_str = date_str.split('T')[0]
-        client = get_garmin_client()
-        data = client.get_sleep_data(clean_date_str)
-        return data
-    except:
-        return {}
+    
+    return {}  # DB only - sync first!
 
 @router.get("/hrv/{date_str}")
 async def get_hrv_by_date(date_str: str, db: Session = Depends(get_db)):
@@ -556,7 +668,7 @@ async def get_hrv_by_date(date_str: str, db: Session = Depends(get_db)):
         status = "Balanced" if hrv_val > 50 else "Unbalanced"
         return {"hrvSummary": {"weeklyAvg": hrv_val, "lastNightAvg": hrv_val, "status": status}}
 
-    # Try DB
+    # Try DB only - no API fallback for speed
     try:
         user_id = 1
         clean_date_str = date_str.split('T')[0]
@@ -566,13 +678,31 @@ async def get_hrv_by_date(date_str: str, db: Session = Depends(get_db)):
             return {"hrvSummary": log.raw_json}
     except Exception as e:
          logger.warning(f"DB HRV Read Error: {e}")
+    
+    return {}  # DB only - sync first!
 
+@router.get("/stress/{date_str}")
+async def get_stress_data(date_str: str, db: Session = Depends(get_db)):
+    """Get stress data for a given date - reads from DB first, then Garmin API"""
+    clean_date_str = date_str.split('T')[0]
+    
+    # Try DB first
     try:
-        clean_date_str = date_str.split('T')[0]
-        client = get_garmin_client()
-        return client.get_hrv_data(clean_date_str)
-    except:
-        return {}
+        user_id = 1
+        date_obj = datetime.strptime(clean_date_str, "%Y-%m-%d").date()
+        log = crud.get_stress_log(db, user_id, date_obj)
+        if log:
+            return {
+                "avgStress": log.avg_stress,
+                "maxStress": log.max_stress,
+                "minStress": log.min_stress,
+                "status": log.status
+            }
+    except Exception as e:
+        logger.warning(f"DB Stress Read Error: {e}")
+    
+    # DB only - sync first!
+    return {"avgStress": None, "maxStress": None, "status": "Unknown"}
 
 # --- NEW DB-BACKED PRECIS ENDPOINTS ---
 
@@ -610,6 +740,11 @@ async def get_recent_activities(limit: int = 50, db: Session = Depends(get_db)):
             "avgSpeed": db_act.avg_speed,
             "shoe": meta.get("shoe"),
             "workoutType": meta.get("workoutType"),
+            # Weather fields
+            "weather_temp": db_act.weather_temp,
+            "weather_humidity": db_act.weather_humidity,
+            "weather_condition": db_act.weather_condition,
+            "weather_wind_speed": db_act.weather_wind_speed,
         }
         raw = db_act.raw_json or {}
         act_dict["perceivedEffort"] = raw.get('userEvaluation', {}).get('perceivedEffort')
@@ -835,7 +970,7 @@ async def get_training_load(db: Session = Depends(get_db)):
     ]
     
     # Calculate PMC
-    pmc = training_load.calculate_pmc(act_list, days=90, lthr=lthr, resting_hr=resting_hr)
+    pmc = training_load.calculate_pmc(act_list, days=365, lthr=lthr, resting_hr=resting_hr)
     
     return pmc
 
@@ -907,4 +1042,4 @@ async def get_weekly_training_load(db: Session = Depends(get_db)):
         for a in activities
     ]
     
-    return training_load.get_weekly_breakdown(act_list, weeks=12, lthr=lthr, resting_hr=resting_hr)
+    return training_load.get_weekly_breakdown(act_list, weeks=52, lthr=lthr, resting_hr=resting_hr)

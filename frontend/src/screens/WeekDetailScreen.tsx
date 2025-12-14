@@ -49,11 +49,12 @@ const WeekDetailScreen = () => {
             const actRes = await fetch('http://localhost:8000/ingestion/activities?limit=100');
             const actData = await actRes.json();
 
-            // Filter activities for this week
+            // Filter activities for this week - KEEP FULL ACTIVITY OBJECT
             const weekActivities = actData.filter((a: any) => {
                 const actDate = a.startTimeLocal?.split('T')[0];
                 return actDate >= startDate && actDate <= endDate;
             }).map((a: any) => ({
+                ...a, // Keep all original fields for navigation
                 id: a.activityId,
                 name: a.activityName,
                 date: a.startTimeLocal?.split('T')[0],
@@ -177,7 +178,7 @@ const WeekDetailScreen = () => {
                         <TouchableOpacity
                             key={act.id}
                             style={styles.activityItem}
-                            onPress={() => navigation.navigate('ActivityDetail', { activityId: act.id })}
+                            onPress={() => navigation.navigate('ActivityDetail', { activity: act })}
                         >
                             <View>
                                 <Text style={styles.activityName}>{act.name}</Text>

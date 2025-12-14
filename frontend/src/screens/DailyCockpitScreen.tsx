@@ -227,42 +227,57 @@ const TrainingAnalyticsCarousel = ({ weeklyData, navigation }: any) => {
 
                 console.log('PMC DEBUG: totalDays=', totalDays, 'totalWeeks=', totalWeeks, 'weeksToShow=', weeksToShow, 'weekOffset=', weekOffset);
 
-                // Calculate display range - include current (partial) week
-                // When weekOffset=0, show the most recent weeks including current
-                const effectiveEndWeek = totalWeeks - weekOffset;
-                const endWeekIndex = Math.min(effectiveEndWeek + 1, totalWeeks + 1); // +1 to include current partial week
-                const startWeekIndex = Math.max(0, endWeekIndex - weeksToShow);
+                // Now using calendar week grouping instead of index-based weeks
 
-                // Check navigation ability
-                const canGoBack = startWeekIndex > 0;
+                // Build weekly data points - GROUP BY ACTUAL CALENDAR WEEKS (Mon-Sun)
+                const weeklyPoints: any[] = [];
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+                // Group daily history by calendar week (Monday start)
+                const weekMap: { [mondayKey: string]: { ctl: number, atl: number, date: string, monday: Date } } = {};
+
+                for (const day of history) {
+                    const date = new Date(day.date);
+                    // Find Monday of this week
+                    const dayOfWeek = date.getDay(); // 0=Sun, 1=Mon, ...
+                    const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                    const monday = new Date(date);
+                    monday.setDate(date.getDate() - daysToMonday);
+                    const mondayKey = monday.toISOString().split('T')[0];
+
+                    // Store the LAST day's CTL/ATL values for each week (Sunday's values)
+                    weekMap[mondayKey] = {
+                        ctl: day.ctl,
+                        atl: day.atl,
+                        date: day.date,
+                        monday: monday
+                    };
+                }
+
+                // Convert to sorted array
+                const allWeeks = Object.keys(weekMap)
+                    .sort()
+                    .map(key => ({
+                        mondayKey: key,
+                        ...weekMap[key],
+                        label: `${monthNames[weekMap[key].monday.getMonth()]} ${weekMap[key].monday.getDate()}`,
+                        weekStartDate: key,
+                        weekEndDate: weekMap[key].date
+                    }));
+
+                // Apply pagination
+                const totalWeeksAvailable = allWeeks.length;
+                const endIndex = totalWeeksAvailable - weekOffset;
+                const startIndex = Math.max(0, endIndex - weeksToShow);
+                const visibleWeeks = allWeeks.slice(startIndex, endIndex);
+
+                // Check navigation
+                const canGoBack = startIndex > 0;
                 const canGoForward = weekOffset > 0;
 
-                console.log('PMC DEBUG: endWeek=', endWeekIndex, 'startWeek=', startWeekIndex, 'canGoBack=', canGoBack);
+                console.log('PMC CALENDAR WEEKS: total=', totalWeeksAvailable, 'showing=', startIndex, '-', endIndex);
 
-                // Build weekly data points
-                const weeklyPoints: any[] = [];
-                // Include partial current week by using <= and handling the last week specially
-                for (let w = startWeekIndex; w < endWeekIndex && w <= totalWeeks; w++) {
-                    // For the last partial week, use the last available day
-                    const weekEndDayIndex = w === totalWeeks
-                        ? totalDays - 1  // Last available day for partial week
-                        : Math.min((w + 1) * 7 - 1, totalDays - 1);
-                    const weekStart = w * 7;
-                    const point = history[weekEndDayIndex];
-                    if (point) {
-                        const date = new Date(point.date);
-                        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                        const weekOfMonth = Math.ceil(date.getDate() / 7);
-                        const weekStartDate = new Date(history[weekStart]?.date || point.date);
-                        const weekEndDate = new Date(point.date);
-                        weeklyPoints.push({
-                            ...point,
-                            label: `${monthNames[date.getMonth()]}/${weekOfMonth}`,
-                            weekStartDate: weekStartDate.toISOString().split('T')[0],
-                            weekEndDate: weekEndDate.toISOString().split('T')[0],
-                        });
-                    }
-                }
+                weeklyPoints.push(...visibleWeeks);
 
                 const currentPoint = history[totalDays - 1];
                 const currentCtl = Math.round(currentPoint?.ctl || 0);
@@ -303,7 +318,7 @@ const TrainingAnalyticsCarousel = ({ weeklyData, navigation }: any) => {
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                             <TouchableOpacity
                                 onPress={() => {
-                                    console.log('LEFT ARROW PRESSED, canGoBack:', canGoBack, 'weekOffset:', weekOffset, 'startWeekIndex:', startWeekIndex);
+                                    console.log('LEFT ARROW PRESSED, canGoBack:', canGoBack, 'weekOffset:', weekOffset, 'startIndex:', startIndex);
                                     if (canGoBack) {
                                         setWeekOffset(weekOffset + 8);
                                     }

@@ -6,15 +6,17 @@ TSS Formula (HR-based for running):
     TSS = (Duration_sec × IF²) × 100 / 3600
     IF = Avg HR / LTHR
 
-CTL/ATL/TSB (Exponential Moving Averages):
-    CTL = CTL_prev + (TSS - CTL_prev) / 42  (Fitness, 42-day constant)
-    ATL = ATL_prev + (TSS - ATL_prev) / 7   (Fatigue, 7-day constant)
-    TSB = CTL - ATL                          (Form)
+CTL/ATL/TSB (Exponential Moving Averages - Correct Banister Formula):
+    k_ctl = 1 - e^(-1/42)  ≈ 0.0235
+    k_atl = 1 - e^(-1/7)   ≈ 0.1331
+    CTL = CTL_prev + (TSS - CTL_prev) × k_ctl  (Fitness, 42-day constant)
+    ATL = ATL_prev + (TSS - ATL_prev) × k_atl  (Fatigue, 7-day constant)
+    TSB = CTL - ATL                             (Form)
 """
 
-from datetime import datetime, timedelta
-from typing import List, Dict, Tuple, Optional
 import math
+from datetime import datetime, timedelta, date
+from typing import List, Dict, Tuple, Optional
 
 
 def calculate_hrss(
@@ -83,7 +85,8 @@ def calculate_pmc(
     activities: List[Dict],
     days: int = 90,
     lthr: int = 165,
-    resting_hr: int = 45
+    resting_hr: int = 45,
+    end_date: date = None  # Allow calculating PMC up to a specific date
 ) -> Dict:
     """
     Calculate Performance Management Chart data
@@ -95,8 +98,11 @@ def calculate_pmc(
         - history: daily values for charting
         - weekly_tss: last 7 days total TSS
     """
-    # Get date range
-    end_date = datetime.now().date()
+    # Get date range - use provided end_date or today
+    if end_date is None:
+        end_date = datetime.now().date()
+    elif hasattr(end_date, 'date'):
+        end_date = end_date.date()
     start_date = end_date - timedelta(days=days + 42)  # Need 42 extra days for CTL initialization
     
     # Create daily TSS map from activities
@@ -139,9 +145,16 @@ def calculate_pmc(
         date_key = str(current)
         today_tss = daily_tss.get(date_key, 0)
         
-        # Exponential moving average update
-        ctl = ctl + (today_tss - ctl) / 42
-        atl = atl + (today_tss - atl) / 7
+        # Exponential moving average update using correct Banister decay constants
+        # CTL (Chronic Training Load): 42-day time constant
+        # ATL (Acute Training Load): 7-day time constant
+        # Formula: X_today = X_yesterday + (TSS_today - X_yesterday) * k
+        # where k = 1 - e^(-1/time_constant)
+        k_ctl = 1 - math.exp(-1/42)  # ≈ 0.0235 (not 1/42 = 0.0238)
+        k_atl = 1 - math.exp(-1/7)   # ≈ 0.1331 (not 1/7 = 0.1428)
+        
+        ctl = ctl + (today_tss - ctl) * k_ctl
+        atl = atl + (today_tss - atl) * k_atl
         tsb = ctl - atl
         
         # Only store data for the requested range
@@ -248,8 +261,8 @@ def get_recent_load_context(
                 tss = get_activity_tss(act, lthr, resting_hr)
                 last_7_days_tss += tss
     
-    # Calculate PMC up to this date
-    pmc = calculate_pmc(before_activities, days=60, lthr=lthr, resting_hr=resting_hr)
+    # Calculate PMC up to this date (not today!)
+    pmc = calculate_pmc(before_activities, days=60, lthr=lthr, resting_hr=resting_hr, end_date=activity_date)
     
     return {
         'ctl_before': pmc['ctl'],
@@ -400,7 +413,7 @@ def get_weekly_breakdown(
     
     # CTL/ATL daily history for line chart (last 90 days)
     ctl_atl_history = []
-    pmc = calculate_pmc(activities, days=90, lthr=lthr, resting_hr=resting_hr)
+    pmc = calculate_pmc(activities, days=365, lthr=lthr, resting_hr=resting_hr)
     for h in pmc.get('history', []):
         ctl_atl_history.append({
             'date': h['date'],
