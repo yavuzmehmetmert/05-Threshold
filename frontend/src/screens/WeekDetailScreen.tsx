@@ -17,6 +17,7 @@ interface Activity {
     date: string;
     distance: number;
     duration: number;
+    elevation_gain: number;
     tss: number;
 }
 
@@ -60,6 +61,7 @@ const WeekDetailScreen = () => {
                 date: a.startTimeLocal?.split('T')[0],
                 distance: a.distance ? Math.round(a.distance / 1000 * 10) / 10 : 0,
                 duration: a.duration || 0,
+                elevation_gain: a.elevationGain || 0,
                 tss: 0 // TODO: Calculate from API
             }));
             setActivities(weekActivities);
@@ -88,6 +90,7 @@ const WeekDetailScreen = () => {
     const weekTsb = weekCtl - weekAtl;
     const totalDistance = activities.reduce((sum, a) => sum + a.distance, 0);
     const totalDuration = activities.reduce((sum, a) => sum + a.duration, 0);
+    const totalElevation = activities.reduce((sum, a) => sum + (a.elevation_gain || 0), 0);
 
     if (loading) {
         return (
@@ -140,6 +143,10 @@ const WeekDetailScreen = () => {
                 <View style={styles.statItem}>
                     <Text style={styles.statValue}>{formatDuration(totalDuration)}</Text>
                     <Text style={styles.statLabel}>Total Time</Text>
+                </View>
+                <View style={styles.statItem}>
+                    <Text style={styles.statValue}>{Math.round(totalElevation)} m</Text>
+                    <Text style={styles.statLabel}>Elevation</Text>
                 </View>
                 <View style={styles.statItem}>
                     <Text style={styles.statValue}>{activities.length}</Text>

@@ -65,7 +65,7 @@ def upsert_activity(db: Session, activity_data: dict, user_id: int, raw_json: di
         start_time_local=start_dt,
         local_start_date=local_date,
         activity_type=activity_data.get('activityType', {}).get('typeKey') if isinstance(activity_data.get('activityType'), dict) else activity_data.get('activityType'),
-        distance=activity_data.get('distance'),
+        distance=activity_data.get('distance') or activity_data.get('distanceMeters'),
         duration=activity_data.get('duration'),
         elapsed_duration=activity_data.get('elapsedDuration'),
         

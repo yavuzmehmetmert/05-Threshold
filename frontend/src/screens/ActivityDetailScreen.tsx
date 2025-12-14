@@ -681,20 +681,33 @@ const ActivityDetailScreen = () => {
 
     // Cardiac Drift (Pa:HR/pw:HR Decoupling)
     // Formula: ((EF_first_half - EF_second_half) / EF_first_half) * 100
-    // EF = Speed / HR (or Power / HR)
+    // Uses Power / HR if available (more accurate on hills), otherwise Speed / HR
     const calculateDecoupling = () => {
         if (details.length < 120) return 0; // Need at least 2 mins of data
 
-        const midPoint = Math.floor(details.length / 2);
-        const firstHalf = details.slice(0, midPoint).filter(d => d.speed > 0.1 && d.heart_rate > 0);
-        const secondHalf = details.slice(midPoint).filter(d => d.speed > 0.1 && d.heart_rate > 0);
+        // Filter valid data points (need HR and movement)
+        const validDetails = details.filter(d => d.heart_rate > 0 && (d.power > 0 || d.speed > 0.1));
+        if (validDetails.length < 120) return 0;
 
-        if (firstHalf.length === 0 || secondHalf.length === 0) return 0;
+        const midPoint = Math.floor(validDetails.length / 2);
+        const firstHalf = validDetails.slice(0, midPoint);
+        const secondHalf = validDetails.slice(midPoint);
 
         const calcEF = (arr: any[]) => {
-            const avgSpeed = arr.reduce((acc, curr) => acc + curr.speed, 0) / arr.length; // m/s
-            const avgHR = arr.reduce((acc, curr) => acc + curr.heart_rate, 0) / arr.length;
-            return avgHR > 0 ? (avgSpeed * 60) / avgHR : 0;
+            // Check if we have power data
+            const hasPower = arr.some(d => d.power > 0);
+
+            if (hasPower) {
+                // Use Power:HR
+                const avgPower = arr.reduce((acc, curr) => acc + (curr.power || 0), 0) / arr.length;
+                const avgHR = arr.reduce((acc, curr) => acc + curr.heart_rate, 0) / arr.length;
+                return avgHR > 0 ? avgPower / avgHR : 0;
+            } else {
+                // Use Speed:HR (Pa:HR)
+                const avgSpeed = arr.reduce((acc, curr) => acc + curr.speed, 0) / arr.length; // m/s
+                const avgHR = arr.reduce((acc, curr) => acc + curr.heart_rate, 0) / arr.length;
+                return avgHR > 0 ? (avgSpeed * 60) / avgHR : 0;
+            }
         };
 
         const ef1 = calcEF(firstHalf);
@@ -702,8 +715,7 @@ const ActivityDetailScreen = () => {
 
         if (ef1 === 0) return 0;
 
-        // Decoupling is typically positive if efficiency drops (HR goes up for same speed)
-        // Values < 5% are good. > 5% indicates lack of aerobic endurance.
+        // Decoupling is typically positive if efficiency drops (HR goes up for same output)
         return ((ef1 - ef2) / ef1) * 100;
     };
 
