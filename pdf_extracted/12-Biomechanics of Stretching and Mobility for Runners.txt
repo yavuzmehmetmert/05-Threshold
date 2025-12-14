@@ -1,0 +1,530 @@
+Biomechanics of Stretching and Mobility for
+Runners
+Introduction:  Running performance is influenced by a complex interplay between flexibility, stiffness,
+and neuromuscular reflexes. Coaches often face a paradox:  How much flexibility is beneficial, and
+when  does  too  much  become  detrimental?  This  coaching  guide  delves  into  the  science  behind
+stretching and mobility for runners. We will explore why a certain level of leg stiffness can enhance
+running economy (the  “stiffness paradox” ), examine static vs. dynamic stretching and their effects on
+performance, explain the stretch (myotatic) reflex and how techniques like PNF stretching can “hack” it
+for gains, and discuss specific mobility needs in the hips and ankles that impact running form and injury
+risk. Throughout, we’ll connect research findings to practical coaching insights.
+1. The Stiffness Paradox: Finding the Sweet Spot in Flexibility
+Leg Stiffness and Running Economy:  In running, the legs behave like springs under the spring-mass
+model of locomotion . The body’s center of mass bounces on compliant limbs, and the  vertical
+stiffness  of this spring-like system influences how efficiently a runner moves. A certain level of leg
+stiffness is beneficial for running economy , which is the oxygen/energy cost to run at a given pace.
+Studies have found that more economical runners often exhibit higher stiffness in their lower extremity
+tendons or muscles, enabling better storage and return of elastic energy with each stride . For
+example, stiffer muscles around the ankle and knee can potentiate force during the transition from
+landing (braking) to push-off, acting like a taut spring that rebounds and propels the runner forward
+more efficiently . In essence, a moderately stiff leg acts as a better pogo stick , conserving energy
+and improving running performance .
+Why Elastic Recoil Matters:  When your foot strikes the ground, energy is stored momentarily in
+stretched tendons and muscles (particularly the Achilles tendon and arch of the foot). A stiff-leg spring
+will recoil rapidly, returning that stored energy to help push off the ground. This contributes to running
+economy by reducing the work the muscles must do. Research indicates that training methods which
+increase ankle and knee joint stiffness can improve running economy and performance by enhancing
+this elastic return . In practical terms, plyometric exercises or isometric strength training that raise
+tendon stiffness might make a runner’s stride more energy-efficient by maximizing elastic recoil.
+The Downside of Too Much Flexibility:  However , more flexibility is not always better for runners –
+hence  the  “stiffness  paradox.”  There  is  an  optimal  range  of  stiffness  for  efficient  running,  and
+excessive flexibility (over-compliance in the muscles or tendons) can reduce the elastic energy return. If
+the leg spring is too soft  or compliant, it will absorb a lot of energy but not return it effectively – like a
+loose spring that doesn’t snap back. The result is that the muscles have to expend more metabolic
+energy to maintain speed . Researchers have noted that stretching to greatly increase flexibility can
+lead to sub-optimal joint mechanics during running, where the muscle-tendon unit is too compliant  and
+fails to recycle energy efficiently . In stretch-shortening cycle activities (like running), an  optimal
+tendon stiffness  exists for maximizing power and efficiency . If a runner becomes overly flexible
+beyond that optimum, the joints may lose some of the “springiness” that aids economy, causing a drop
+in performance despite greater range of motion. In other words, excessive flexibility can dissipate energy
+as heat or unnecessary movement, instead of channeling it into forward propulsion.1
+23
+3
+4
+4
+5
+5
+5
+1
+
+---PAGE---
+
+Striking a Balance:  It’s important to note that while a baseline stiffness benefits running economy, this
+doesn’t mean runners should avoid flexibility work altogether . Instead, the goal is to maintain the right
+balance : enough mobility to move freely and prevent injury, but enough stiffness to harness elastic
+recoil. For instance, elite middle-distance runners tend to have adequate flexibility for stride length but
+also relatively stiff Achilles tendons to store and release energy. Conversely, a runner who is hypermobile
+in the lower body might sacrifice some running efficiency. As one study summarized, there is a “delicate
+balance  between  joint  flexibility,  musculotendinous  stiffness,  and  muscle  activation”  that  determines
+running economy . Training should therefore aim to optimize that balance.
+Coaching Takeaway:  For improved running economy, do not equate maximum flexibility with better
+performance. Encourage runners to develop  functional flexibility  – the minimum range of motion
+needed for an efficient stride – while using strength and plyometric training to build the appropriate leg
+stiffness. Overstretching the lower legs right before a run could temporarily reduce the beneficial
+spring tension. Instead, incorporate dynamic drills and strength work that enhance the leg’s spring-like
+qualities. In short, maintain the springs in your legs – neither too tight nor too loose – for the best running
+bounce.
+2. Static vs. Dynamic Stretching: Which Is Better Before Running?
+Before heading out for a run or race, how one stretches can significantly affect immediate performance.
+Here we compare static and dynamic stretching and why they have very different effects on subsequent
+running.
+The  “Performance  Dampening”  Effect  of  Static  Stretching:  Static  stretching  involves  holding  a
+stretch position (usually 20–60 seconds) to lengthen a muscle. While this can increase flexibility, doing
+prolonged static stretches  right before  running can actually  diminish performance  in terms of force
+and power output. Research has repeatedly shown that acute static stretching can lead to a temporary
+loss in muscle strength, explosive performance, and running economy. One review found an average
+decrease of about 3–4% in force production after static stretching of a muscle . In practical terms,
+static stretching can make the muscles  too compliant  and lower their stiffness momentarily, which
+reduces their ability to produce force quickly. This is sometimes called a  neuromuscular inhibitory
+effect  – muscles that have been statically stretched may experience less neural drive and a slight loss of
+elastic tension. For runners, this could translate to slower sprint times, reduced jump height, or a less
+efficient stride immediately after stretching. Static stretching also elongates the muscle-tendon unit,
+possibly reducing the amount of elastic energy it can store during the stretch-shortening cycle of
+running.  Thus,  coaches  often  say  static  stretching  “dampens”  the  muscle’s  power  –  much  like
+overstretching a rubber band so it doesn’t snap back as strongly.
+Evidence:  In one study, athletes who performed static stretches before activity showed about a 
+3.7–4.4% drop in strength/power output , whereas skipping static stretching (or doing dynamic
+warm-ups instead) avoided this deficit . The temporary reduction in performance from static
+stretching has been attributed to factors such as decreased muscle-tendon stiffness, altered
+muscle contractile protein behavior , and reflex inhibition (the nervous system holding back a
+little to protect the muscle). For runners, this could mean a decrease in running economy or top-
+end speed right after static stretching.
+Dynamic Stretching and Its Neurological Benefits:  Dynamic stretching involves active movements
+that take joints through their range of motion – for example, leg swings, skipping, lunges with a twist,
+butt kicks, etc. Rather than holding a muscle in a lengthened position, dynamic stretches continuously
+move the muscles and tendons. Dynamic stretching before running tends to enhance performance
+instead of impairing it. These movements function as a specific warm-up , raising muscle temperature,6
+7
+• 
+7
+2
+
+---PAGE---
+
+improving  blood  flow,  and  waking  up  the  nervous  system.  Unlike  static  stretches,  dynamic  drills
+maintain  or  even  increase  muscle-tendon  stiffness  in  a  beneficial  way  and  prime  the  muscles  for
+explosive action . 
+Neurological “Pre-Activation”:  Dynamic stretching exercises stimulate the nervous system. By
+mimicking aspects of the running movement (but in a controlled manner), they activate motor
+units – essentially “rehearsing” the muscle firing patterns needed for running. This leads to
+increased motor unit recruitment  and excitability right before the run . For example, doing
+a series of high-knee skips or leg swings will activate the hip flexors and extensors, signaling
+those muscles to be ready for action. Research indicates that dynamic warm-ups can increase
+muscle  electromyographic  activity,  meaning  the  muscles  are  neurologically  more  ready  to
+produce  force .  This  pre-activation  reduces  the  electro-mechanical  delay  in  muscle
+contraction and can improve subsequent power output.
+Temperature  and  Blood  Flow:  Dynamic  movements  also  increase  core  and  muscle
+temperature , as well as heart rate, more effectively than static stretching . A warmer muscle
+contracts more forcefully and relaxes faster . Even a slight increase in muscle temperature (1–2°C)
+can improve muscle elasticity and speed of nerve impulses. By elevating core temperature and
+stimulating circulation, dynamic stretching reduces joint stiffness (in terms of ease of movement)
+without eliminating the muscle’s elastic stiffness needed for running economy . This is why
+coaches often include calisthenics, strides, or mobility drills in warm-ups – they literally warm the
+body and prep the neuromuscular system.
+Comparative Research:  In contrast to static stretching’s performance dampening, dynamic stretching
+has been associated with neutral or positive effects on running performance. For instance, studies
+noted a slight  increase (~1–2%) in subsequent performance  after dynamic stretching routines .
+Athletes feel more “ready” and reactive. One review (Behm et al. 2015) reported that while static/PNF
+stretching immediately before exercise caused small performance impairments, dynamic stretching led
+to a small performance increase (~1.3% improvement in strength/power)  on average . Although
+1–2% might sound minor , in competitive terms this could mean the difference between a sluggish and a
+sharp start in a race.
+Why the Difference?  To summarize the science:
+Static  Stretching  (pre-run)  –  Pros:  increases  flexibility  and  range  of  motion.  Cons:  Can
+temporarily  reduce  muscle  strength,  power ,  and  running  economy  due  to  loss  of  optimal
+stiffness and neural inhibition . Muscles may become “too relaxed” to generate explosive
+force immediately. Not ideal right before high-performance running.
+Dynamic Stretching (pre-run)  – Pros:  elevates heart rate and body temperature, engages the
+nervous system, and can improve subsequent performance by enhancing muscle activation
+. Maintains functional stiffness and may improve running economy by optimizing the stretch-
+shortening cycle. Cons:  Does not increase long-term static flexibility as much as static stretching
+(dynamic stretching is more for warm-up than improving splits or reach). Highly recommended
+as part of warm-ups for runners.
+Bullet Summary – Static vs Dynamic Warm-Up:
+Static Stretching (Before Running):  Characterized by holding stretches for ~30 seconds. Tends
+to reduce immediate force output  and can impair running explosiveness by ~4% due to decreased8
+• 
+8
+8
+• 
+9
+9
+7
+7
+• 
+7
+• 
+9
+8
+• 
+3
+
+---PAGE---
+
+muscle-tendon stiffness and neural drive . Best saved for after running or separate flexibility
+sessions (if needed) rather than right before a competition or speed workout. 
+Dynamic Stretching (Before Running):  Involves controlled leg swings, arm circles, lunges, and
+other active motions. Enhances performance  by increasing muscle temperature and activating
+neural pathways. Improves subsequent running economy or power by priming motor units and
+increasing blood flow . Should be a cornerstone of the pre-run routine to “turn on” the
+body.
+Coaching Takeaway:  For runners,  ditch the prolonged static stretch routine in your warm-up .
+Instead, use dynamic drills to prepare. Static stretches have their place in improving flexibility, but
+performing them immediately before running can make you feel sluggish. On the other hand, dynamic
+stretching (like leg swings, high knees, skipping drills) before running will make you feel looser  and
+more  powerful.  Save  static  stretching  for  cooldowns  or  separate  sessions,  and  make  dynamic
+movements your go-to pre-run stretching strategy to boost performance rather than dampen it.
+3. The Myotatic Stretch Reflex and PNF: Hacking the Nervous
+System for Flexibility
+When  we  talk  about  stretching  and  flexibility,  we  must  consider  the  body’s  built-in  protective
+mechanisms. The  myotatic reflex , also simply known as the stretch reflex, is the body’s automatic
+defense against muscle tearing. Understanding this reflex (and its counterpart, the Golgi tendon reflex)
+will shed light on how advanced stretching techniques like PNF manage to improve range of motion by
+essentially “tricking” the nervous system.
+The Stretch (Myotatic) Reflex – Guarding Against Overstretch:  If you’ve ever had a doctor tap just
+below your kneecap and seen your leg kick out, you’ve witnessed the stretch reflex in action. Receptors
+in our muscles called muscle spindles  monitor the length and speed of stretch of the muscle. When a
+muscle is stretched too quickly or beyond its comfort zone, the muscle spindles fire off signals to the
+spinal cord. The spinal cord, in turn, sends a reflex impulse back to the muscle telling it to contract . This
+is an involuntary response – essentially the muscle tightening up to prevent being stretched to the point
+of injury. The stretch reflex is a monosynaptic reflex (a direct single connection in the spinal cord), which
+is why it is so fast. Its purpose is to resist sudden lengthening of the muscle, thereby protecting the
+muscle from tearing . For example, if you stumble and your ankle twists, the calf muscles rapidly contract
+via the stretch reflex to stabilize the joint and prevent excessive stretch that could cause a strain.
+This  protective  mechanism  means  that  during  stretching,  especially  ballistic  stretching  (bouncing
+stretches), the muscle might reflexively contract against the stretch. Anyone who has tried to stretch a
+very tight hamstring aggressively might feel the muscle trembling or tightening – that’s partly the
+stretch reflex kicking in.
+The Golgi Tendon Organ Reflex – Preventing Over-Contracting:  Another safety mechanism involves
+the  Golgi tendon organs (GTOs) , which are sensors located in the tendons near the muscle-tendon
+junction. Whereas muscle spindles respond to stretch, GTOs respond to tension . If a muscle generates
+extremely high tension (for instance, lifting a very heavy weight or during a strong contraction), the
+GTOs fire signals that cause the muscle to relax. This is known as  autogenic inhibition  – a reflex
+inhibition of the muscle experiencing high tension . In simple terms, when tension could become
+damaging, the body eases off to protect itself. It’s a “safety valve” to prevent the muscle or tendon from
+ripping due to excessive force. Autogenic inhibition is  “a reflex of sudden relaxation of a muscle upon
+development of high tension – a self-induced, inhibitory negative feedback mechanism that protects against
+muscle tear.”  For example, if you try to lift something incredibly heavy, you might experience your7
+• 
+98
+10
+10
+4
+
+---PAGE---
+
+muscles giving out or shaking – that’s the GTO-mediated reflex reducing the muscle’s contraction to
+save it from injury.
+PNF Stretching – Using Reflexes to Increase Range of Motion: Proprioceptive Neuromuscular
+Facilitation (PNF)  is a advanced stretching technique that takes advantage of these neural reflexes to
+achieve greater flexibility gains. Rather than simply holding a stretch, PNF typically involves alternating
+between muscle contractions and stretches. Two common PNF methods are the  contract-relax (CR)
+technique and the  contract-relax-antagonist-contract (CRAC)  technique. Here’s how they work and
+“hack” the system:
+Contract-Relax (CR) Method:  The target muscle (the one being stretched) is first passively
+stretched to a comfortable end range. Then the athlete performs an isometric contraction  of
+that same muscle (usually ~5–10 seconds pushing against resistance). For example, if stretching
+hamstrings, you would push your leg down as if to contract the hamstrings against a partner’s
+resistance, without actually moving the leg. This strong contraction activates the GTOs in the
+tendon, generating high tension. When the athlete then relaxes  the contraction, the GTO-induced
+autogenic inhibition reflex  kicks in, causing the target muscle to temporarily relax more than
+usual . Immediately, the partner (or the athlete themselves) then gently pushes the stretch
+further  into  the  new  range  for  ~10–15  seconds.  Because  the  muscle’s  stretch  reflex  is
+momentarily subdued (and muscle tension is reduced thanks to the GTO response), the muscle
+can be lengthened further than before. This sequence can be repeated several times, each time
+hopefully gaining a few more degrees of motion.
+Contract-Relax-Antagonist-Contract (CRAC) Method:  This approach adds an extra step. After
+the initial isometric contraction of the target muscle, the athlete then actively contracts the
+opposing muscle  (the antagonist). For instance, after contracting the hamstrings and relaxing,
+you would actively contract the hip flexors/quadriceps to lift the leg further into the stretch.
+Contracting the antagonist produces a phenomenon called  reciprocal inhibition  – when one
+muscle group is activated, the opposite group is neurologically inhibited from contracting . By
+firing the hip flexors, the nervous system automatically reduces tone in the hamstrings (their
+antagonists) even more, allowing a deeper stretch . The result is an even greater increase in
+range. Reciprocal inhibition is basically the body’s way of saying “if the mover is working, the
+opposite muscle must relax to allow the movement” . PNF leverages this to increase flexibility:
+the target muscle is inhibited both by its own GTO reflex (autogenic inhibition after the isometric
+contraction) and by the antagonist contraction (reciprocal inhibition), maximizing relaxation and
+stretch.
+Using these techniques, PNF stretching effectively  overrides the normal protective reflexes  for a
+short window, permitting the muscle to be stretched to a new length safely. Importantly, once the
+stretch is released, the muscle doesn’t immediately spring back to its old length – over time, with
+repeated PNF sessions, the muscle’s tolerance to stretch and its resting length can increase, leading to
+lasting flexibility improvements.
+Why PNF Increases Flexibility More:  Research confirms that PNF stretching can lead to greater gains
+in range of motion than standard static stretching . By engaging the neuromuscular system (hence
+“neuromuscular facilitation”), PNF achieves a greater magnitude of muscle lengthening . One review
+noted that PNF techniques cause larger increases in both passive and active range of motion compared
+to static or ballistic stretching . The combination of autogenic and reciprocal inhibition, along with
+the viscous properties of muscle (creep and stress relaxation under tension), allows muscles to extend
+further . Essentially, PNF is teaching the nervous system to accept a new, longer resting length for the
+muscle by reducing the resistance it normally puts up.1. 
+10
+2. 
+11
+12
+11
+13
+13
+5
+
+---PAGE---
+
+It should be noted that right after PNF stretching, muscle performance can be temporarily reduced
+(similar to static stretching) if done immediately before an activity – since it induces a deep relaxation of
+the muscle. However , when done in cool-downs or separate sessions, PNF helps increase flexibility
+without  the  same  degree  of  performance  loss.  In  fact,  if  consistently  done  over  weeks  (but  not
+immediately before competition), it can increase functional ROM and even possibly improve strength at
+those new ranges.
+Real-World  Example:  To  illustrate,  imagine  a  runner  with  tight  hip  flexors  trying  to  improve  hip
+extension flexibility. Using PNF, the runner can get into a lunge stretch (stretching the hip flexor), then
+actively contract the hip flexor (as if trying to straighten up against the stretch) – this contraction
+activates the GTO in the hip flexor . After holding, the runner relaxes and then contracts the glute of that
+same leg (antagonist to the hip flexor) to deepen the lunge stretch. The hip flexor muscle is now more
+relaxed due to the neurological tricks, allowing a greater stretch than a basic static hold would yield.
+Repeating this process can significantly increase hip extension range over time, which could improve
+the runner’s stride length and reduce injury risk.
+Key Reflex Concepts for Coaches:
+Stretch Reflex (Muscle Spindle):  A fast reflex causing muscle contraction in response to quick or
+excessive stretch – protects muscle from overstretching. (Example: sudden hamstring stretch
+triggers it to contract and resist). 
+Autogenic Inhibition (Golgi Tendon Organ reflex):  A reflex causing muscle relaxation when high
+tension is detected in the tendon – protects against tearing under excessive force . (Example:
+during a maximal calf contraction, GTOs trigger the calf to relax if tension is too great.) 
+Reciprocal Inhibition:  When one muscle contracts, its opposite (antagonist) is reflexively inhibited
+to allow movement . (Example: firing the hip flexors causes the hamstrings to relax, so your
+leg can swing forward freely). 
+PNF stretching cleverly uses these reflexes by first  eliciting them  (through isometric contraction) and
+then capitalizing on the momentary muscle relaxation  to stretch further . The result is a greater range
+of motion than the muscle would normally allow on its own. 
+Coaching Takeaway:  The nervous system often limits flexibility via reflexes to keep us safe. Techniques
+like PNF teach the body to temporarily set those limits a bit higher , yielding improved flexibility. Coaches
+and therapists can use PNF (contract-relax stretching) after workouts or in separate flexibility sessions
+to improve an athlete’s range of motion in a targeted way.  Never force a stretch  – instead, use the
+body’s own reflex circuitry to “trick”  the muscle into giving you more length. This results in safe flexibility
+gains that can translate into better functional movement. Always ensure the athlete is warmed up
+before doing PNF, and communicate to avoid overstretching. With practice, the nervous system adapts,
+and  the  protective  reflex  threshold  raises,  allowing  greater  flexibility  without  compromising  joint
+stability.
+4. Specific Mobility Needs for Runners: Hips and Ankles
+Every runner’s form and efficiency depend not only on general flexibility or stiffness, but also on the
+mobility of key joints. Two of the most critical areas are the hips  (especially hip extension ability) and
+the ankles  (dorsiflexion ability). Limitations in either can impair running mechanics and potentially lead
+to injuries. Let’s examine each:• 
+• 
+10
+• 
+11
+14
+6
+
+---PAGE---
+
+Hip Extension Limits and Glute Activation (Reciprocal Inhibition)
+Efficient running, especially at faster paces, requires good hip extension  – the ability to extend the leg
+backward at the hip during the push-off phase. The primary muscles that produce hip extension are the
+gluteus maximus and, to a degree, the hamstrings. However , many runners (especially those who sit for
+long periods) struggle with tight hip flexors (like the iliopsoas and rectus femoris). Tight hip flexors
+resist backward movement of the thigh, effectively limiting hip extension . 
+When a runner has restricted hip extension  due to tight hip flexors, a couple of problems arise:
+Shorter Stride and Altered Mechanics:  The runner cannot extend the leg far behind the body,
+which  shortens  their  stride  length.  They  may  compensate  by  arching  the  lower  back  or
+overstriding with the other leg, neither of which is optimal. Limited hip extension can also
+reduce how effectively the glutes fire to push the body forward; the push-off becomes more
+reliant on the calves or lower back, potentially reducing power and efficiency.
+Reciprocal Inhibition of the Glutes:  Reciprocal inhibition means that when one muscle group is
+active or chronically tight, it can cause the opposite group to have reduced activation . In the
+context of the hips, if the  hip flexors are tight or overly active, they can neurologically
+inhibit the gluteus maximus . The body essentially says “the hip is flexed or held in a shortened
+position, so the hip extensor should remain relatively relaxed.” This is a survival of movement
+patterns: muscles on one side of a joint relax to accommodate contraction on the other side .
+Unfortunately for runners, this  “inhibition”  means the glutes – which are critical for running
+power – may not engage fully if the hip flexors are very tight. Some coaches refer to this
+phenomenon colloquially as “sleepy glutes” or  gluteal amnesia , where the glutes aren’t firing
+when  they  should,  largely  because  opposing  muscles  (hip  flexors)  are  dominating  the  hip
+position.
+This reciprocal inhibition can create a vicious cycle: tight hip flexors lead to weak/inactive glutes, and
+weak glutes mean the hip flexors have to do more to lift the leg each stride (or the runner relies on
+other muscles like hamstrings or quads), which further reinforces the imbalance.
+Impact on Running Performance and Injury:  Inefficient glute activation due to tight hip flexors can
+harm running economy and performance. The gluteus maximus is the largest muscle in the body and a
+powerhouse for hip extension; if it’s not contributing enough, the runner loses out on a major source of
+propulsion. They might have a shorter , shuffling stride and reduced power on hills or sprints. Moreover ,
+other muscles will pick up the slack – hamstrings may overwork to extend the hip, and the lumbar spine
+may  hyperextend  to  compensate,  potentially  leading  to  lower  back  strain .  Tight  hip  flexors  also
+contribute to an anterior pelvic tilt posture, which can put extra stress on the lower back.
+From an injury standpoint, chronically tight hip flexors and underactive glutes can be associated with
+issues like  hamstring strains  (because hamstrings get overtaxed),  low back pain , and even knee
+problems (as the alignment of the pelvis and femur is affected, potentially altering knee mechanics).
+Ensuring adequate hip extension mobility can help avert these issues.
+Improving Hip Extension Mobility:  The solution is twofold – lengthen the hip flexors and activate/
+strengthen the glutes.  Stretching the hip flexors (e.g., kneeling lunge stretches for the iliopsoas, and
+stretches for the quads/rectus femoris) will help give the hip joint more extension range. But equally
+important is waking up the glutes so they can take advantage of that range. Glute activation exercises
+(like glute bridges, hip thrusts, monster walks, etc.) teach the body to fire the glutes even if the hip• 
+• 
+11
+11
+7
+
+---PAGE---
+
+flexors have been tight. Over time, this can rewire the reciprocal inhibition effect: as the glutes become
+stronger and more active, they can better co-exist with the hip flexors. You essentially restore a healthy
+balance where the hip flexors can relax when the glutes engage , and vice versa, as intended.
+Coaching Tip:  Many runners will benefit from a regular routine of  hip flexor stretches  and  glute
+activation drills . For example, after runs (when muscles are warm) do a 1–2 minute hip flexor stretch
+per side, focusing on a posterior pelvic tilt to truly stretch the iliopsoas. Follow this with a set of glute
+bridges or single-leg bridges to reinforce hip extension using the glutes. By consistently doing this, a
+runner can gradually increase their hip extension mobility. They’ll notice an ability to push off further
+behind them, which means a more powerful stride. Even a few degrees more of hip extension (achieved
+by loosening tight flexors) can translate to a longer stride and better running economy. And from a
+reflex standpoint, reducing tension in the hip flexors will dial down the reciprocal inhibition on the
+glutes, unlocking  more of the glutes’ strength.
+In  summary,  tight  hip  flexors  inhibit  glute  activation  via  reciprocal  inhibition ,  limiting  a
+runner’s  power.  Coaches  should  ensure  their  athletes  address  this  by  stretching  what’s  tight  (hip
+flexors) and strengthening what’s weak (glutes). The result is improved hip range, stronger push-off,
+and a lower risk of the injuries and inefficiencies associated with the so-called “tight-hips, weak-glutes”
+syndrome.
+Ankle Dorsiflexion: The Key to Shock Absorption and Achilles Health
+Moving down the body, the ankle joint’s mobility , specifically dorsiflexion  (the ability to bend the foot
+upward toward the shin), is critically important for runners. During the stance phase of running (when
+the foot is on the ground and the body is moving over it), the ankle needs to dorsiflex to allow the shin
+to move forward and to absorb impact. If a runner lacks sufficient dorsiflexion, it can have several
+repercussions:
+Shock Absorption:  The ankle joint is one of the first lines of shock absorption when the foot strikes the
+ground. Adequate dorsiflexion allows the ankle to bend and absorb impact forces gradually , rather
+than abruptly. Think of dorsiflexion as the ankle’s suspension system – like the shocks on a car . If the
+ankle can flex smoothly, it helps attenuate the ground reaction forces as the runner’s weight loads onto
+the leg. The calf muscles (particularly the soleus) control this dorsiflexion eccentrically, acting as springs
+that slow the rate of ankle bend and then help push off. 
+When ankle mobility is limited (i.e., the ankle is stiff and cannot dorsiflex enough), the impact forces
+may be displaced elsewhere – often to the knee (leading to higher knee loads) or to the foot/heel itself
+(which can strain the plantar fascia or Achilles tendon). A stiff ankle (limited dorsiflexion) results in a
+more jarring, less compliant landing. The vertical stiffness of the runner increases, which can reduce
+running economy and increase injury risk. Studies have shown that runners with higher leg stiffness
+can  sometimes  incur  greater  impact  forces  unless  compensated  by  other  joints .  Ideally,  some
+compliance at the ankle (through dorsiflexion) helps cushion each landing.
+Achilles Tendon Stress and Tendinopathy:  The Achilles tendon connects the calf muscles to the heel.
+It stores and releases elastic energy with each step, but it also undergoes significant strain during
+running.  Insufficient  ankle  dorsiflexion  is  a  known  risk  factor  for  Achilles  tendon  injuries
+(tendinopathy) . If a runner cannot dorsiflex enough, what often happens is the heel might lift off
+prematurely during stance or the foot compensates by overpronating (rolling in) to get more range.
+Both scenarios can increase the load on the Achilles. For example, lacking dorsiflexion means the calf-
+Achilles unit is tighter; as the body moves forward over the foot, the Achilles may be forced to stretch11
+15
+8
+
+---PAGE---
+
+more than normal if the ankle joint doesn’t provide the motion. This added strain, over thousands of
+steps, can irritate the tendon.
+Clinical observations and research have linked  limited dorsiflexion range of motion to a higher
+incidence  of  Achilles  tendinopathy  and  calf  strains.  In  one  context,  stiffness  in  the  lower  limb
+(meaning  joints  that  resist  normal  range  of  motion)  was  noted  as  a  factor  in  Achilles  issues .
+Essentially, a less mobile ankle (high stiffness) means the Achilles tendon endures higher tension forces
+because the motion has to come from stretching the tendon instead of the ankle joint moving. Over
+time, this can lead to degeneration in the tendon. Some studies of injured runners have found that
+those with Achilles injuries often have significantly reduced dorsiflexion in the affected leg compared to
+uninjured individuals.
+Proper Ankle Mechanics in Running:  When dorsiflexion is adequate, here’s what happens during a
+normal stride: As the runner’s foot lands (midfoot or forefoot strike, for instance), the ankle flexes
+smoothly, allowing the shin to rotate forward over the foot. The arch and Achilles tendon absorb energy
+like a spring. At a certain point (mid-stance), the Achilles is loaded and then the calf muscles contract to
+plantarflex (push off), releasing that energy to propel the runner . If dorsiflexion is ample, the Achilles
+experiences a healthy stretch within normal range – contributing to elastic recoil – but not an excessive
+strain. If dorsiflexion is lacking, the runner might hit an end-range quickly, causing either a heel lift  (less
+surface area on the ground, reducing stability and forcing calf to work harder) or pronation or a
+combination of both to compensate. These compensations can decrease efficiency and concentrate
+stress where it shouldn’t be.
+Preventing Injuries with Ankle Mobility:  To reduce injury risk such as Achilles tendinopathy, ensuring
+good ankle dorsiflexion is crucial. This can be addressed by maintaining flexibility in the calf muscles
+(gastrocnemius and soleus) and mobility in the ankle joint capsule. Calf tightness is a common cause of
+limited dorsiflexion. Regular calf stretching (both with knee straight for gastrocnemius and knee bent
+for soleus) will help improve the range. Additionally, doing ankle mobility drills – like the classic “knee-
+to-wall” dorsiflexion exercise where you try to touch your knee to the wall with your foot a certain
+distance  away  –  can  help  safely  push  the  boundaries  of  ankle  motion.  Strengthening  the  calf  in
+dorsiflexed positions (for instance, doing calf raises on a step, dropping the heel below the step to train
+that end range) can also increase functional dorsiflexion.
+From a coaching perspective, note that ankle dorsiflexion can be limited not just by soft tissue (muscles/
+tendons) but also by joint impingement (bone or anterior ankle capsule tightness). If a runner has a
+significant block to ankle motion, it might need specific mobility work or even therapy to address. But
+generally, most runners benefit from some calf stretching and ankle mobilization.
+Benefits of Good Ankle Mobility:  When a runner has adequate dorsiflexion: - They  absorb shock
+better . The impact is dissipated through controlled ankle flexion rather than jolting the knee or hip. This
+can manifest as lower impact peaks on a force plate and possibly reduced injury risk to joints. - They can
+utilize  the  Achilles  tendon’s  elastic  recoil  optimally .  With  the  right  amount  of  dorsiflexion,  the
+Achilles stores energy and then releases it like a rubber band, aiding push-off (which improves running
+economy). If the ankle is too stiff, the tendon might not stretch enough to store energy (or conversely, if
+forced, might overstretch and get injured). If it’s too lax, energy might dissipate. Again, it’s about
+optimal compliance. - They often have a  smoother, more efficient gait . Insufficient dorsiflexion can
+cause a clunky, up-and-down motion (because the leg can’t roll forward smoothly), whereas adequate
+mobility allows a fluid transition from landing to toe-off.
+Research  in  biomechanics  indicates  that  improving  ankle  range  can  modestly  improve  running
+economy in some cases, likely by enabling better energy transfer and reducing resistance. Moreover ,15
+9
+
+---PAGE---
+
+interventions  aimed  at  increasing  dorsiflexion  (like  eccentric  calf  training)  have  been  successful  in
+treating and preventing Achilles tendinopathies, underlining how vital that range is for tendon health.
+Coaching Tip:  Routinely check your athletes’ ankle dorsiflexion . A simple test is the knee-to-wall test:
+have the athlete kneel or stand in a lunge and see how far they can drive their knee over their toes with
+the heel down. If it’s significantly less on one side or less than a few inches beyond the toes, dorsiflexion
+is limited. Incorporate exercises to improve this, such as: - Calf stretches:  After runs, do wall or step calf
+stretches (30+ seconds each) to lengthen the gastrocnemius and soleus. - Ankle mobility drills:  e.g.,
+the  runner’s  lunge  –  drive  the  knee  forward  and  back,  10–15  repetitions,  keeping  the  heel  down,
+perhaps with light pressure from hands or a band for assistance. - Eccentric heel drops:  Stand on a
+step, rise up on both toes, then stand on one leg and slowly lower the heel down below the step. This
+strengthens the calf and increases tendon flexibility (a proven method for Achilles tendon rehab and
+dorsiflexion gains).
+Ensuring good ankle mobility will help the runner’s form and may prevent common injuries like Achilles
+tendinopathy, plantar fasciitis (often related to tight calves and limited dorsiflexion), and even knee
+pain. It allows the runner to  run “softer”  – each footstrike having a bit of give – and then spring
+forward effectively. Remember , mobility is not just about flexibility, but about control in that range. So
+combining stretching with strengthening (like calf raises through full range) is ideal.
+In  conclusion,  ankle  dorsiflexion  is  critical  for  shock  absorption  and  Achilles  tendon  health .
+Runners with restricted ankle mobility have stiffer , more injury-prone mechanics , whereas those
+with adequate dorsiflexion can capitalize on the Achilles’ elastic properties and reduce undue stress on
+the tendon. Coaches should treat ankle mobility with as much importance as hip or hamstring flexibility
+in their training programs for runners.
+Final Thoughts:  Flexibility and mobility training for runners should be highly specific. The goal is not to
+turn  runners  into  gymnasts,  but  to  ensure  they  have  the  necessary  range  of  motion  to  move
+efficiently and stay injury-free, while preserving the  stiffness  needed for elastic energy return. The
+stiffness paradox  reminds us that more is not always better when it comes to flexibility – finding the
+optimal stiffness leads to better running economy . The comparison of static vs dynamic stretching
+highlights that timing and context matter; use the right type of stretching at the right time to either
+prepare the body for performance or to develop flexibility. Understanding the body’s reflexes (myotatic
+reflex and GTO response) gives insight into why our muscles sometimes fight a stretch, and methods
+like PNF show how we can intelligently work with the nervous system to safely improve range .
+Finally, honing in on key joints like the hips and ankles addresses the specific mobility needs  of runners –
+unlocking hip extension for stronger glutes, and ankle dorsiflexion for better shock absorption and
+injury prevention. 
+By integrating these principles, coaches and runners can develop a mobility routine that supports their
+training  rather  than  detracts  from  it.  A  well-designed  flexibility  and  mobility  program  will  keep  a
+runner’s stride strong, efficient, and resilient  mile after mile. ♂♀
+Influence of dynamic stretching on ankle joint stiffness, vertical stiffness
+and running economy during treadmill running
+https://www.memphis.edu/healthsciences/pdfs/frontiers-physiology-dynamic-stretching.pdf15
+5
+14 10
+1 2 3 5 6 7 8 9
+10
+
+---PAGE---
+
+Biomechanical stiffness models (A) McMahon & Cheng’s (1990) spring-mass... | Download
+Scientific Diagram
+https://www.researchgate.net/figure/Biomechanical-stiffness-models-A-McMahon-Chengs-1990-spring-mass-model-
+for_fig1_328613677
+What is PNF stretching technique? - MediPhysio
+https://mediphysio.com.au/pnf-stretching-technique/
+Proprioceptive Neuromuscular Facilitation (PNF): Its Mechanisms and Effects on Range of
+Motion and Muscular Function - PMC 
+https://pmc.ncbi.nlm.nih.gov/articles/PMC3588663/415
+10 11
+12 13 14
+11
+
+---PAGE---
+

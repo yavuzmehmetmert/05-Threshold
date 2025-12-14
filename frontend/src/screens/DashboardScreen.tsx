@@ -159,9 +159,51 @@ export default function DashboardScreen() {
     const { readinessScore, activities, setActivities } = useDashboardStore();
     const [refreshing, setRefreshing] = React.useState(false);
 
+    // PMC State
+    const [pmc, setPmc] = React.useState<{
+        ctl: number;
+        atl: number;
+        tsb: number;
+        form_status: string;
+        form_emoji: string;
+        weekly_tss: number;
+        is_overreaching: boolean;
+    } | null>(null);
+
+    // Weekly breakdown state
+    const [weeklyData, setWeeklyData] = React.useState<{
+        current_week: { start: string; tss: number; days_completed: number; projected_tss: number };
+        weekly_history: Array<{ week_start: string; week_number: number; tss: number }>;
+        avg_weekly_tss: number;
+        trend: string;
+        trend_emoji: string;
+    } | null>(null);
+
     useEffect(() => {
         fetchActivities();
+        fetchPmc();
+        fetchWeekly();
     }, []);
+
+    const fetchPmc = async () => {
+        try {
+            const response = await fetch('http://localhost:8000/ingestion/training-load');
+            const data = await response.json();
+            setPmc(data);
+        } catch (error) {
+            console.error('Failed to fetch PMC:', error);
+        }
+    };
+
+    const fetchWeekly = async () => {
+        try {
+            const response = await fetch('http://localhost:8000/ingestion/training-load/weekly');
+            const data = await response.json();
+            setWeeklyData(data);
+        } catch (error) {
+            console.error('Failed to fetch weekly data:', error);
+        }
+    };
 
     const fetchActivities = async () => {
         try {
@@ -230,6 +272,110 @@ export default function DashboardScreen() {
                                 delay={400}
                             />
                         </XStack>
+
+                        {/* Training Load Card - Enhanced with Weekly Data */}
+                        {pmc && (
+                            <Animated.View entering={FadeInDown.delay(500).springify()}>
+                                <View
+                                    borderRadius={16}
+                                    borderWidth={1}
+                                    borderColor={pmc.is_overreaching ? "rgba(255,51,51,0.3)" : "rgba(255,255,255,0.08)"}
+                                    backgroundColor={pmc.is_overreaching ? "rgba(255,51,51,0.1)" : "rgba(20,20,20,0.6)"}
+                                    padding="$4"
+                                >
+                                    {/* Header with Form Status */}
+                                    <XStack justifyContent="space-between" alignItems="center" marginBottom="$3">
+                                        <XStack space="$2" alignItems="center">
+                                            <Zap size={18} color="#FF9900" />
+                                            <Text fontSize={12} color="$color.gray10" letterSpacing={1} fontWeight="bold">TRAINING LOAD</Text>
+                                        </XStack>
+                                        <XStack space="$2" alignItems="center">
+                                            {weeklyData && (
+                                                <Text fontSize={12} color="#888">{weeklyData.trend_emoji}</Text>
+                                            )}
+                                            <Text fontSize={16} color={pmc.tsb > 5 ? "#CCFF00" : pmc.tsb > -10 ? "#FFCC00" : "#FF3333"} fontWeight="bold">
+                                                {pmc.form_emoji} {pmc.form_status}
+                                            </Text>
+                                        </XStack>
+                                    </XStack>
+
+                                    {/* CTL / ATL / TSB Row */}
+                                    <XStack justifyContent="space-around" marginBottom="$3">
+                                        <YStack alignItems="center">
+                                            <Text fontSize={9} color="#888">FITNESS</Text>
+                                            <Text fontSize={22} fontWeight="bold" color="#00CCFF">{pmc.ctl}</Text>
+                                        </YStack>
+                                        <YStack alignItems="center">
+                                            <Text fontSize={9} color="#888">FATIGUE</Text>
+                                            <Text fontSize={22} fontWeight="bold" color="#FF9900">{pmc.atl}</Text>
+                                        </YStack>
+                                        <YStack alignItems="center">
+                                            <Text fontSize={9} color="#888">FORM</Text>
+                                            <Text fontSize={22} fontWeight="bold" color={pmc.tsb > 5 ? "#CCFF00" : pmc.tsb > -10 ? "#FFCC00" : "#FF3333"}>
+                                                {pmc.tsb > 0 ? '+' : ''}{pmc.tsb}
+                                            </Text>
+                                        </YStack>
+                                    </XStack>
+
+                                    <View height={1} backgroundColor="rgba(255,255,255,0.1)" marginBottom="$3" />
+
+                                    {/* Current Week Progress */}
+                                    {weeklyData && (
+                                        <YStack marginBottom="$3">
+                                            <XStack justifyContent="space-between" alignItems="center" marginBottom="$2">
+                                                <Text fontSize={10} color="#888">THIS WEEK (Mon-Sun)</Text>
+                                                <Text fontSize={11} color="#666">{weeklyData.current_week.days_completed}/7 days</Text>
+                                            </XStack>
+                                            <XStack justifyContent="space-between" alignItems="flex-end">
+                                                <YStack>
+                                                    <Text fontSize={28} fontWeight="bold" color="#CCFF00">{weeklyData.current_week.tss}</Text>
+                                                    <Text fontSize={10} color="#666">TSS completed</Text>
+                                                </YStack>
+                                                <YStack alignItems="flex-end">
+                                                    <Text fontSize={16} color="#888">{weeklyData.current_week.projected_tss}</Text>
+                                                    <Text fontSize={10} color="#666">projected</Text>
+                                                </YStack>
+                                                <YStack alignItems="flex-end">
+                                                    <Text fontSize={16} color="#666">{weeklyData.avg_weekly_tss}</Text>
+                                                    <Text fontSize={10} color="#666">avg/week</Text>
+                                                </YStack>
+                                            </XStack>
+                                        </YStack>
+                                    )}
+
+                                    {/* Weekly History Mini Chart (last 8 weeks) */}
+                                    {weeklyData && weeklyData.weekly_history.length > 0 && (
+                                        <YStack>
+                                            <Text fontSize={10} color="#888" marginBottom="$2">WEEKLY HISTORY</Text>
+                                            <XStack justifyContent="space-between" alignItems="flex-end" height={50}>
+                                                {weeklyData.weekly_history.slice(-8).map((week, idx) => {
+                                                    const maxTss = Math.max(...weeklyData.weekly_history.slice(-8).map(w => w.tss), 1);
+                                                    const height = Math.max((week.tss / maxTss) * 45, 4);
+                                                    const isRecent = idx >= 6;
+                                                    return (
+                                                        <YStack key={week.week_start} alignItems="center" flex={1} marginHorizontal={2}>
+                                                            <View
+                                                                backgroundColor={isRecent ? "#CCFF00" : "#444"}
+                                                                width="80%"
+                                                                height={height}
+                                                                borderRadius={4}
+                                                            />
+                                                            <Text fontSize={8} color="#666" marginTop={4}>W{week.week_number}</Text>
+                                                        </YStack>
+                                                    );
+                                                })}
+                                            </XStack>
+                                        </YStack>
+                                    )}
+
+                                    {pmc.is_overreaching && (
+                                        <View backgroundColor="rgba(255,51,51,0.15)" padding="$2" borderRadius="$2" marginTop="$3">
+                                            <Text fontSize={11} color="#FF3333" textAlign="center">⚠️ High fatigue detected. Consider recovery.</Text>
+                                        </View>
+                                    )}
+                                </View>
+                            </Animated.View>
+                        )}
 
                         {/* Today's Mission */}
                         {todayWorkout && (

@@ -67,6 +67,7 @@ def upsert_activity(db: Session, activity_data: dict, user_id: int, raw_json: di
         activity_type=activity_data.get('activityType', {}).get('typeKey') if isinstance(activity_data.get('activityType'), dict) else activity_data.get('activityType'),
         distance=activity_data.get('distance'),
         duration=activity_data.get('duration'),
+        elapsed_duration=activity_data.get('elapsedDuration'),
         
         average_hr=activity_data.get('averageHR') or activity_data.get('averageHeartRate'),
         max_hr=activity_data.get('maxHR') or activity_data.get('maxHeartRate'),
@@ -202,6 +203,18 @@ def upsert_hrv_log(db: Session, user_id: int, date_obj, data: dict):
     db.commit()
     return existing or obj_in
 
+def get_sleep_log(db: Session, user_id: int, date_obj):
+    return db.query(models.SleepLog).filter(
+        models.SleepLog.user_id == user_id,
+        models.SleepLog.calendar_date == date_obj
+    ).first()
+
+def get_hrv_log(db: Session, user_id: int, date_obj):
+    return db.query(models.HRVLog).filter(
+        models.HRVLog.user_id == user_id,
+        models.HRVLog.calendar_date == date_obj
+    ).first()
+
 # --- Stream CRUD ---
 
 def save_activity_streams_batch(db: Session, activity_id: int, streams: list):
@@ -219,3 +232,80 @@ def save_activity_streams_batch(db: Session, activity_id: int, streams: list):
         
     db.bulk_insert_mappings(models.ActivityStream, streams)
     db.commit()
+
+
+# --- Shoe CRUD ---
+
+def create_shoe(db: Session, user_id: int, name: str, brand: str = None, initial_distance: float = 0.0):
+    """Create a new shoe for the user."""
+    shoe = models.Shoe(
+        user_id=user_id,
+        name=name,
+        brand=brand,
+        initial_distance=initial_distance,
+        is_active=1
+    )
+    db.add(shoe)
+    db.commit()
+    db.refresh(shoe)
+    return shoe
+
+
+def get_shoes(db: Session, user_id: int, include_retired: bool = False):
+    """Get all shoes for a user."""
+    query = db.query(models.Shoe).filter(models.Shoe.user_id == user_id)
+    if not include_retired:
+        query = query.filter(models.Shoe.is_active == 1)
+    return query.order_by(models.Shoe.created_at.desc()).all()
+
+
+def get_shoe(db: Session, shoe_id: int):
+    """Get a single shoe by ID."""
+    return db.query(models.Shoe).filter(models.Shoe.id == shoe_id).first()
+
+
+def update_shoe(db: Session, shoe_id: int, **kwargs):
+    """Update shoe fields."""
+    shoe = get_shoe(db, shoe_id)
+    if shoe:
+        for key, value in kwargs.items():
+            if hasattr(shoe, key) and value is not None:
+                setattr(shoe, key, value)
+        db.commit()
+        db.refresh(shoe)
+    return shoe
+
+
+def delete_shoe(db: Session, shoe_id: int):
+    """Delete a shoe (or retire it by setting is_active=0)."""
+    shoe = get_shoe(db, shoe_id)
+    if shoe:
+        shoe.is_active = 0  # Soft delete - don't lose history
+        db.commit()
+    return shoe
+
+
+def get_shoe_total_distance(db: Session, shoe_id: int) -> float:
+    """Calculate total distance for a shoe (initial + all activities)."""
+    from sqlalchemy import func
+    
+    shoe = get_shoe(db, shoe_id)
+    if not shoe:
+        return 0.0
+    
+    # Sum distances from activities with this shoe
+    activity_distance = db.query(func.sum(models.Activity.distance)).filter(
+        models.Activity.shoe_id == shoe_id
+    ).scalar() or 0.0
+    
+    # Total = initial + activity distances (convert to km)
+    return shoe.initial_distance + (activity_distance / 1000)
+
+
+def set_activity_shoe(db: Session, activity_id: int, shoe_id: int):
+    """Assign a shoe to an activity."""
+    activity = db.query(models.Activity).filter(models.Activity.activity_id == activity_id).first()
+    if activity:
+        activity.shoe_id = shoe_id
+        db.commit()
+    return activity

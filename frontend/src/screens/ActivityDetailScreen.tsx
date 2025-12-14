@@ -5,6 +5,7 @@ import { Activity, ArrowUp, Battery, Brain, Calendar, ChevronLeft, Clock, Drople
 import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryArea, VictoryScatter, VictoryBar, VictoryVoronoiContainer, VictoryTooltip, VictoryLabel, VictoryCursorContainer } from 'victory-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withRepeat, withTiming, interpolateColor, FadeInDown } from 'react-native-reanimated';
 import { Defs, LinearGradient, Stop } from 'react-native-svg';
+import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import ActivityMap from '../components/ActivityMap';
@@ -22,6 +23,50 @@ const MetricItem = ({ icon: Icon, label, value, unit, color }: any) => (
         </View>
     </View>
 );
+
+// --------------------------------------------------------------------------------
+// WEATHER CARD
+// --------------------------------------------------------------------------------
+const WeatherCard = ({ temp, humidity, wind, condition }: any) => {
+    if (temp == null) return null; // Don't show if no weather data
+
+    return (
+        <View style={styles.weatherCard}>
+            <ExpoLinearGradient
+                colors={['#1a2a3a', '#050505']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFill}
+            />
+            <View style={styles.weatherHeader}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    {condition === 'Rain' || condition === 'Drizzle' ? <Droplets color="#3399FF" size={20} /> :
+                        condition === 'Cloudy' ? <Wind color="#888" size={20} /> :
+                            <Thermometer color="#CCFF00" size={20} />}
+                    <Text style={styles.weatherTitle}>Weather Context</Text>
+                </View>
+                <Text style={styles.weatherCondition}>{condition || 'Unknown'}</Text>
+            </View>
+
+            <View style={styles.weatherGrid}>
+                <View style={styles.weatherItem}>
+                    <Text style={styles.weatherLabel}>Temp</Text>
+                    <Text style={styles.weatherValue}>{temp}°C</Text>
+                </View>
+                <View style={styles.weatherSeparator} />
+                <View style={styles.weatherItem}>
+                    <Text style={styles.weatherLabel}>Humidity</Text>
+                    <Text style={styles.weatherValue}>{humidity}%</Text>
+                </View>
+                <View style={styles.weatherSeparator} />
+                <View style={styles.weatherItem}>
+                    <Text style={styles.weatherLabel}>Wind</Text>
+                    <Text style={styles.weatherValue}>{wind} <Text style={{ fontSize: 12 }}>km/h</Text></Text>
+                </View>
+            </View>
+        </View>
+    );
+};
 
 // --------------------------------------------------------------------------------
 // AI INSIGHT COMPONENT ("THE WIPE ANALYSIS")
@@ -152,13 +197,16 @@ const AIInsightCard = ({ type, data }: { type: 'HIIT' | 'ENDURANCE' | 'RECOVERY'
 // --------------------------------------------------------------------------------
 // ACTIVITY CONTEXT CARD (Editable Metadata)
 // --------------------------------------------------------------------------------
-const ActivityContextCard = ({ activity, activityId }: { activity: any, activityId: any }) => {
-    const [metadata, setMetadata] = useState<any>({ shoe: '', type: 'Training', rpe: null });
+const ActivityContextCard = ({ activity, activityId, nativeRpe }: { activity: any, activityId: any, nativeRpe: number | null }) => {
+    const [metadata, setMetadata] = useState<any>({ shoe: '', shoeId: null, type: 'Training', rpe: null });
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    // Initial State
-    const [tempShoe, setTempShoe] = useState('');
+    // Shoe dropdown state
+    const [shoes, setShoes] = useState<any[]>([]);
+    const [showShoeModal, setShowShoeModal] = useState(false);
+    const [tempShoeId, setTempShoeId] = useState<number | null>(null);
+    const [tempShoeName, setTempShoeName] = useState('');
     const [tempType, setTempType] = useState('');
     const [showTypeModal, setShowTypeModal] = useState(false);
 
@@ -166,22 +214,48 @@ const ActivityContextCard = ({ activity, activityId }: { activity: any, activity
 
     useEffect(() => {
         fetchMetadata();
+        fetchShoes();
     }, []);
+
+    // Update RPE when nativeRpe prop changes
+    useEffect(() => {
+        if (nativeRpe !== null) {
+            setMetadata((prev: any) => ({ ...prev, rpe: nativeRpe }));
+        }
+    }, [nativeRpe]);
+
+    const fetchShoes = async () => {
+        try {
+            const response = await fetch('http://localhost:8000/ingestion/shoes');
+            if (response.ok) {
+                const data = await response.json();
+                setShoes(data);
+            }
+        } catch (e) {
+            console.error('Fetch shoes error:', e);
+        }
+    };
 
     const fetchMetadata = async () => {
         try {
             const response = await fetch(`http://localhost:8000/ingestion/activity/${activityId}/metadata`);
             const json = await response.json();
 
-            // Merge with Garmin data if local is empty
-            const rpe = json.rpe || activity.perceivedEffort || null;
+            // Also fetch activity's current shoe
+            const shoeResponse = await fetch(`http://localhost:8000/ingestion/activity/${activityId}/shoe`);
+            const shoeData = shoeResponse.ok ? await shoeResponse.json() : null;
+
+            // Use nativeRpe if available, otherwise fall back to metadata
+            const rpe = nativeRpe ?? json.rpe ?? activity.rpe ?? activity.perceivedEffort ?? null;
 
             setMetadata({
-                shoe: json.shoe || '',
+                shoe: shoeData?.name || json.shoe || '',
+                shoeId: shoeData?.id || null,
                 type: json.type || 'Training',
                 rpe: rpe
             });
-            setTempShoe(json.shoe || '');
+            setTempShoeId(shoeData?.id || null);
+            setTempShoeName(shoeData?.name || json.shoe || '');
             setTempType(json.type || 'Training');
         } catch (e) {
             console.error(e);
@@ -192,16 +266,26 @@ const ActivityContextCard = ({ activity, activityId }: { activity: any, activity
 
     const save = async () => {
         try {
+            // Save metadata
             await fetch(`http://localhost:8000/ingestion/activity/${activityId}/metadata`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    shoe: tempShoe,
+                    shoe: tempShoeName,
                     type: tempType,
-                    // We don't edit RPE here yet, just context. RPE usually locked.
                 })
             });
-            setMetadata(prev => ({ ...prev, shoe: tempShoe, type: tempType }));
+
+            // Save shoe assignment if changed
+            if (tempShoeId) {
+                await fetch(`http://localhost:8000/ingestion/activity/${activityId}/shoe`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ shoeId: tempShoeId })
+                });
+            }
+
+            setMetadata((prev: any) => ({ ...prev, shoe: tempShoeName, shoeId: tempShoeId, type: tempType }));
             setIsEditing(false);
         } catch (e) {
             console.error(e);
@@ -236,25 +320,28 @@ const ActivityContextCard = ({ activity, activityId }: { activity: any, activity
             <View style={{ flexDirection: 'row', gap: 12 }}>
                 {/* RPE Display */}
                 <View style={{ flex: 1, backgroundColor: '#111', borderRadius: 12, padding: 10, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ color: '#888', fontSize: 10, marginBottom: 4 }}>RPE (1-10)</Text>
-                    <Text style={{ color: (metadata.rpe || 0) > 7 ? '#FF3333' : '#CCFF00', fontSize: 24, fontWeight: 'bold' }}>
-                        {metadata.rpe ? metadata.rpe : '-'}
+                    <Text style={{ color: '#888', fontSize: 10, marginBottom: 4 }}>Perceived Effort</Text>
+                    <Text style={{ color: (metadata.rpe || 0) > 5 ? '#FF3333' : '#CCFF00', fontSize: 20, fontWeight: 'bold' }}>
+                        {metadata.rpe !== null && metadata.rpe !== undefined ? (() => {
+                            // Garmin RPE scale 0-10: 0-1=Very Light, 2-3=Light, 4-5=Moderate, 6-7=Hard, 8-9=Very Hard, 10=Max
+                            const labels = ['Çok Hafif', 'Çok Hafif', 'Hafif', 'Hafif', 'Orta', 'Orta', 'Zor', 'Zor', 'Çok Zor', 'Çok Zor', 'Maks'];
+                            return labels[Math.min(metadata.rpe, 10)] || metadata.rpe;
+                        })() : '-'}
                     </Text>
+                    <Text style={{ color: '#555', fontSize: 9, marginTop: 2 }}>({metadata.rpe ?? '-'}/10)</Text>
                 </View>
 
                 {/* Editable Fields */}
                 <View style={{ flex: 3, gap: 8 }}>
-                    {/* Shoe */}
+                    {/* Shoe - Dropdown */}
                     <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#111', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8 }}>
                         <Footprints size={14} color="#888" style={{ marginRight: 8 }} />
                         {isEditing ? (
-                            <TextInput
-                                value={tempShoe}
-                                onChangeText={setTempShoe}
-                                placeholder="Enter Shoe Model..."
-                                placeholderTextColor="#444"
-                                style={{ color: '#fff', flex: 1, padding: 0, fontSize: 13 }}
-                            />
+                            <TouchableOpacity onPress={() => setShowShoeModal(true)} style={{ flex: 1 }}>
+                                <Text style={{ color: tempShoeName ? '#fff' : '#444', fontSize: 13 }}>
+                                    {tempShoeName || 'Select Shoe...'}
+                                </Text>
+                            </TouchableOpacity>
                         ) : (
                             <Text style={{ color: metadata.shoe ? '#fff' : '#444', fontSize: 13 }}>
                                 {metadata.shoe || 'No Gear Selected'}
@@ -302,6 +389,42 @@ const ActivityContextCard = ({ activity, activityId }: { activity: any, activity
                     </View>
                 </View>
             )}
+
+            {/* Shoe Selector Modal */}
+            {showShoeModal && (
+                <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.9)', borderRadius: 16, padding: 16, zIndex: 99, justifyContent: 'center' }]}>
+                    <View style={{ backgroundColor: '#222', borderRadius: 12, padding: 8, borderWidth: 1, borderColor: '#444' }}>
+                        <Text style={{ color: '#888', fontSize: 12, marginBottom: 8, textAlign: 'center' }}>SELECT SHOE</Text>
+                        <ScrollView style={{ maxHeight: 250 }}>
+                            {shoes.length === 0 ? (
+                                <Text style={{ color: '#666', textAlign: 'center', paddingVertical: 20 }}>No shoes added yet. Add shoes in Profile.</Text>
+                            ) : (
+                                shoes.map(shoe => (
+                                    <TouchableOpacity
+                                        key={shoe.id}
+                                        style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#333', paddingHorizontal: 8 }}
+                                        onPress={() => {
+                                            setTempShoeId(shoe.id);
+                                            setTempShoeName(shoe.name);
+                                            setShowShoeModal(false);
+                                        }}
+                                    >
+                                        <Text style={{ color: tempShoeId === shoe.id ? '#CCFF00' : '#fff', fontWeight: tempShoeId === shoe.id ? 'bold' : 'normal' }}>
+                                            {shoe.name}
+                                        </Text>
+                                        <Text style={{ color: '#666', fontSize: 11 }}>
+                                            {shoe.brand ? `${shoe.brand} • ` : ''}{shoe.totalDistance?.toFixed(0) || 0} km
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))
+                            )}
+                        </ScrollView>
+                        <TouchableOpacity style={{ marginTop: 8, padding: 8, alignItems: 'center' }} onPress={() => setShowShoeModal(false)}>
+                            <Text style={{ color: '#FF3333' }}>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
         </View>
     );
 };
@@ -316,12 +439,27 @@ const ActivityDetailScreen = () => {
     const [weather, setWeather] = useState(activity.weather || null);
     const [sleepData, setSleepData] = useState<any>(null);
     const [hrvData, setHrvData] = useState<any>(null);
+    const [rawPolyline, setRawPolyline] = useState<any[]>([]);
+    const [nativeLaps, setNativeLaps] = useState<any[]>([]);
+    const [activityRpe, setActivityRpe] = useState<number | null>(null); // Native RPE from FIT/API
+    const [loadContext, setLoadContext] = useState<any>(null); // Training load context
 
     useEffect(() => {
         fetchActivityDetails();
         fetchSleepData();
         fetchHrvData();
+        fetchLoadContext();
     }, []);
+
+    const fetchLoadContext = async () => {
+        try {
+            const response = await fetch(`http://localhost:8000/ingestion/training-load/context/${activity.activityId}`);
+            const json = await response.json();
+            setLoadContext(json);
+        } catch (error) {
+            console.error('Failed to fetch load context:', error);
+        }
+    };
 
     const fetchHrvData = async () => {
         try {
@@ -357,11 +495,26 @@ const ActivityDetailScreen = () => {
 
             let fitData = [];
 
-            // Handle new API structure { data: [...], weather: {...} }
+            // Handle new API structure { data: [...], weather: {...}, geoPolylineDTO: [...], summary: {...} }
             if (!Array.isArray(json) && json.data) {
                 fitData = json.data;
                 if (json.weather) {
                     setWeather(json.weather);
+                }
+                if (json.nativeLaps) {
+                    setNativeLaps(json.nativeLaps);
+                }
+                // Extract RPE from summary (this is the Cloud/Native RPE)
+                if (json.summary && json.summary.rpe !== undefined) {
+                    setActivityRpe(json.summary.rpe);
+                }
+                if (json.geoPolylineDTO) {
+                    // Handle DTO wrapper (Garmin structure: { polyline: [...] })
+                    if (Array.isArray(json.geoPolylineDTO)) {
+                        setRawPolyline(json.geoPolylineDTO);
+                    } else if (json.geoPolylineDTO.polyline) {
+                        setRawPolyline(json.geoPolylineDTO.polyline);
+                    }
                 }
             } else if (Array.isArray(json)) {
                 // Fallback for old/mock response
@@ -369,6 +522,55 @@ const ActivityDetailScreen = () => {
             }
 
             if (fitData.length > 0) {
+                // Post-process: Ensure distance and coordinates exist
+                // If backend missing 'distance' (common in raw streams), calculate it.
+                const getDist = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+                    const R = 6371e3; // metres
+                    const φ1 = lat1 * Math.PI / 180;
+                    const φ2 = lat2 * Math.PI / 180;
+                    const Δφ = (lat2 - lat1) * Math.PI / 180;
+                    const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+                    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                        Math.cos(φ1) * Math.cos(φ2) *
+                        Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                    return R * c;
+                };
+
+                let cumulDistance = 0;
+                fitData.forEach((d: any, i: number) => {
+                    // 1. Normalize Coordinates
+                    d.latitude = d.latitude || d.position_lat;
+                    d.longitude = d.longitude || d.position_long;
+
+                    // 2. Fill Missing Distance
+                    if (d.distance === undefined || d.distance === null) {
+                        if (i > 0) {
+                            const prev = fitData[i - 1];
+                            if (prev.latitude && prev.longitude && d.latitude && d.longitude) {
+                                const step = getDist(prev.latitude, prev.longitude, d.latitude, d.longitude);
+                                cumulDistance += step;
+                            }
+                        }
+                        d.distance = cumulDistance;
+                    } else {
+                        // Trust backend if available, but track it just in case mixed
+                        cumulDistance = d.distance;
+                    }
+
+                    // 3. Fallback for Speed if missing (for Pace)
+                    // If speed is missing but we computed distance and have time...
+                    if ((!d.speed || d.speed === 0) && i > 0 && d.timestamp) {
+                        const prev = fitData[i - 1];
+                        const timeDiff = (new Date(d.timestamp).getTime() - new Date(prev.timestamp).getTime()) / 1000;
+                        const distDiff = d.distance - prev.distance;
+                        if (timeDiff > 0 && distDiff > 0) {
+                            d.speed = distDiff / timeDiff; // m/s
+                        }
+                    }
+                });
+
                 setDetails(fitData);
             }
         } catch (error) {
@@ -401,7 +603,36 @@ const ActivityDetailScreen = () => {
 
     // GPS Route Data (Lat/Long)
     // Normalize to fit in a square box for visualization
-    const routeData = details.filter(d => d.position_lat && d.position_long).map(d => ({ x: d.position_long, y: d.position_lat }));
+    let routeData: any[] = [];
+    // Prioritize High-Res Streams if available (detected via details filter), otherwise fallback to Polyline if substantial
+    const streamRoute = details.filter(d => (d.latitude || d.position_lat) && (d.longitude || d.position_long));
+
+    if (streamRoute.length > 1) {
+        routeData = streamRoute.map(d => ({
+            latitude: Number(d.latitude || d.position_lat || d.lat),
+            longitude: Number(d.longitude || d.position_long || d.lon),
+            altitude: d.altitude || d.enhanced_altitude || 0,
+            timestamp: d.timestamp,
+            speed: d.speed || d.enhanced_speed || 0
+        }));
+        // Note: Raw polyline usually doesn't have stream metrics, so we leave it as coords-only fallbacl
+    } else if (rawPolyline && rawPolyline.length > 1) {
+        routeData = rawPolyline.map(d => ({
+            latitude: Number(d.latitude || d.lat || d.position_lat),
+            longitude: Number(d.longitude || d.lon || d.position_long),
+            altitude: 0,
+            timestamp: null,
+            speed: 0
+        }));
+    }
+
+    // DEBUG LOGS - VISIBLE
+    // console.log('DETAILS LEN:', details.length);
+    if (details.length > 0) console.log('FIRST DETAILS LAT TYPE:', typeof details[0].latitude, 'LAT:', details[0].latitude);
+    console.log('STREAM ROUTE LEN:', streamRoute.length);
+    console.log('RAW POLYLINE LEN:', rawPolyline ? rawPolyline.length : 'NULL');
+    console.log('ROUTE DATA LEN:', routeData.length);
+    if (routeData.length > 0) console.log('FIRST ROUTE:', routeData[0]);
 
     // Calculate Averages for Running Dynamics
     const calcAvg = (key: string) => {
@@ -545,7 +776,7 @@ const ActivityDetailScreen = () => {
         const avgPwr = powers.reduce((a, b) => a + b, 0) / powers.length;
         const work = Math.round((avgPwr * activity.duration) / 1000);
 
-        // 2. Auto-Laps (1km Splits)
+        // 2. Auto-Laps (Native from Garmin preferred, else calculated 1km Splits)
         interface Lap {
             id: number;
             distance: string;
@@ -553,49 +784,118 @@ const ActivityDetailScreen = () => {
             pace: string;
             hr: number;
             power: number;
-            elevation: number;
+            gain: number;
+            loss: number;
         }
         const laps: Lap[] = [];
-        let lapStartIdx = 0;
-        let nextKm = 1000;
 
-        // Find split points
-        details.forEach((d, i) => {
-            if (d.distance >= nextKm || i === details.length - 1) {
-                // Determine Lap Segments
-                const chunk = details.slice(lapStartIdx, i + 1);
-                if (chunk.length > 0) {
-                    const lapDist = chunk[chunk.length - 1].distance - (chunk[0].distance || 0); // approx
-                    const duration = (new Date(chunk[chunk.length - 1].timestamp).getTime() - new Date(chunk[0].timestamp).getTime()) / 1000;
+        if (nativeLaps && nativeLaps.length > 0) {
+            // Use Auhoritative Garmin Laps
+            nativeLaps.forEach((nl, i) => {
+                const distKm = (nl.total_distance || 0) / 1000;
+                const timeSec = nl.total_timer_time || 0;
 
-                    // Elevation Math
-                    const startElev = chunk[0].altitude || 0;
-                    const endElev = chunk[chunk.length - 1].altitude || 0;
-                    const elevDiff = Math.round(endElev - startElev);
-
-                    if (duration > 0) {
-                        const avgPace = duration / (lapDist / 1000); // sec/km
-                        const lapAvgHr = Math.round(chunk.reduce((a, c) => a + (c.heart_rate || 0), 0) / chunk.length);
-                        const lapAvgPwr = Math.round(chunk.reduce((a, c) => a + (c.power || 0), 0) / chunk.length);
-
-                        const m = Math.floor(avgPace / 60);
-                        const s = Math.round(avgPace % 60);
-
-                        laps.push({
-                            id: laps.length + 1,
-                            distance: (lapDist / 1000).toFixed(2),
-                            time: formatDuration(duration),
-                            pace: `${m}:${s < 10 ? '0' : ''}${s}`,
-                            hr: lapAvgHr,
-                            power: lapAvgPwr,
-                            elevation: elevDiff
-                        });
-                    }
+                // Calculate pace: prefer avg_speed, fallback to time/distance
+                let avgPaceSecKm = 0;
+                if (nl.avg_speed && nl.avg_speed > 0) {
+                    avgPaceSecKm = 1000 / nl.avg_speed;
+                } else if (distKm > 0 && timeSec > 0) {
+                    avgPaceSecKm = timeSec / distKm;
                 }
-                lapStartIdx = i;
-                nextKm += 1000;
-            }
-        });
+
+                const m = Math.floor(avgPaceSecKm / 60);
+                const s = Math.round(avgPaceSecKm % 60);
+
+                laps.push({
+                    id: i + 1,
+                    distance: distKm.toFixed(2),
+                    time: formatDuration(timeSec),
+                    pace: avgPaceSecKm > 0 ? `${m}:${s < 10 ? '0' : ''}${s}` : '-',
+                    hr: Math.round(nl.avg_heart_rate || 0),
+                    power: Math.round(nl.avg_power || 0),
+                    gain: Math.round(nl.total_ascent || 0),
+                    loss: Math.round(nl.total_descent || 0)
+                });
+            });
+        } else {
+            // Fallback: Client-side Calculation
+            let lapStartIdx = 0;
+            let nextKm = 1000;
+            details.forEach((d, i) => {
+                if (d.distance >= nextKm || i === details.length - 1) {
+                    const chunk = details.slice(lapStartIdx, i + 1);
+                    if (chunk.length > 0) {
+                        const lapDist = chunk[chunk.length - 1].distance - (chunk[0].distance || 0);
+                        const duration = (new Date(chunk[chunk.length - 1].timestamp).getTime() - new Date(chunk[0].timestamp).getTime()) / 1000;
+
+                        let movingSeconds = 0;
+                        for (let k = 1; k < chunk.length; k++) {
+                            const t1 = new Date(chunk[k - 1].timestamp).getTime();
+                            const t2 = new Date(chunk[k].timestamp).getTime();
+                            const delta = (t2 - t1) / 1000;
+                            const s = chunk[k].speed || 0;
+                            if (s > 0.1 && delta > 0 && delta < 10) movingSeconds += delta;
+                            else if (s > 0.1) movingSeconds += 1;
+                        }
+                        if (movingSeconds < 10) movingSeconds = duration;
+                        const activeDuration = movingSeconds;
+
+                        // Elevation Math
+                        let lapGain = 0;
+                        let lapLoss = 0;
+
+                        const hasGrade = chunk.some(p => p.grade !== undefined && p.grade !== null);
+                        if (hasGrade) {
+                            for (let k = 1; k < chunk.length; k++) {
+                                const p1 = chunk[k - 1];
+                                const p2 = chunk[k];
+                                let distDelta = (p2.distance || 0) - (p1.distance || 0);
+                                if (distDelta < 0) distDelta = 0;
+                                if (distDelta > 100) distDelta = 0;
+                                const grade = p1.grade || 0;
+                                const dh = distDelta * (grade / 100);
+                                if (dh > 0) lapGain += dh;
+                                else lapLoss += Math.abs(dh);
+                            }
+                        } else {
+                            let lastValidElev = chunk[0].altitude || 0;
+                            for (let k = 1; k < chunk.length; k++) {
+                                const currAlt = chunk[k].altitude || lastValidElev;
+                                const diff = currAlt - lastValidElev;
+                                if (diff > 0.8) {
+                                    lapGain += diff;
+                                    lastValidElev = currAlt;
+                                } else if (diff < -0.8) {
+                                    lapLoss += Math.abs(diff);
+                                    lastValidElev = currAlt;
+                                }
+                            }
+                        }
+
+                        if (activeDuration > 0) {
+                            const avgPace = activeDuration / (lapDist / 1000);
+                            const lapAvgHr = Math.round(chunk.reduce((a, c) => a + (c.heart_rate || 0), 0) / chunk.length);
+                            const lapAvgPwr = Math.round(chunk.reduce((a, c) => a + (c.power || 0), 0) / chunk.length);
+                            const m = Math.floor(avgPace / 60);
+                            const s = Math.round(avgPace % 60);
+
+                            laps.push({
+                                id: laps.length + 1,
+                                distance: (lapDist / 1000).toFixed(2),
+                                time: formatDuration(activeDuration),
+                                pace: `${m}:${s < 10 ? '0' : ''}${s}`,
+                                hr: lapAvgHr,
+                                power: lapAvgPwr,
+                                gain: Math.round(lapGain),
+                                loss: Math.round(lapLoss)
+                            });
+                        }
+                    }
+                    lapStartIdx = i;
+                    nextKm += 1000;
+                }
+            });
+        }
 
         // 3. Smoothed Power for Chart (10s Avg)
         const smoothedPower: { x: number; y: number }[] = [];
@@ -627,32 +927,13 @@ const ActivityDetailScreen = () => {
                     <Text style={styles.title}>{activity.activityName}</Text>
 
                     {/* Weather Context Strip */}
-                    {weather && (
-                        <View style={styles.weatherStrip}>
-                            <View style={styles.weatherItem}>
-                                <Thermometer size={14} color="#888" />
-                                <Text style={styles.weatherText}>{weather.temp}°C</Text>
-                            </View>
-                            <View style={styles.weatherItem}>
-                                <Wind size={14} color="#888" />
-                                <Text style={styles.weatherText}>{weather.windSpeed} km/h</Text>
-                            </View>
-                            <View style={styles.weatherItem}>
-                                <Droplets size={14} color="#888" />
-                                <Text style={styles.weatherText}>{weather.humidity}%</Text>
-                            </View>
-                            <View style={styles.weatherItem}>
-                                <Activity size={14} color="#888" />
-                                <Text style={styles.weatherText}>AQI {weather.aqi}</Text>
-                            </View>
-                            {weather.elevation && (
-                                <View style={styles.weatherItem}>
-                                    <Mountain size={14} color="#888" />
-                                    <Text style={styles.weatherText}>{weather.elevation}m</Text>
-                                </View>
-                            )}
-                        </View>
-                    )}
+                    {/* Weather Context Card */}
+                    <WeatherCard
+                        temp={activity.weather_temp}
+                        humidity={activity.weather_humidity}
+                        wind={activity.weather_wind_speed}
+                        condition={activity.weather_condition}
+                    />
 
                     <View style={styles.mainStatsRow}>
                         <View style={styles.statItem}>
@@ -662,6 +943,11 @@ const ActivityDetailScreen = () => {
                         <View style={styles.statItem}>
                             <Text style={styles.statLabel}>Duration</Text>
                             <Text style={styles.statValue}>{formatDuration(activity.duration)}</Text>
+                            {activity.elapsedDuration && activity.elapsedDuration > activity.duration && (
+                                <Text style={{ color: '#666', fontSize: 10, marginTop: 2 }}>
+                                    ({formatDuration(activity.elapsedDuration)} elapsed)
+                                </Text>
+                            )}
                         </View>
                         <View style={styles.statItem}>
                             <Text style={styles.statLabel}>Avg Pace</Text>
@@ -743,7 +1029,53 @@ const ActivityDetailScreen = () => {
                 <ActivityContextCard
                     activity={activity}
                     activityId={activity.activityId}
+                    nativeRpe={activityRpe}
                 />
+
+                {/* --- TRAINING LOAD CONTEXT (Recent Load Card) --- */}
+                {loadContext && (
+                    <View style={{ marginHorizontal: 16, marginTop: 16, backgroundColor: loadContext.is_overreaching ? 'rgba(255,51,51,0.1)' : '#1A1A1A', borderRadius: 16, padding: 16, borderWidth: 1, borderColor: loadContext.is_overreaching ? 'rgba(255,51,51,0.3)' : '#333' }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <TrendingUp size={18} color="#FF9900" />
+                                <Text style={{ color: '#fff', fontSize: 14, fontWeight: 'bold', marginLeft: 8 }}>TRAINING LOAD CONTEXT</Text>
+                            </View>
+                            <View style={{ backgroundColor: loadContext.activity_tss > 80 ? '#FF333330' : loadContext.activity_tss > 50 ? '#FFCC0030' : '#33FF3330', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
+                                <Text style={{ color: loadContext.activity_tss > 80 ? '#FF3333' : loadContext.activity_tss > 50 ? '#FFCC00' : '#33FF33', fontSize: 12, fontWeight: 'bold' }}>
+                                    TSS: {loadContext.activity_tss}
+                                </Text>
+                            </View>
+                        </View>
+
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 12 }}>
+                            <View style={{ alignItems: 'center' }}>
+                                <Text style={{ color: '#888', fontSize: 10 }}>FITNESS (CTL)</Text>
+                                <Text style={{ color: '#00CCFF', fontSize: 20, fontWeight: 'bold' }}>{loadContext.ctl_before}</Text>
+                            </View>
+                            <View style={{ alignItems: 'center' }}>
+                                <Text style={{ color: '#888', fontSize: 10 }}>FATIGUE (ATL)</Text>
+                                <Text style={{ color: '#FF9900', fontSize: 20, fontWeight: 'bold' }}>{loadContext.atl_before}</Text>
+                            </View>
+                            <View style={{ alignItems: 'center' }}>
+                                <Text style={{ color: '#888', fontSize: 10 }}>FORM (TSB)</Text>
+                                <Text style={{ color: loadContext.tsb_before > 5 ? '#CCFF00' : loadContext.tsb_before > -10 ? '#FFCC00' : '#FF3333', fontSize: 20, fontWeight: 'bold' }}>
+                                    {loadContext.tsb_before > 0 ? '+' : ''}{loadContext.tsb_before}
+                                </Text>
+                            </View>
+                        </View>
+
+                        <View style={{ backgroundColor: '#111', borderRadius: 8, padding: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text style={{ color: '#888', fontSize: 11 }}>Last 7 Days TSS:</Text>
+                            <Text style={{ color: '#fff', fontSize: 14, fontWeight: 'bold' }}>{loadContext.last_7_days_tss}</Text>
+                        </View>
+
+                        {loadContext.is_overreaching && (
+                            <View style={{ backgroundColor: 'rgba(255,51,51,0.15)', padding: 10, borderRadius: 8, marginTop: 10 }}>
+                                <Text style={{ color: '#FF3333', fontSize: 11, textAlign: 'center' }}>⚠️ High accumulated fatigue before this workout. Recovery may be compromised.</Text>
+                            </View>
+                        )}
+                    </View>
+                )}
 
                 {/* --- ANALYTICS CONTENT --- */}
                 <View style={styles.analyticsContainer}>
@@ -755,16 +1087,21 @@ const ActivityDetailScreen = () => {
                                     <ActivityIndicator color="#CCFF00" />
                                 </View>
                             ) : (
-                                <ActivityMap
-                                    data={details}
-                                    coordinates={details.map(d => ({ lat: d.position_lat, long: d.position_long }))}
-                                    width={width - 40}
-                                    height={350}
-                                />
+                                <View style={{ flex: 1 }}>
+                                    <Text style={{ position: 'absolute', top: 5, left: 5, zIndex: 10, color: '#00FF00', fontSize: 10, backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                                        PTS: {routeData.length} / D: {details.length}
+                                    </Text>
+                                    <ActivityMap
+                                        data={details}
+                                        coordinates={routeData}
+                                        width={width - 40}
+                                        height={350}
+                                    />
+                                    <View style={{ position: 'absolute', bottom: 10, right: 10, padding: 4, backgroundColor: 'rgba(0,0,0,0.7)', borderRadius: 4 }}>
+                                        <Text style={{ color: '#fff', fontSize: 10 }}>Interactive Map</Text>
+                                    </View>
+                                </View>
                             )}
-                            <View style={{ position: 'absolute', bottom: 10, right: 10, padding: 4, backgroundColor: 'rgba(0,0,0,0.7)', borderRadius: 4 }}>
-                                <Text style={{ color: '#fff', fontSize: 10 }}>Interactive Map</Text>
-                            </View>
                         </View>
                     </Animated.View>
 
@@ -874,7 +1211,7 @@ const ActivityDetailScreen = () => {
                                     <Text style={{ width: 40, color: '#888', fontSize: 13, fontWeight: '600' }}>Lap</Text>
                                     <Text style={{ flex: 1, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>Pace</Text>
                                     <Text style={{ width: 50, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>HR</Text>
-                                    <Text style={{ width: 50, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>Elev</Text>
+                                    <Text style={{ width: 70, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>Elev (+/-)</Text>
                                     <Text style={{ width: 50, color: '#888', fontSize: 13, fontWeight: '600', textAlign: 'right' }}>Pwr</Text>
                                 </View>
                                 {laps.map((lap, i) => (
@@ -896,8 +1233,10 @@ const ActivityDetailScreen = () => {
                                         <Text style={{ width: 50, color: getZoneColor(lap.hr), fontSize: 15, fontWeight: 'bold', textAlign: 'center' }}>
                                             {lap.hr}
                                         </Text>
-                                        <Text style={{ width: 50, color: lap.elevation > 0 ? '#33FF33' : lap.elevation < 0 ? '#FF3333' : '#888', fontSize: 14, fontWeight: '600', textAlign: 'center' }}>
-                                            {lap.elevation > 0 ? '+' : ''}{lap.elevation}
+                                        <Text style={{ width: 70, fontSize: 13, fontWeight: '600', textAlign: 'center' }}>
+                                            <Text style={{ color: '#33FF33' }}>+{lap.gain}</Text>
+                                            <Text style={{ color: '#888' }}>{' / '}</Text>
+                                            <Text style={{ color: '#FF3333' }}>-{lap.loss}</Text>
                                         </Text>
                                         <Text style={{ width: 50, color: '#FFFF00', fontSize: 15, fontWeight: '600', textAlign: 'right' }}>
                                             {lap.power}
@@ -978,6 +1317,7 @@ const ActivityDetailScreen = () => {
                                     unit="ms"
                                     color="#FFAA00"
                                 />
+
                                 <MetricItem
                                     icon={Activity}
                                     label="Vert. Ratio"
@@ -1022,13 +1362,13 @@ const ActivityDetailScreen = () => {
                             ))}
                         </View>
 
-                        {/* Legend Below */}
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12, flexWrap: 'wrap' }}>
+                        {/* Legend Below - Improved Layout */}
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 16, paddingHorizontal: 4 }}>
                             {zoneStats.map((zone, i) => (
-                                <View key={i} style={{ alignItems: 'center', width: '20%' }}>
-                                    <Text style={{ color: zone.color, fontWeight: 'bold', fontSize: 12 }}>Z{i + 1}</Text>
-                                    <Text style={{ color: '#DDD', fontSize: 12, fontWeight: '600' }}>{Math.round(zone.pct)}%</Text>
-                                    <Text style={{ color: '#666', fontSize: 10 }}>{zone.minutes}m</Text>
+                                <View key={i} style={{ alignItems: 'center', minWidth: 50 }}>
+                                    <Text style={{ color: zone.color, fontWeight: 'bold', fontSize: 13 }}>Z{i + 1}</Text>
+                                    <Text style={{ color: '#DDD', fontSize: 11, fontWeight: '600' }}>{Math.round(zone.pct)}%</Text>
+                                    <Text style={{ color: '#666', fontSize: 9 }}>{zone.minutes}m</Text>
                                 </View>
                             ))}
                         </View>
@@ -1162,17 +1502,17 @@ const ActivityDetailScreen = () => {
                                                     })()}
                                                 </Defs>
 
-                                                {/* Minute Grids (Vertical) - Darker, Subtle */}
+                                                {/* Minute Grids (Vertical) - Smart Tick Intervals */}
                                                 <VictoryAxis
                                                     style={{
                                                         axis: { stroke: "#333" },
-                                                        tickLabels: { fill: "#666", fontSize: 10 },
+                                                        tickLabels: { fill: "#888", fontSize: 11, fontWeight: "500" },
                                                         grid: { stroke: "#222", strokeWidth: 1 }
                                                     }}
-                                                    tickValues={Object.keys(minuteBuckets).map(m => parseInt(m) * 60)}
+                                                    tickCount={6}
                                                     tickFormat={(t) => {
                                                         const mins = Math.floor(t / 60);
-                                                        return `${mins}m`;
+                                                        return `${mins}'`;
                                                     }}
                                                 />
 
@@ -1268,8 +1608,8 @@ const ActivityDetailScreen = () => {
                                             }}
                                             interpolation="monotoneX" // Smooth curves
                                         />
-                                        <VictoryAxis style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#666", fontSize: 10 } }} />
-                                        <VictoryAxis dependentAxis style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#666", fontSize: 10 }, grid: { stroke: "#333" } }} />
+                                        <VictoryAxis tickCount={6} tickFormat={(t) => `${Math.floor(t / 60)}'`} style={{ axis: { stroke: "#333" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#222" } }} />
+                                        <VictoryAxis dependentAxis tickCount={4} style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#333" } }} />
                                     </VictoryChart>
                                 </View>
                             )}
@@ -1310,19 +1650,19 @@ const ActivityDetailScreen = () => {
                                             </LinearGradient>
                                         </Defs>
                                         <VictoryLine
-                                            data={details.map((d, i) => ({ x: i, y: d.cadence || 0 }))}
+                                            data={details.map((d, i) => ({ x: i, y: (d.cadence || 0) * 2 }))}
                                             style={{
                                                 data: { stroke: "#00FF99", strokeWidth: 2 }
                                             }}
                                         />
                                         <VictoryArea
-                                            data={details.map((d, i) => ({ x: i, y: d.cadence || 0 }))}
+                                            data={details.map((d, i) => ({ x: i, y: (d.cadence || 0) * 2 }))}
                                             style={{
                                                 data: { fill: "url(#cadenceGradient)", fillOpacity: 0.3, stroke: "none" }
                                             }}
                                         />
-                                        <VictoryAxis style={{ axis: { stroke: "#333" }, tickLabels: { fill: "#666", fontSize: 10 } }} />
-                                        <VictoryAxis dependentAxis domain={[0, 220]} style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#666", fontSize: 10 }, grid: { stroke: "#222", strokeDasharray: "4, 4" } }} />
+                                        <VictoryAxis tickCount={6} tickFormat={(t) => `${Math.floor(t / 60)}'`} style={{ axis: { stroke: "#333" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#222" } }} />
+                                        <VictoryAxis dependentAxis domain={[0, 220]} tickCount={4} style={{ axis: { stroke: "transparent" }, tickLabels: { fill: "#888", fontSize: 11 }, grid: { stroke: "#222" } }} />
                                     </VictoryChart>
                                 </View>
                             )}
@@ -1370,15 +1710,13 @@ const ActivityDetailScreen = () => {
                                         }}
                                     />
                                     <VictoryAxis
+                                        tickCount={6}
                                         style={{
                                             axis: { stroke: "#333" },
-                                            tickLabels: { fill: "#666", fontSize: 10 },
+                                            tickLabels: { fill: "#888", fontSize: 11, fontWeight: "500" },
                                             grid: { stroke: "#222", strokeWidth: 1 }
                                         }}
-                                        tickFormat={(t) => {
-                                            const mins = Math.floor(t / 60);
-                                            return `${mins}m`;
-                                        }}
+                                        tickFormat={(t) => `${Math.floor(t / 60)}'`}
                                     />
                                     <VictoryAxis
                                         dependentAxis
@@ -1434,22 +1772,21 @@ const ActivityDetailScreen = () => {
                                         }}
                                     />
                                     <VictoryAxis
+                                        tickCount={6}
                                         style={{
                                             axis: { stroke: "#333" },
-                                            tickLabels: { fill: "#666", fontSize: 10 },
+                                            tickLabels: { fill: "#888", fontSize: 11, fontWeight: "500" },
                                             grid: { stroke: "#222", strokeWidth: 1 }
                                         }}
-                                        tickFormat={(t) => {
-                                            const mins = Math.floor(t / 60);
-                                            return `${mins}m`;
-                                        }}
+                                        tickFormat={(t) => `${Math.floor(t / 60)}'`}
                                     />
                                     <VictoryAxis
                                         dependentAxis
+                                        tickCount={4}
                                         style={{
                                             axis: { stroke: "transparent" },
-                                            tickLabels: { fill: "#666", fontSize: 10 },
-                                            grid: { stroke: "#222", strokeDasharray: "4, 4" }
+                                            tickLabels: { fill: "#888", fontSize: 11 },
+                                            grid: { stroke: "#222" }
                                         }}
                                     />
                                 </VictoryChart>
@@ -1507,21 +1844,52 @@ const styles = StyleSheet.create({
     insightStatValue: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
 
     // Weather Styles
-    weatherStrip: {
-        flexDirection: 'row',
-        marginTop: 8,
-        marginBottom: 8,
-        gap: 12,
+    weatherCard: {
+        marginBottom: 20,
+        borderRadius: 16,
+        padding: 16,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: '#333',
     },
-    weatherItem: {
+    weatherHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    weatherTitle: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    weatherCondition: {
+        color: '#888',
+        fontSize: 14,
+    },
+    weatherGrid: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        justifyContent: 'space-between',
     },
-    weatherText: {
-        color: '#ccc',
+    weatherItem: {
+        alignItems: 'center',
+        flex: 1,
+    },
+    weatherLabel: {
+        color: '#666',
         fontSize: 12,
-        fontWeight: '500',
+        marginBottom: 4,
+    },
+    weatherValue: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: '600',
+    },
+    weatherSeparator: {
+        width: 1,
+        height: 30,
+        backgroundColor: '#333',
     },
     title: {
         fontSize: 24,

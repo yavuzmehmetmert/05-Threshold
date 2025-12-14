@@ -1,0 +1,59 @@
+INFO:     Will watch for changes in these directories: ['/Users/mertyavuz/Desktop/VSCode-Projects/05-Threshold']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [64479] using StatReload
+INFO:     Started server process [64571]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:50020 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50182 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50184 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50625 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50626 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50991 - "GET /ingestion/activity/21230575987/metadata HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50995 - "GET /ingestion/shoes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50996 - "GET /ingestion/activity/21230575987 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50998 - "GET /ingestion/sleep/2025-12-11T18%3A17%3A09 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50999 - "GET /ingestion/hrv/2025-12-11T18%3A17%3A09 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51001 - "GET /ingestion/training-load/context/21230575987 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50991 - "GET /ingestion/activity/21230575987/shoe HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52109 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52110 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52128 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52128 - "GET /ingestion/activities?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52175 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52175 - "GET /ingestion/activities?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52235 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52235 - "GET /ingestion/activities?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52235 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52235 - "GET /ingestion/activities?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52268 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52268 - "GET /ingestion/activities?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62742 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62742 - "GET /ingestion/activities?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62747 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62747 - "GET /ingestion/activities?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63449 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63480 - "GET /ingestion/activities?limit=5 HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'ingestion_service.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [64571]
+INFO:     Started server process [67364]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:63511 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63751 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63752 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63756 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63756 - "GET /ingestion/activities?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63840 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63841 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64018 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64019 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64052 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64052 - "GET /ingestion/activities?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64170 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64172 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64241 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64242 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK

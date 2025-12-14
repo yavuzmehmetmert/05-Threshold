@@ -1,0 +1,255 @@
+Critical Power (CP) and W′ in Endurance Running
+Power-Time Hyperbolic Relationship and Critical Power (CP)
+Endurance performance follows a  hyperbolic relationship  between power output and the time to
+exhaustion. If an athlete sustains a higher power , they fatigue faster , and conversely, they can sustain
+lower powers for much longer . When plotting power vs. time-to-fatigue from multiple exhaustive trials
+(e.g. efforts lasting ~2 to 15 minutes), the curve levels off  toward an asymptote . This asymptote is
+called  Critical Power (CP)  – the power output that can be sustained for a very long time without
+exhaustion . Mathematically, one form of this model is: 
+or equivalently . This means the time to exhaustion  at any constant power  above CP is
+inversely proportional to how far  exceeds CP . As  approaches CP from above, the sustainable
+duration  grows very large (approaching infinity in theory), illustrating that CP is an asymptotic “fatigue
+threshold.” In simpler terms, CP separates steady-state vs. non-steady-state intensities : exercise at
+CP or below can reach a metabolic steady-state, whereas exercise above CP causes progressive fatigue
+until exhaustion .
+In running, the same concept is often expressed as critical speed (CS)  with a similar hyperbolic speed–
+time curve (and a corresponding  D′ in meters, analogous to W′) . Whether using power (watts) or
+speed (m/s), CP/CS represents the boundary between the “heavy” exercise domain (sustainable, steady
+physiology) and the “severe” domain where fatigue inexorably accumulates .
+W′ (W Prime) – Finite Work Capacity Above CP
+W′ (W prime)  is the model parameter that quantifies the finite amount of work  an athlete can perform
+above their CP. It is effectively the curvature constant of the power–duration hyperbola . In practical
+terms, W′ is measured in energy units (joules or kilojoules) and represents a fixed “work capacity” that
+can be expended when exercising above CP . Once this extra work capacity is used up, fatigue is
+so high that the athlete must stop – this corresponds to exhaustion.
+Importantly, W′ is constant for a given individual  (at a given fitness level) and does not depend on
+how it’s expended. Whether an athlete sprints briefly or maintains a moderately hard pace for longer , as
+long as the work done above CP equals their W′, they will reach the limit of tolerance . For example,
+if an athlete’s CP is 300 W and W′ is 20 kJ, then sustaining 400 W (which is 100 W above CP) would
+theoretically exhaust their W′ in about  (since 100 J/s is the rate above CP).
+If they only ride at 330 W (30 W above CP), exhaustion would come later , around  
+seconds, because W′ is burned more slowly. In other words, the closer the exercise intensity is to CP,
+the longer it takes to use up W′ . W′ can thus be imagined as an energy reserve or “anaerobic
+capacity” (historically termed anaerobic work capacity) that fuels work above CP. However , it’s not purely
+a fixed store of one substrate – it reflects a mix of physiological resources (phosphocreatine, anaerobic
+glycolysis,  oxygen  stores)  and  the  tolerable  accumulation  of  fatigue  byproducts .  It  remains
+remarkably  constant  across  various  high-intensity  exercises;  exhaustion  in  the  severe  domain1
+21
+P=CP+ ,
+tW′
+t= P−CPW′
+t P
+P 3 P
+t
+2
+4
+25
+6
+71
+8
+20,000 J/100 J/s=200 s
+20,000/30≈667
+79
+10
+1
+
+---PAGE---
+
+consistently coincides with roughly the same W′ expended and similar levels of muscle metabolites,
+regardless of pacing strategy .
+W′ Depletion in Intervals and Exponential Recovery (W′ Balance
+Model)
+During intermittent exercise  with work and rest intervals, the critical power model can be extended to
+track W′ usage and recovery in real time. The assumptions are: when power output  exceeds CP , the
+athlete  draws  from  their  W′  store  (depleting  it),  and  when  power  falls  below  CP ,  the  W′  can
+reconstitute  (recover)  partially .  Researchers  formalized  this  with  the  concept  of  W′  balance
+(W′_bal)  – essentially keeping a running tally of how much of W′ remains at any given moment .
+W′ depletion:  Above CP, W′ is expended in a roughly linear fashion. In fact, for a constant power > CP,
+the rate  of W′ usage is approximately  (in J/s). This linear utilization is why a hard bout 50 W
+above CP will burn through W′ twice as fast as a bout 25 W above CP . Complete exhaustion occurs
+when the cumulative work above CP equals the entire W′ (at which point W′_bal reaches zero). Notably,
+this linear usage holds during intermittent work bouts as well – each hard interval draws down the W′
+reserve by the area under the curve above CP.
+W′ recovery:  When power drops back below CP  (during a recovery interval or a respite in pacing), the
+remaining W′ can refill, but not linearly  – it follows a curvilinear (exponential)  time course . Early
+in recovery, W′ regenerates quickly, then the rate of recharge slows as it asymptotically approaches the
+original W′ level. In other words, W′ recovery behaves like a first-order  exponential process  with a
+certain  time  constant .  Crucially,  the  speed  of  W′  reconstitution  depends  on  how  easy  the
+recovery is: the farther below CP  the recovery intensity is, the faster W′ recovers . For instance,
+one study found the recovery time constant τ was ~377 seconds when recovering at a very low 20 W,
+around 452 s at moderate-intensity recovery, and as slow as ~580 s when “recovering” just below CP in
+the heavy domain . If the power never goes below CP at all, W′ cannot recharge  (the model predicts
+an infinite τ when recovery power remains above CP, meaning the athlete is still net consuming W′ even
+in “recovery”) .
+Modeling W′ balance:  Using these principles, a continuous W′_bal model was developed (Skiba et al.
+2012, 2015) to track the dynamic state of W′ during variable work rates. In mathematical form, it can be
+described piecewise by differential equations. When : 
+meaning W′_bal decreases at the rate power exceeds CP (Joules per second). And when :
+meaning W′_bal replenishes toward its maximum value with an exponential time constant . Here
+ is the athlete’s full W′ capacity (recovered), and   is a constant that may vary with recovery
+intensity as noted above. In plain language, after a hard effort, the fraction  of W′ that regenerates per
+second depends on how much W′ is “missing” and how quickly the athlete physiologically recovers (fast
+at first, then slower). The W′_balance  at any time is essentially: initial W′ minus what’s been used, plus
+what’s been regained via exponential recovery. Empirical models confirm that an exponential recharge
+function fits observed data well . For example, Ferguson et al. (2010) showed W′ comes back more
+rapidly in the first minutes post-exercise than later , evidencing a curvilinear pattern . Skiba and8
+11
+11
+P−CP
+7
+12
+1314
+1514
+16
+17
+P(t)>CP
+• =
+dtdW′bal−(P(t)−CP),
+P(t)<CP
+• =
+dtdW′bal,
+τW′−W′(t) max bal
+τ14
+W′max τ
+13
+18
+2
+
+---PAGE---
+
+colleagues  then  validated  an  integral  W′_bal  model  in  cyclists,  showing  it  could  accurately  predict
+exhaustion during varied interval protocols – when the model’s W′_bal hit ~0, the athlete was indeed at
+failure . In summary,  W′ is utilized linearly when above CP, but its recovery below CP is
+exponential  (non-linear), a behavior that modern W′_bal models take into account .
+CP vs. FTP: Physiological Accuracy and Differences
+Functional Threshold Power (FTP)  is a concept from cycling training that is often compared to CP. Both
+CP and FTP intend to pinpoint an athlete’s threshold between sustainable and unsustainable effort, but
+they  are  defined  differently.  CP  is  derived  from  the  power–duration  relationship  using  multiple
+exhaustive tests, whereas FTP is typically defined as the highest power one can sustain in a quasi-
+steady state for ~60 minutes  (in practice, often estimated as ~95% of a best 20-minute power test).
+In essence, CP is a parameter from a physiological model, while FTP is a shorthand performance metric.
+Magnitude:  Studies on well-trained cyclists have found that CP and FTP are closely related but  not
+interchangeable . In a 2021 study, for example, CP (determined by a 3-test model) averaged 282 W,
+while FTP (from a 60-min prediction via a 20-min test) averaged 266 W in the same athletes – CP was
+about 16 W (roughly 6%) higher than FTP on average . This was a significant difference, meaning one
+cannot assume CP equals FTP for a given individual. Generally, CP tends to be a bit higher than the true
+one-hour power for many athletes . Conceptually, CP often corresponds to the upper limit of the
+heavy-intensity domain , which some research suggests might be maintainable for ~30–40 minutes
+before slow fatigue processes (e.g. VO₂ slow component, lactate drift) intervene . FTP, defined as a
+~60-min power , might be slightly lower if an athlete cannot hold CP for a full hour . In other words, CP is
+a more precise mathematically-defined threshold, whereas FTP is an empirical estimate of a one-
+hour sustainable power .
+Physiological basis:  CP has a strong grounding in physiology – it reflects the maximal steady-state
+oxidative  energy  supply  and  corresponds  to  the  critical  intensity  above  which  fatigue-related
+metabolites (lactate, H^+, P_i, etc.) continually accumulate . FTP, on the other hand, was not
+originally derived from lab measures but has been correlated to the maximal lactate steady state (MLSS)
+or critical power in many cases. Both CP and FTP assume a “threshold” for metabolic steady-state, but
+the accuracy differs . Because CP is obtained via multiple exhaustive efforts and modeling, it accounts
+for both aerobic capacity and anaerobic work capacity (W′), giving insight into an individual’s profile. FTP
+is easier to test (requiring just a time trial effort) but can be influenced by testing protocol and doesn’t
+explicitly  yield  a  W′-like  parameter .  Researchers  note  that  calling  FTP  and  CP  equivalent  “maximal
+metabolic steady-states” can be misleading – in the aforementioned study, CP was significantly higher
+than FTP while purportedly representing a similar concept . This suggests that athletes might
+reach a true physiological steady state at a power a bit below CP (closer to FTP), and CP itself might be
+slightly above the sustainable lactate threshold for some. In practice, coaches often treat CP and FTP as
+analogous  benchmarks  (both  delineate  the  boundary  of  tolerable  sustainable  intensity),  but  CP  is
+considered more precise and individualized , whereas FTP is a convenient approximation for training
+zones .
+Using W′ Balance in Coaching and Real-Time Training
+Prescription
+One of the powerful applications of the CP/W′ model is in designing and adjusting interval workouts
+to optimally challenge an athlete. A coaching algorithm that knows an athlete’s CP and W′ can use the
+W′ balance  (W′_bal) to prescribe interval intensities and durations in real time for maximal effectiveness
+. For example, consider an athlete with a W′ of 20 kJ. How many intervals at a given intensity can1920
+21
+22
+23
+23
+22
+524
+25
+2223
+26
+3
+
+---PAGE---
+
+they handle before exhaustion? W′_bal modeling provides the answer by tracking the remaining W′. A
+coach or software can simulate a planned workout and ensure that by the end of the last interval, the
+athlete’s W′_bal is nearly drained (e.g. reaches zero or a small reserve), indicating a full utilization of
+high-intensity  capacity  without  failing  too  early .  This  takes  the  guesswork  out  of  crafting
+intervals like 4×2 minutes vs. 3×3 minutes : since each athlete’s W′ is unique , the ideal interval count and
+duration should match their capacity . If intervals are too long or too many, the model will predict
+W′_bal hitting zero before  the workout is done – a warning that the athlete would likely not complete the
+session. If intervals are too short or recovery too easy, W′_bal might not be sufficiently challenged by
+the end.
+In real time, such an algorithm (or device feedback) can adjust on the fly.  During a session , if the
+athlete’s W′_bal is dropping faster than expected (meaning they are working harder relative to CP than
+planned), the system could recommend extending the next recovery interval or reducing the next
+interval’s power slightly to avoid premature exhaustion. Conversely, if W′_bal is still high after an interval
+(meaning they didn’t go as hard as prescribed), the next interval could be made more intense or longer .
+Modern training software and bike computers have started incorporating live W′_bal charts for this
+purpose . Seeing a “W′ remaining” metric (sometimes visualized like a battery of matches left to
+burn) gives athletes and coaches actionable insight – for instance, a cyclist in a race might decide
+whether it’s safe to attack  based on how much W′ they have left in the tank . From a coaching
+perspective, the precision in interval prescription  is greatly improved. Instead of prescribing generic
+interval lengths, a coach can specify, say, repeats at 120% of CP until W′_bal is 20% (nearly exhausted),
+then recover until W′_bal is back to 90%, and repeat. This ensures each athlete is stressed appropriately
+relative to their individual capacities . As one sports science article summarizes: with knowledge of
+an athlete’s CP, W′, and W′ recovery kinetics, a coach can prescribe work and recovery intervals “with
+greater precision to achieve specific physiological goals” . 
+In summary, the CP and W′ model not only explains the fundamental power–duration relationship
+(hyperbolic curve) and defines W′ as a finite reserve of work above threshold, but it also provides
+practical tools. W′ balance modeling allows real-time monitoring of an athlete’s high-intensity energy
+reserves,  enabling  smarter  interval  training  design  and  pacing  strategies.  By  avoiding  excessive
+depletion of W′ too early (or ensuring it’s fully utilized by the end of key workouts), athletes can train
+and  compete  more  effectively .  This  integration  of  physiology  and  training  prescription
+exemplifies  how  the  CP/W′  concept  bridges  lab  theory  with  on-the-road  (or  on-the-track)  coaching
+decisions. 
+Sources:
+Jones, A. M. (2018). Sports Science Exchange #181 – The “Critical Power” Concept and High-Intensity
+Exercise Performance.  Gatorade Sports Science Institute . 
+Vanhatalo, A. et al. (2021). Bi-exponential modelling of W′ reconstitution kinetics in trained cyclists.
+Eur J Appl Physiol . 
+McGrath, E. et al. (2021). Do Critical and Functional Threshold Powers Equate in Highly-Trained
+Athletes?  Int J Sports Physiol Perf . 
+TrainerDay Blog (2023). Designing the Perfect Interval Workout Using W′bal . 
+Skiba, P. F. et al. (2012). Modeling the expenditure and reconstitution of work capacity above CP.  Med
+Sci Sports Exerc . 2728
+29
+3031
+3233
+26
+26
+3435
+• 
+2113426
+• 
+314
+• 
+2322
+• 2927
+• 
+1316
+4
+
+---PAGE---
+
+The
+"Critical Power" Concept and High-Intensity Exercise Performance - Gatorade Sports Science Institute
+https://www.gssiweb.org/sports-science-exchange/article/the-critical-power-concept-and-high-intensity-exercise-
+performance
+Bi-exponential modelling of $$W^{^{\prime}}$$ reconstitution kinetics in trained cyclists | European
+Journal of Applied Physiology
+https://link.springer .com/article/10.1007/s00421-021-04874-3
+Do Critical and Functional Threshold Powers Equate in Highly-Trained Athletes? - PMC
+https://pmc.ncbi.nlm.nih.gov/articles/PMC8136559/
+Designing The Perfect Interval Workout Using W'bal - TrainerDay Blog
+https://blog.trainerday.com/designing-the-perfect-interval-workout-using-wbal-missing-videos1 2 4 5 6 7 8 910 11 12 13 14 15 16 17 18 19 20 21 24 26 32 33 34 35
+3
+22 23 25
+27 28 29 30 31
+5
+
+---PAGE---
+

@@ -1,0 +1,1174 @@
+Athletes training at an altitude of ~1,856 m in St. Moritz, Switzerland. Endurance athletes often utilize high-
+altitude venues to stimulate physiological adaptations that can enhance sea-level performance.
+Altitude Training: Physiology and Practical
+Coaching Guide
+Altitude training – also known as hypoxic training – is a method used by endurance athletes to improve
+performance at sea level by living or exercising in low-oxygen environments. At elevations typically
+above ~1,500–2,400 m (5,000–8,000 ft), the air contains the same 20.9% oxygen as at sea level, but
+barometric pressure  is lower , reducing the  partial pressure of oxygen  in each breath . This
+relative lack of oxygen (hypoxia) triggers a cascade of physiological responses as the body acclimatizes.
+Endurance  athletes  leverage  these  adaptations  –  such  as  increased  red  blood  cell  production  and
+improved oxygen delivery – to gain a competitive edge when they return to sea-level conditions .
+Altitude training gained prominence after the 1968 Mexico City Olympics (~2,240 m altitude), where
+endurance performances suffered while sprint events saw less impact, highlighting the influence of
+altitude on aerobic exercise . Since then, coaches and sport scientists have refined altitude training
+protocols to maximize benefits and minimize drawbacks, leading to strategies like "Live High, Train
+Low"  to  optimize  training  intensity  alongside  altitude  exposure.  In  this  guide,  we  detail  the
+physiological effects  of altitude training – especially the role of erythropoietin (EPO) and increased
+hemoglobin mass – and compare the popular  “Live High, Train Low” (LHTL)  and  “Live High, Train
+High” (LHTH)  models. We also examine how acute altitude exposure affects sleep quality , metabolic
+rate , and recovery , and provide practical advice on adjusting training heart rate and pace zones  for
+athletes  training  at  altitude.  This  comprehensive  overview  is  intended  for  coaches  and  endurance
+runners (from amateur to semi-professional) to understand the science and best practices of altitude
+training for improved sea-level performance.
+Physiological Effects of Altitude Training on Performance
+Altitude training can confer significant aerobic performance benefits primarily by enhancing the blood’s
+oxygen-carrying capacity and efficiency of oxygen utilization. The central premise is that prolonged
+exposure to hypoxia stimulates erythropoiesis  (red blood cell production), leading to more hemoglobin
+and red blood cells, which in turn deliver more oxygen to working muscles during exercise .
+When  an  altitude-acclimatized  athlete  returns  to  sea  level,  they  arrive  with  these  physiological
+“upgrades,” potentially allowing them to sustain a faster pace or higher power output before fatigue. In
+this section, we break down the key physiological adaptations to altitude and how each can enhance
+sea-level endurance performance:
+Increased Red Blood Cell (RBC) Mass and Hemoglobin:  The hallmark adaptation to altitude is
+an increase in total red blood cell volume and hemoglobin mass . With fewer oxygen
+molecules available in each breath of thin air , the kidneys respond by ramping up production of
+the hormone  erythropoietin (EPO)  via the hypoxia-inducible factor (HIF) pathway. EPO then
+stimulates the bone marrow to produce more RBCs. Over a period of weeks at altitude, athletes
+commonly see a measurable rise in hemoglobin concentration and total hemoglobin mass
+. Multiple studies and meta-analyses confirm this effect; for example, a 2025 systematic
+review  found  that  altitude  training  significantly  increased  hemoglobin  concentration
+(standardized mean difference ~0.7) and tended to increase total hemoglobin mass compared to12
+34
+5
+67
+• 
+48
+9
+10
+1
+
+---PAGE---
+
+sea-level training . The magnitude of increase depends on altitude “dose” (height and
+duration): a classic rule of thumb is roughly a 1% increase in total RBC mass per 100 hours of
+moderate altitude exposure . Practically, about 3–4 weeks at altitude often yields a ~4–7%
+increase in hemoglobin mass in athletes . For instance, living ~3 weeks around 2,300 m
+elevation can expand Hb_mass by on the order of 4–5% . This is significant because each 1 g
+increase in hemoglobin mass is associated with ~4 mL/min greater  VO₂max  (a higher aerobic
+capacity) . In simple terms, more red blood cells equate to more oxygen delivered to muscles,
+which can improve endurance performance at sea level. However , it’s worth noting there is
+individual variability – some “high responders” see large RBC boosts (up to ~10–12%), while
+others  (“non-responders”)  see  minimal  change .  Overall,  though,  the  erythropoietic
+response  is considered the primary factor behind altitude training benefits .
+EPO Pathway (Hypoxia to Erythropoiesis):  Understanding the EPO pathway helps illustrate
+why altitude triggers RBC gains. At sea level, the kidneys constitutively produce a baseline level
+of EPO. In hypoxic conditions, specialized kidney cells sense reduced blood oxygen and stabilize
+HIF-1α/HIF-2α  transcription factors (normally, adequate oxygen causes HIF breakdown) .
+Stabilized  HIF  (particularly  HIF-2α)  binds  to  hypoxia  response  elements  on  the  EPO  gene,
+dramatically increasing EPO mRNA transcription . Within hours of arriving at high altitude,
+blood EPO levels begin to climb; studies have observed detectable EPO increases within ~2 hours
+of exposure to hypoxia . EPO concentrations typically  peak after about 24–48 hours  at a
+sustained altitude, often reaching several times baseline values . After this initial surge, if
+altitude exposure continues, EPO levels may moderate back toward baseline over the next days
+as new red cells are produced (a feedback mechanism such that severe hypoxia is needed to
+keep  EPO  elevated) .  Nevertheless,  the  early  EPO  surge  is  sufficient  to  “trigger”  robust
+erythropoiesis. New reticulocytes (young red blood cells) start appearing in the bloodstream
+about 3–5 days  after ascent as the bone marrow responds . Over the next 1–3 weeks, those
+reticulocytes  mature  into  fully  functional  erythrocytes,  and  total  RBC  mass  progressively
+increases. For example, one study found about a 2% increase in total hemoglobin mass after
+10 days  at ~2300 m, and a ~4–5% increase after 3 weeks  at that altitude . Notably, studies of
+4-week  exposures  at  ~2300  m  did  not show  a  plateau  –  hemoglobin  mass  was  still  rising,
+suggesting longer stays or higher altitudes could yield further gains . The practical upshot: a
+typical  3–4  week  altitude  camp  (a  common  duration  for  elite  training  camps)  is  enough  to
+significantly boost an athlete’s oxygen-carrying capacity. When the athlete returns to sea level
+with extra RBCs, their muscles receive more oxygen for a given cardiac output, delaying fatigue
+and improving aerobic performance. This ergogenic effect is often most pronounced in the first
+10–14 days  after returning from altitude, as the body gradually re-equilibrates (excess RBCs will
+slowly be lost or broken down if they are above what is needed at sea level) . Coaches often
+plan important races within this window to capitalize on the “altitude boost.” It’s important to
+mention that while raising RBC count is beneficial, it also increases blood viscosity slightly; the
+body naturally limits extreme increases. (In contrast to illicit EPO doping or transfusions which
+can overshoot safe RBC levels, altitude training yields a moderate, physiologically regulated
+increase.)
+Plasma Volume and Early Acclimation:  In the first days at altitude, before new RBCs kick in, the
+body  undergoes  other  changes.  One  acute  response  is  a  diuresis  and  plasma  volume
+reduction . Hypoxia causes increased respiration and mild dehydration; within a day at altitude,
+plasma volume can drop by ~5–10%, concentrating the blood (hemoglobin concentration rises
+even though total RBC hasn’t yet) . This hemoconcentration  temporarily  increases oxygen
+transport per unit blood volume, but it comes at the cost of a smaller total blood volume, which
+can  reduce  cardiac  stroke  volume  and  thus  limit  maximal  cardiac  output .  Over  longer
+acclimation,  plasma  volume  may  partially  restore,  especially  if  hydration  and  nutrition  are1112
+13
+1415
+14
+14
+14
+67
+• 
+16 9
+16
+17
+18
+19
+19
+14
+14
+3
+• 
+20
+20
+2
+
+---PAGE---
+
+maintained, but it often remains slightly below sea-level values. The net effect is that true gains
+in  oxygen-carrying  capacity  only  come  once  new  RBCs  are  produced ;  the  initial  spike  in
+hemoglobin concentration from plasma loss is not the same as a real increase in hemoglobin
+mass .  Coaches  should  be  aware  that  athletes  often  experience  heavier  or  “thicker”
+feeling blood in the first days due to reduced plasma – emphasizing hydration is key (addressed
+later).
+2,3-BPG and Oxygen Unloading:  Altitude triggers biochemical adaptations in the blood that
+improve  oxygen  delivery  to  tissues.  Notably,  hypoxia  leads  to  elevated  levels  of  2,3-
+bisphosphoglycerate  (2,3-BPG)  in  red  blood  cells .  2,3-BPG  binds  to  hemoglobin  and
+reduces its affinity for oxygen, causing a rightward shift of the O₂–hemoglobin dissociation
+curve . This means that at a given partial pressure, hemoglobin releases oxygen more readily to
+the muscles. Initially, upon acute ascent, the opposite happens due to respiratory alkalosis (from
+hyperventilation, CO₂ drops and blood pH rises causing a temporary leftward shift) . But
+within a day or two at moderate altitude, renal compensation for pH and an increase in 2,3-BPG
+result in a net rightward shift , facilitating oxygen unloading in tissues . In simpler terms,
+the body “learns” to extract what oxygen is available more efficiently. This increased oxygen
+unloading capacity persists upon return to sea level for a period, complementing the higher
+oxygen carrying capacity. The SimpliFaster coaching resource notes that altitude living increases
+2,3-BPG , which “stabilizes deoxygenated hemoglobin, allowing for greater oxygen release to
+working  muscles” .  This  helps  offset  some  of  the  performance  loss  in  hypoxia  and  is
+beneficial back at low altitude – effectively, the muscles can uptake oxygen more readily from the
+blood.
+Muscle  and  Metabolic  Adaptations:  In  addition  to  blood-based  changes,  chronic  altitude
+exposure induces adaptations in muscle tissue that can enhance endurance. Research suggests
+that training in hypoxia can increase  capillary density  and  mitochondrial density  in muscle,
+similar to classic endurance training stimuli . The idea is that hypoxia may upregulate factors
+like  VEGF  (vascular endothelial growth factor , via HIF pathways) leading to angiogenesis (new
+capillaries), and stimulate mitochondrial biogenesis to improve oxygen utilization. Over a multi-
+week altitude training camp, an athlete is concurrently doing high-volume training, so it’s hard to
+parse altitude-specific effects versus normal training adaptations. However , some studies find
+that altitude amplifies certain signals: for example, altitude-trained muscles sometimes show
+increased  activity  of  oxidative  enzymes  and  a  greater  reliance  on  carbohydrate  metabolism
+(since carbohydrate yields more ATP per oxygen than fat). Anecdotally and empirically, altitude
+training  can  improve  an  athlete’s  exercise  efficiency  –  the  muscle  efficiency  in  low-O₂
+conditions  improves, which might stem from mitochondrial adaptations or fiber type shifts. As
+the COROS Altitude Guide notes, “muscle efficiency under oxygen-limited conditions improves”
+and  lactate threshold  may rise with acclimation . There is a phenomenon known as the
+“lactate  paradox”  observed  at  altitude:  after  acclimatization,  exercising  at  a  given  absolute
+intensity results in lower blood lactate than expected, possibly because of muscle metabolic
+adjustments  and  increased  oxygen  delivery.  When  returning  to  sea  level,  a  higher  lactate
+threshold and economy can translate to better performance. It should be noted that extremely
+high altitudes (above ~5000 m) are actually detrimental to muscle mass and function – extended
+stays can cause muscle atrophy  and reduced muscle fiber cross-sectional area due to chronic
+hypoxia and malnutrition . But the moderate altitudes used in training (usually 1,800–2,800 m
+for camps) strike a balance where muscle aerobic machinery is enhanced without significant
+atrophy (assuming caloric intake is sufficient).
+Ventilatory and Cardiorespiratory Adaptations:  One of the immediate  reactions to altitude is
+hyperventilation  –  breathing  faster  and  deeper  to  take  in  more  oxygen.  This  is  driven  by2019
+• 
+21
+22
+2324
+21
+• 
+25
+26
+27
+• 
+3
+
+---PAGE---
+
+chemoreceptors sensing low arterial O₂. Initially, hyperventilation causes decreased CO₂ (hence
+the alkalosis mentioned), but over a few days the kidneys compensate by excreting bicarbonate
+to normalize pH . After acclimatization, ventilation at rest and submaximal exercise remains
+elevated relative to sea level, which improves arterial oxygenation. Altitude-acclimatized athletes
+also often have a higher breathing capacity and ventilatory efficiency when they return to sea
+level, meaning they can sustain higher ventilation if needed during maximal exercise (though at
+sea level they might not need to). Additionally, resting and submaximal heart rate  increase at
+altitude  as  part  of  the  acute  response:  the  body  raises  cardiac  output  via  heart  rate  to
+compensate for lower oxygen per beat . This is largely a sympathetic nervous system effect –
+hypoxia triggers increased sympathetic drive (and reduced parasympathetic tone), leading to
+higher heart rates and blood pressure for a given workload . Interestingly, very well-trained
+endurance athletes sometimes exhibit a blunted initial heart rate response (their bodies are so
+efficient that on  day 1  at altitude, heart rate doesn’t rise as much, which can actually impair
+oxygen delivery until other adaptations catch up) . Over 1–2 weeks, the resting heart rate
+tends to come back down a bit as the body acclimates, but it may stay slightly above sea-level
+baseline. Stroke volume (the amount of blood pumped per beat) tends to decrease at altitude
+(due to reduced plasma volume and faster heart rate reducing filling time) , so maintaining
+cardiac output relies on that higher heart rate. The net effect is that for any given submaximal
+running speed at altitude, an athlete’s heart rate is higher  than it would be at sea level .
+Despite acclimatization, VO₂max is always somewhat lower at altitude  than at sea level for the
+same individual, because even with adaptations, the absolute oxygen availability is limited. A
+well-known approximation is a ~6–7% drop in VO₂max per 1000 m  gain in elevation (above ~300
+m) for an unacclimatized person . Acclimatization improves this, but even after 3 weeks at
+2300 m, athletes’ VO₂max and aerobic performance might remain ~6% below their sea-level
+values . In other words, you can partially adapt, but you can’t fully negate the performance
+decrement while at altitude . This is why altitude-trained athletes might still find it hard to race at
+altitude; however , when they go  down  to sea level, they have both normal oxygen availability
+and their altitude-induced physiological enhancements, yielding a performance boost.
+Key  Takeaway  –  Altitude  Physiology:  Through  sustained  altitude  exposure,  the  body  adapts  by
+producing more red blood cells and hemoglobin (via the EPO pathway), increasing oxygen delivery
+capacity. It also adjusts ventilation, heart rate, and muscle metabolism to more effectively use the
+scarce oxygen. These changes collectively enhance endurance aerobic capacity  and can translate to a
+1–5%  improvement  in  sea-level  performance  after  a  proper  altitude  training  phase .  For
+instance, living high for ~4 weeks has been associated with ~1–2% gains (and sometimes up to ~5%) in
+race performance at sea level . The primary drivers are hematological (more RBCs), supported by
+muscular and cardiorespiratory adaptations that improve oxygen extraction and utilization. However ,
+maximizing these benefits requires carefully managing how one trains at altitude, which brings us to
+the different models of altitude training.
+Altitude Training Models: Live High–Train Low vs Live High–Train
+High
+When incorporating altitude into a training program, there are several models to choose from. The two
+most common paradigms for endurance athletes are:
+Live High, Train Low (LHTL)  – Living  at a high altitude to induce physiological adaptations, but 
+training  at lower altitude (or sea level) to maintain higher exercise intensity.
+Live High, Train High (LHTH)  – Living and training  entirely at altitude, so the body is
+continuously in a hypoxic environment for both rest and exercise.28
+29
+29
+29
+20
+3031
+32
+32
+3334
+35
+• 
+• 
+4
+
+---PAGE---
+
+Both approaches aim to capitalize on altitude acclimatization (the “live high” part ensures adequate
+hypoxic dose to trigger EPO and other adaptations). The key difference lies in the training environment.
+We will examine each approach, their pros and cons, and what research shows about their effectiveness
+for improving sea-level performance.
+Live High, Train Low (LHTL)
+Concept and Rationale:  The LHTL model was developed to solve a dilemma: while altitude living
+stimulates red blood cell production and other adaptations, exercising at altitude can be problematic
+because the lower oxygen availability forces athletes to train at slower speeds or lower power outputs
+than  they  could  at  sea  level.  LHTL  gets  around  this  by  having  athletes  sleep  and  reside  at  a
+moderately  high  altitude  (typically  2,000–2,500  m  elevation)  but  travel  down  to  lower  elevations
+(below ~1,250 m, or use oxygen-enriched environments) for their key workouts . The idea is to
+“get the best of both worlds” – the athlete’s body acclimates and increases EPO/RBC from living high,
+but they can still hit near sea-level training paces and quality during intense sessions, because they
+perform those at low altitude where oxygen is less limiting . This helps avoid the detraining or
+compromised intensity that can occur with full-time altitude training.
+Implementation:  An example LHTL setup might be: an athlete lives and sleeps at a mountain location
+at 2200 m, but each day they drive down to 1000 m for track workouts, or use a supplemental oxygen
+setup/tent  during  training.  Some  elite  training  bases  are  specifically  situated  to  allow  this  (e.g.
+Mammoth Lakes, CA or Flagstaff, AZ have higher living quarters and lower valleys nearby) . Another
+way to implement LHTL without travel is using an altitude tent or altitude house only for sleeping
+(simulating high altitude at night) and doing all training outside at sea-level oxygen. Research indicates
+that to be effective, the “living high” portion should be at least  ~12–16 hours per day  in hypoxia for
+several weeks, to accumulate enough altitude exposure for robust RBC increases . Often athletes will
+live high almost full-time (except when training) for 3–4 weeks in a row.
+Physiological and Performance Effects:  Studies generally support that LHTL can produce the desired
+hematological adaptations. By living at ~2,200 m for instance, athletes see elevated EPO and increased
+red cell mass after a few weeks, similar to a traditional altitude camp . Crucially, because high-
+intensity workouts are done low, the athlete can maintain sea-level caliber training paces and power
+outputs, preserving neuromuscular adaptations and race-specific intensity. This often leads to improved
+performance  upon  returning  to  competition  at  sea  level.  In  fact,  a  number  of  experiments  have
+compared LHTL vs LHTH: A review by Muraoka and Gando (2012) concluded that LHTL yielded greater
+improvements  in  sea-level  endurance  performance  than  LHTH,  even  though  both  protocols
+produced  similar physiological adaptations  in terms of RBC increase . The LHTL groups in
+various studies showed about a 1–4% performance improvement  (in events ranging ~30 seconds up
+to  ~17  minutes  in  duration)  compared  to  control,  whereas  LHTH  groups  often  showed  smaller  or
+inconsistent gains . This 1–4% boost can be the difference between, say, a 32:00 10K runner and
+a 31:00 – a significant competitive edge. LHTL has also been suggested to potentially aid anaerobic
+performance (sprints) slightly, as athletes keep doing high-quality sprint training at low altitude while
+perhaps benefitting from altitude-induced erythropoietic effects at rest . The U.S. Olympic trials and
+other elite observations have noted many athletes performing very well ~10 days post an LHTL camp.
+Practical  Considerations  –  Pros  and  Cons:  The  main  advantage  of  LHTL  is  that  it  mitigates  the
+negatives of training in hypoxia. Athletes often report feeling strong in workouts (since those are done
+in richer air) and still reaping altitude benefits. It’s psychologically easier to hit target times, which helps
+confidence. Recovery from intense workouts may also be better at low altitude than it would be high up
+(more on recovery in a later section). On the downside, LHTL can be logistically challenging . It requires
+either geographic proximity of high and low altitudes or use of artificial altitude systems (tents, hypoxic3637
+438
+39
+40
+436
+4142
+4344
+43
+5
+
+---PAGE---
+
+rooms).  Athletes  might  spend  time  commuting  between  elevations,  which  can  be  tiring.  Using  an
+altitude tent at home is an option many use – sleeping in a low-oxygen tent simulates living ~2,000–
+3,000 m; then you emerge and train normally during the day. Such tents are expensive and some
+athletes find sleeping in them uncomfortable (limited space, heat, noise from compressors). Another
+consideration is that LHTL still demands staying at altitude for long periods each day, which can cause
+disturbed sleep or other altitude-related stresses when not training (discussed in Altitude Challenges
+below). Opponents of altitude training have pointed out that any RBC gains eventually dissipate after a
+few weeks back at sea level , and they argue if one cannot maintain training intensity at altitude it
+“wastes” training time. LHTL addresses the latter concern well, which is why it’s a preferred method
+among many coaches. Overall, when done properly, LHTL is considered the “optimal” altitude training
+model for sea-level performance  in endurance sports , because it maximizes physiological
+adaptation while minimizing compromises in training quality.
+Live High, Train High (LHTH)
+Concept and Rationale:  The traditional approach to altitude training is LHTH, where an athlete both
+lives and trains at altitude  continuously. This is naturally what happens when, say, a team goes to a
+mountain training camp and stays there full-time (or for athletes who already reside at altitude year-
+round). The logic is straightforward: constant exposure  to hypoxia, both at rest and during exercise,
+may amplify some adaptation signals. Training in hypoxia could theoretically add an extra stimulus to
+muscles (forcing them to work with less oxygen might induce adaptations that training in normoxia
+wouldn’t). Also, for athletes preparing to compete at altitude , it’s necessary to train in those conditions
+(live high, train high) to get specific adaptations for performance at altitude itself.
+Physiological Effects:  LHTH, if the altitude is sufficient (~2,000–3,000 m), will also stimulate EPO release
+and red cell mass increase, similar to LHTL. In fact, many early studies of altitude camps (3–4 weeks at
+~2,000 m) showed increases in hemoglobin mass on the order of 4–7% . The key difference is in
+training under hypoxia : exercising at altitude is harder . VO₂max acutely drops about 7% per 1000 m
+ascent, so at 2,000 m an athlete’s maximal aerobic power is roughly ~85% of sea-level capacity . For
+any given running speed, they will operate at a higher percentage of their (reduced) VO₂max. In fact,
+“any  given  velocity  must  be  performed  at  a  higher  relative  intensity  at  altitude” .  This  means
+workouts have to be slowed down or scaled back to stay in the correct training zones. If one tries to hit
+sea-level times at altitude, they will likely accumulate excess fatigue or have to cut the workout short.
+LHTH protocols therefore inherently involve compromised training intensities  – athletes might do the
+same workouts (same distances or durations) but at slower paces, or with longer rest, or they might do
+fewer repetitions to avoid excessive fatigue. While the physiological adaptations (RBC, muscle) still
+occur ,  the  concern  is  that  the  athlete’s  performance-specific  fitness  might  stagnate  or  decline
+because they spend several weeks never reaching their usual speed or power in training. Indeed, some
+studies have found that sea-level performance improvements are smaller with LHTH than with LHTL,
+even though hemoglobin gains were similar . The difference was attributed to the detraining
+effect or lower quality of training at altitude.
+That said, LHTH is not without success stories . Many elite Kenyan and Ethiopian runners essentially
+follow a LHTH lifestyle by living and training in highland regions (2,000–2,500 m) year-round, and they
+clearly have excellent endurance performance. However , it’s arguable that those athletes have fully
+adapted by being born and raised at altitude, and they often do some competitions or training blocks at
+lower elevations too. For athletes who are not lifetime highlanders, going to do LHTH camps can still
+yield benefits, but careful planning is needed to mitigate training loss. Some research (including a
+recent meta-analysis in 2025) suggests that  LHTH interventions longer than 3 weeks can improve
+aerobic capacity , and in that meta-analysis LHTH showed effectiveness in improving maximal power
+output  in elite athletes . This may be because training in hypoxia forces certain adaptations (like45
+438
+14
+46
+46
+4243
+4447
+6
+
+---PAGE---
+
+improved buffering capacity or mental toughness) and once the athlete returns to sea level with full
+oxygen, they might realize gains in their maximal efforts. Additionally, for events that will be contested
+at altitude (e.g., mountain races or the Olympics if at altitude), LHTH is necessary to acclimate – LHTL
+won’t prepare an athlete to actually perform in thin air , since they’d be doing key training at low altitude
+conditions.
+Practical Challenges:  The downsides of LHTH revolve around managing  lower training paces and
+slower recovery . An athlete at 2,500 m might find their easy runs are 20–30 seconds per kilometer
+slower than at sea level, and their interval times significantly off their personal bests. This can be
+psychologically tough – some feel “out of shape” when in fact it’s the altitude effect. Coaches must
+adjust the training plan: for example, interval workouts might be done at reduced speeds (or target
+heart rate zones rather than pace) to ensure the effort is appropriate. Alternatively, as one adaptation
+strategy, the number of intervals can be broken into shorter reps so that the altitude impact is less
+pronounced (short repeats with more rest, as described in the next section on training adjustments).
+Even so,  training stress at altitude is higher for a given workload , so athletes may accumulate
+fatigue quickly. Recovery between hard sessions often needs to be extended (if you normally do two
+intense workouts 48 hours apart at sea level, you might need 72 hours at altitude early on). There is
+also greater risk of overtraining or illness if one isn’t careful, since altitude can suppress appetite and
+strain the immune system (we’ll address these factors shortly). Another consideration: if an athlete
+becomes sick or overly fatigued at altitude, there is little benefit to staying up high – it may negate the
+camp’s purpose. Thus, some coaches opt for a hybrid: start with LHTH, and if the athlete struggles,
+switch to modified LHTL (e.g., bring them down for a couple of days or for key sessions).
+When to Use LHTH:  Despite the challenges, LHTH remains a widely used approach, especially when
+logistical constraints prevent LHTL. Many altitude training camps by default are LHTH – e.g., a team
+goes to altitude and doesn’t have facilities to train low every day. LHTH can be quite effective for well-
+trained athletes who tolerate altitude, as long as training is adjusted intelligently. It may also confer
+some unique adaptations: some evidence suggests endurance athletes might see improvements in
+skeletal muscle buffering and sprint ability from the stress of repeated hypoxic training bouts (some
+coaches claim altitude training helps even for middle-distance events like 800 m due to these effects).
+The key is that any performance gains from LHTH must come without too much sacrifice in training
+quality.  Notably,  the  meta-analysis  mentioned  earlier  indicated  that  LHTH  combined  with  longer
+duration (>3 weeks)  had the best outcomes on aerobic capacity . Longer stays let the athlete
+adapt more fully so they can resume near-normal training intensity even while still at altitude (e.g., after
+3-4  weeks,  some  acclimatization  allows  slightly  faster  paces  and  better  recovery).  Elite  athletes
+sometimes stay 6–8 weeks at altitude, with the latter half of that block effectively training closer to
+normal as their body adjusts.
+Summary of LHTL vs LHTH:  Both methods aim to increase red blood cells and endurance capacity
+through altitude exposure, but  LHTL generally yields superior performance improvements at sea
+level  because it permits high-quality training intensities . LHTH is easier logistically (no commute
+or  special  equipment)  and  ensures  continuous  hypoxic  stimulus,  but  athletes  must  accept  slower
+training paces and potentially extended recovery needs. For coaches and athletes whose primary goal is
+sea-level  competition,  LHTL  (if  accessible)  is  usually  recommended  as  the  “gold  standard”  altitude
+strategy . Those who cannot do LHTL can still benefit from LHTH camps; they just must be cautious
+to adjust training loads. In practice, many combine elements: e.g., live high and do mostly high training,
+but perhaps drive to a slightly lower elevation once a week for a key speed workout (a partial LHTL).
+Some also use intermittent hypoxic training  (short exposures to hypoxia during workouts or resting)
+as adjuncts, though evidence for those is mixed.1248
+4243
+43
+7
+
+---PAGE---
+
+Quick Comparison – Pros & Cons:
+LHTL Pros:  Maximizes RBC gains while maintaining training intensity; better for sea-level race
+performance; can be simulated with altitude tents. Cons:  Requires travel or altitude simulation;
+less specific if competing at altitude; logistical complexity.
+LHTH  Pros:  Constant  altitude  stimulus;  simpler  to  implement  (just  go  to  camp  and  stay);
+necessary  for  altitude  race  prep;  can  improve  mental  toughness  and  perhaps  anaerobic
+qualities.  Cons:  Training pace and quality reduced; risk of detraining or incomplete workouts;
+slower recovery; psychological challenge of feeling “slower” at altitude.
+Both methods require meticulous planning of training and recovery, as well as attention to the athlete’s
+well-being  under  hypoxic  stress.  Next,  we  will  discuss  those  altitude-specific  challenges  –  sleep,
+metabolism, recovery – and how to manage them to get the most out of any altitude training regimen.
+Altitude Challenges: Sleep, Metabolic Rate, and Recovery
+Training or living at altitude imposes additional stress on the body beyond just the training itself. Many
+athletes experience disruptions and challenges when first ascending to high elevations. Key among
+these are  poor sleep quality ,  increased basal metabolic rate (BMR)  (with accompanying nutrition
+issues), and slower recovery  from exercise. Understanding and managing these factors is crucial for a
+successful altitude camp, especially for those who are not accustomed to high elevations. We will
+examine each of these challenges in turn, highlighting the physiological causes and offering practical
+tips to mitigate their impact.
+Sleep Quality at Altitude
+It is very common for athletes (and anyone traveling to altitude) to report that their  sleep suffers
+initially. The first few nights at high altitude often bring restless sleep, frequent awakenings, and a
+subjective  feeling  of  not  being  well-rested  in  the  morning .  There  are  several  physiological
+reasons for this:
+Nocturnal  Hypoxemia  and  Periodic  Breathing:  During  sleep  at  altitude,  breathing  is  not
+regulated  as  tightly  by  conscious  control,  and  the  reduced  oxygen  can  lead  to  episodes  of
+periodic breathing . This is a cycle where the sleeper alternates between deep rapid breaths and
+shallow breaths or even short  central apneas  (stops in breathing) repeatedly. Essentially, as
+blood O₂ drops, you subconsciously hyperventilate for a while, then CO₂ drops and the drive to
+breathe reduces, causing an apnea, then the cycle restarts. This pattern is almost universally
+seen in newcomers sleeping above ~2,500–3,000 m . The result is fragmented sleep : the
+person may not fully wake each cycle, but they drift into lighter sleep stages or awaken briefly
+with  a  sensation  of  gasping.  Polysomnography  studies  show  that  high  altitude  sleep  is
+characterized by more light sleep (Stage 1)  and less deep sleep (slow-wave) and REM sleep ,
+due to these frequent arousals . Oxygen saturation can drop significantly at night – for
+instance, one study at 2,900 m noted average nocturnal O₂ saturation in the mid-80% range on
+the first night (versus ~95-97% at sea level) . Such low saturation contributes to fitful
+sleep.  Although  these  breathing  disturbances  tend  to  improve  over  a  few  days  as  one
+acclimatizes, they do not always disappear entirely even after a week or more . Long-term
+high-altitude residents do adapt and have far fewer apneas than new arrivals, indicating the
+body can adjust its respiratory control over time . But in the short term of an altitude camp,
+one should expect some sleep disruption.• 
+• 
+4950
+• 
+5051
+5052
+5354
+55
+51
+8
+
+---PAGE---
+
+Altitude Sickness Symptoms:  If an athlete suffers from acute mountain sickness (AMS)  in the
+first day or two, symptoms like headache, nausea, and dizziness can also interfere with sleep.
+Even  mild  AMS  often  includes  poor  sleep  as  a  symptom  on  the  Lake  Louise  score  (a
+questionnaire for AMS) . Waking up with a headache or slight nausea is not uncommon the
+first morning above ~2,500–3,000 m. These symptoms usually subside after 48–72 hours as
+acclimatization progresses, but they can ruin the first couple nights of rest.
+Environmental Factors:  High altitudes often have low humidity  and colder nights. The dry air
+can cause nasal congestion or dryness, leading to mouth breathing which might worsen snoring
+or throat dryness at night. Cold temperatures (if not well heated and insulated) can also disturb
+sleep or require thick bedding that might be uncomfortable. Additionally, if athletes are at a busy
+training center , new surroundings or noise can affect sleep (though not altitude-specific, it’s part
+of being away at camp).
+Effects on Performance and Recovery:  Poor sleep quality at altitude can have immediate negative
+impacts. Athletes may feel more fatigued during the day, have reduced cognitive function or mood (due
+to  lack  of  deep  sleep  and  frequent  oxygen  desaturations  at  night),  and  this  can  reduce  training
+performance  and  the  capacity  to  recover .  One  study  pointed  out  that  impaired  sleep  quality
+correlates with acute mountain sickness severity and daytime fatigue . Inadequate sleep
+also means less muscle repair and hormonal recovery processes overnight – compounding the stress of
+training.
+Acclimatization Helps:  The good news is that after a few days to a week, sleep tends to improve.
+Research shows that by night 5 or 6 at altitude, the incidence of periodic breathing usually diminishes
+and blood oxygen at night rises closer to normal as ventilation stabilizes . In the earlier cited
+study at 2,900 m, the subjective sleep quality ratings improved from ~39% (very poor) on the first night
+to ~55% by the sixth night as acclimatization occurred . Acclimatization reduces the frequency of
+apnea events (oxygen dips per hour dropped by more than half over a few days in that study) .
+However , even after acclimatization, sleep may not be as sound as at sea level – some degree of periodic
+breathing can persist throughout a 2–3 week camp. Moreover , if one returns to altitude repeatedly (e.g.,
+a second trip after a break), some adaptation “memory” may carry over to improve sleep slightly on re-
+ascent, but generally each new exposure can bring some sleep disturbance .
+Tips to Improve Sleep at Altitude:  Coaches and athletes can employ several strategies to mitigate
+sleep  issues:  -  Allow  Time:  If  possible,  schedule  an  easier  training  load  in  the  first  ~2  days  after
+ascending to altitude. This gives the athlete a chance to recover from travel and poor sleep, and let their
+body start acclimating before hard workouts begin. It might even help to arrive at altitude at least 5–7
+days before any key intense training sessions, so that sleep and overall comfort have improved. -
+Hydration and Diet:  Being well-hydrated can help with dry air issues (preventing excessive drying of
+airways). Using saline nasal sprays or a humidifier in bedrooms can alleviate congestion. Also, avoiding
+alcohol and heavy meals right before bed is wise – altitude can slow digestion and alcohol worsens
+sleep breathing. - Sleep Environment:  Ensure the sleeping quarters are warm enough and bedding is
+comfortable. Earplugs and eye masks can help if the environment has noise/light. If using an altitude
+tent at home, make sure it’s properly ventilated (some find the tent’s air unit noisy; using white noise
+machines can mask that). -  Pharmacological Aids:  Some pharmacological interventions have been
+shown effective. Low-dose  acetazolamide  (a mild diuretic/carbonic anhydrase inhibitor) taken before
+bed can reduce periodic breathing and improve oxygenation – it essentially causes a slight metabolic
+acidosis that drives ventilation, preventing big swings in breathing . It’s often used to prevent AMS
+as well. Athletes need to be cautious and typically use it only in consultation with a physician, as it is a
+medication (and it causes more frequent urination, so plan for bathroom breaks). Another aid is a mild
+sleeping  pill  –  studies  have  found  that  a  short-acting  sedative  like  zolpidem  or  temazepam  can• 
+56
+• 
+4957
+5855
+5359
+60
+55
+61
+9
+
+---PAGE---
+
+improve sleep quality at altitude without causing respiratory depression, especially if periodic breathing
+is the main issue . These should be used with care (and are generally permitted in competition, but
+one should check doping regulations for any restrictions). Natural supplements like melatonin could
+also be considered; melatonin might help adjust the body clock if traveling across time zones to an
+altitude camp, though its efficacy specifically for altitude sleep isn’t clearly proven. - “Arrival Timing”
+Approach:  Interestingly,  one  approach  some  adopt  (for  competitions  at  altitude )  is  to  arrive
+immediately before competition to essentially “race before sleep is severely impacted.” For example,
+some athletes racing at a moderate altitude will arrive the evening before – in the first ~12–24 hours,
+the body’s responses (like EPO, breathing instability) haven’t fully kicked in, and one might get through
+the race with sea-level physiology intact . However , for training camps where you intend to stay,
+this isn’t applicable; it’s more a race strategy.
+For athletes using altitude training for sea-level gains, the bottom line is: plan for suboptimal sleep
+initially and allocate extra time for rest.  One coaching recommendation is simply to  spend more
+time in bed  at altitude – if you normally sleep 8 hours, try to be in bed for 9-10 hours to get the same
+amount of quality sleep, since some of that time will be lighter sleep or awake . Prioritize good sleep
+hygiene and listen to your body; if fatigue accumulates due to poor sleep, consider an afternoon nap or
+an extra recovery day.
+Basal Metabolic Rate and Nutrition at Altitude
+Living at altitude doesn’t just affect oxygen delivery – it also alters your metabolism and appetite. A well-
+documented  effect  of  acute  altitude  exposure  is  an  increase  in  basal  metabolic  rate  (BMR) .
+Essentially,  your  body  burns  more  calories  at  rest  when  you’re  at  high  altitude  than  at  sea  level.
+Simultaneously, many people experience a  suppression of appetite  in the first days at altitude. This
+combination can be problematic for athletes because it can lead to unintended weight loss (including
+loss of muscle mass) or insufficient energy for training.
+BMR Increases:  Research indicates that acute hypoxia boosts the body’s resting energy expenditure.
+For example, exposure to a high altitude of about 4,300 m was found to raise BMR by ~25–27% in the
+first few days compared to sea-level measurements . Even after 2–3 weeks at that altitude, BMR
+remained roughly 17% above sea-level baseline  in subjects who maintained adequate food intake
+. In a classic study, Butterfield et al. (1992) showed that at 4,300 m, if caloric intake was sufficient to
+prevent weight loss, resting metabolic rate stayed ~17% elevated through three weeks . The
+increase  in  metabolism  is  attributed  to  several  factors:  the  increased  work  of  breathing  (you’re
+ventilating  more  liters  of  air  per  minute,  which  uses  more  energy),  heightened  activity  of  the
+sympathetic  nervous  system  (releasing  catecholamines  that  raise  metabolic  rate),  and  possibly
+inefficiencies  as  the  body  deals  with  hypoxia  (e.g.,  the  heart  is  beating  faster  even  at  rest).  Cold
+exposure at altitude could also contribute if not in a climate-controlled environment.
+For moderate training altitudes (e.g., 1,800–2,500 m), the BMR bump may be less dramatic than at 4,300
+m but can still be on the order of ~5–10% initially, tapering to a slightly higher-than-normal level after
+acclimation. Even a 5–10% rise means an athlete burning, say, 2,500 kcal/day at rest might burn 2,750
+kcal/day – a difference that can quickly create a deficit if not addressed by eating more.
+Appetite and Weight Changes:  Paradoxically, even as the body burns more energy, altitude often
+blunts hunger . Many athletes notice they feel full faster and have less desire to eat in the first week at
+altitude. This altitude anorexia is well documented: hormonal changes like increased leptin (an appetite-
+suppressing  hormone)  and  reduced  ghrelin  (hunger  hormone)  have  been  observed  in  hypoxic
+environments . There’s also a psychological aspect – some people just find food less palatable at
+altitude, possibly due to mild nausea or altered taste/smell perceptions. One comprehensive review62
+6364
+65
+6667
+66
+68
+6869
+7071
+10
+
+---PAGE---
+
+noted reduced appetite and changes in taste  as common at high altitudes, contributing to difficulty
+in meeting energy needs .
+If caloric intake does not meet the increased demands, weight loss will occur . Initially, some weight loss
+at altitude is water loss (from increased respiration and diuresis). But extended calorie deficit will lead to
+loss of fat and muscle. In fact, in extreme altitudes (>5,000 m) significant muscle wasting is a known
+issue. At training camp altitudes (~2,000–3,000 m), the goal is to avoid  significant weight loss, since the
+aim is performance gain, not weight loss (unless an individual specifically wants to reduce weight, but
+even then, losing weight too quickly can impair training). 
+Practical Strategies:  To ensure that the metabolic boost works for you (improved fitness) and not
+against you (excess fatigue or muscle loss), consider the following: - Increase Caloric Intake:  Athletes
+should consciously eat more when at altitude. Even if appetite is low, plan for additional snacks or larger
+portions of carbohydrate-rich foods which are easier to eat in volume. Carbohydrates are also the
+body’s preferred fuel at altitude – interestingly, metabolism shifts such that a greater proportion of
+energy comes from carbs versus fat at altitude, since carbs yield more energy per oxygen unit. In line
+with this, many people intuitively crave more carbs at altitude (after the initial appetite suppression
+phase). Coaches can encourage athletes to target perhaps 300–600 extra calories per day  initially and
+adjust based on weight stability. Monitoring body weight every few days can be useful; a sudden drop
+of more than 1–2 lbs in the first week could indicate insufficient intake. - High-Carb, Nutrient-Dense
+Foods:  Since appetite might be down, make every bite count. Nutrient-dense foods like nuts, dried
+fruits, energy bars, or sports drinks can help pack calories without requiring huge volume. Emphasize
+carbohydrates around training (to fuel workouts and recovery) and adequate protein (to support muscle
+repair). Some athletes find liquid nutrition (smoothies, recovery shakes) useful if they struggle to eat
+enough solids. - Iron and Micronutrients:  Higher metabolism and increased red blood cell synthesis
+both mean nutrient demands are up . Iron is especially crucial (we discuss iron more below, but as part
+of nutrition: ensure iron intake is sufficient through diet or supplements, because altitude-induced
+erythropoiesis can deplete iron stores). Also, antioxidant vitamins (C, E) and others might help mitigate
+oxidative  stress  from  hypoxia.  However ,  be  cautious  with  extreme  antioxidant  supplementation,  as
+some oxidative stress is part of the training adaptation signal; a normal balanced diet with fruits and
+vegetables is usually sufficient. - Maintain Hydration:  Though not “metabolism” per se, hydration ties
+closely to metabolic function. At altitude you lose more fluid through breathing (every exhalation is
+moist and altitude air is dry) and often through increased urination in early days (high altitude diuresis).
+Dehydration  can  suppress  appetite  further  and  reduce  performance.  Athletes  should  aim  to  drink
+regularly, even beyond thirst. Including electrolyte beverages can help, as plain water in excess can
+occasionally lead to electrolyte dilution. A simple guideline is checking urine color (straw-colored is
+good;  dark  yellow  indicates  dehydration).  Many  coaches  advise  carrying  a  bottle  and  sipping
+throughout the day, targeting perhaps an extra 1–1.5 liters of fluid per day compared to sea level needs
+.
+Metabolic  Adjustments  Over  Time:  Typically,  after  about  a  week  or  two,  the  body’s  hormonal
+responses adjust. BMR may slightly come down from the initial spike as the most energy-intensive
+acclimation processes (like ramped up ventilation and heart rate) become efficient. Appetite usually
+returns or even overshoots (some athletes get very hungry after a week or two, as if the body is trying
+to catch up). A classic military study noted that if energy intake is maintained, BMR stays ~15–17%
+higher chronically; if intake is not maintained and weight is lost, BMR tends to drop back toward normal
+after  the  weight  loss  (since  there’s  less  body  mass  to  feed) .  The  key  point  is  to  prevent
+significant negative energy balance  during the critical adaptation period. If an athlete comes down
+from  altitude  in  a  significantly  glycogen-depleted  or  muscle-depleted  state,  they  won’t  perform
+optimally despite the RBC gains.72
+7374
+6775
+11
+
+---PAGE---
+
+In summary, altitude will speed up your body’s engine  – plan to put more fuel in it. Coaches should
+emphasize nutrition as much as training during altitude camps: schedule group meals, track athletes’
+weight and well-being, and possibly involve a sports nutritionist to help with meal planning at altitude.
+Recovery and Fatigue Management at Altitude
+Altitude not only impacts how you train  but also how you recover . Many athletes find that they do not
+bounce back from hard workouts as quickly at altitude as they do at sea level. There are a few reasons
+for this: - Lower oxygen availability means that after a hard effort, the muscles receive less oxygen for
+the restoration processes (e.g., clearing lactate, resynthesizing phosphocreatine, repairing fibers) in the
+hours post-exercise. Mitochondria rely on oxygen to produce ATP for recovery; at altitude this process is
+slower , especially before full acclimation. - Altitude itself is a stressor – the body is working overtime on
+acclimating (producing RBCs, increasing ventilation, etc.), which consumes energy and resources that
+could otherwise go into recovery from training. Essentially, your body has “two jobs”: adapting to
+altitude and adapting to training, simultaneously. - As discussed, sleep may be impaired and basal
+metabolism is elevated, both of which can compound fatigue and delay recovery.
+Evidence  of  Slower  Recovery:  A  study  on  muscle  oxygenation  found  that  after  exercise,  the
+reoxygenation  of  muscle  tissue  was  significantly  slower  under  hypoxic  conditions  than  in
+normoxia . Practically, athletes notice that their legs feel heavy for longer , muscle soreness might
+linger  an  extra  day,  and  heart  rate  variability  (if  monitored)  remains  depressed  longer  after  hard
+sessions at altitude. The Wikipedia entry on altitude training explicitly mentions that “Altitude training
+can produce slow recovery  due to the stress of hypoxia” . 
+Also, markers of muscle damage or effort (like blood lactate and heart rate) can be higher for a given
+workout at altitude, meaning the workout exacts a greater toll. For example, an interval session that
+would only mildly tax an athlete at sea level could drive them into a much higher lactate zone at altitude
+because of the reduced O₂ – this can result in greater muscle glycogen depletion and metabolic stress
+to recover from .
+Heart Rate and Recovery:  An interesting observation coaches often make is that resting heart rate  is
+elevated at altitude (especially in the first week or so). It’s not uncommon to see resting HR 5–15 beats
+per minute higher than usual upon waking. Additionally,  heart rate variability (HRV) , a measure of
+autonomic  nervous  system  recovery,  tends  to  decrease  at  altitude  initially  (reflecting  increased
+sympathetic stress). Over time, resting HR may come down a bit with acclimation, but it can remain a bit
+higher than sea level. Some coaches use these metrics to modulate training – if an athlete’s resting HR
+is still very high or HRV very low, they might hold off on another intense session.
+Practical Recovery Strategies:  Given the above, athletes should adjust their recovery protocols at
+altitude: - Extended Recovery Between Hard Efforts:  It is often recommended to allow a bit more time
+between intense workouts. If at sea level an athlete might do hard interval sessions on Monday and
+Thursday, at altitude they might shift to Monday and Friday (an extra day) in the first week or two. Or
+they keep the schedule but make the Wednesday (mid-week) day extremely light (perhaps even lighter
+than usual). - Active Recovery and Oxygen:  Some athletes use supplemental oxygen during recovery
+periods to speed up recovery (for instance, breathing from an oxygen tank for a few minutes after a
+hard interval, a technique seen in some elite camps). The science on this is mixed, but theoretically
+giving the body a burst of O₂ might help clear metabolites faster . In general, low-intensity “flush”
+workouts (easy cycling or light jogging) can help promote circulation, but one must keep them truly
+easy as even easy work is harder at altitude. - Hydration and Massage:  Being well-hydrated improves
+circulation  and  muscle  repair .  As  mentioned,  dehydration  is  common  at  altitude  and  can  impede
+recovery by reducing blood plasma volume. Regular sports massage or using foam rollers can aid76
+45
+77
+12
+
+---PAGE---
+
+muscle recovery – this isn’t altitude-specific, but with possibly heightened muscle soreness at altitude,
+these tools are valuable. -  Antioxidants:  Altitude causes increased oxidative stress (because hypoxia
+and  re-oxygenation  cycles  can  create  free  radicals).  Some  athletes  supplement  with  antioxidants
+(vitamin C, E, etc.) to support recovery, though as always not to excessive levels that might blunt
+adaptation. Tart cherry juice or other polyphenol-rich foods could be beneficial to include for their
+recovery properties.
+Listening to the Body:  Perhaps the most important point is that athletes and coaches should be
+flexible with training plans at altitude. If the program called for 5 sets of a workout but the athlete is
+clearly struggling after 3–4 due to the altitude strain, it’s wise to cut it short and avoid a deep state of
+fatigue that could take days to come back from. Similarly, if morning resting HR is very high or the
+athlete reports feeling unusually fatigued, an easy day or rest day can save the overall camp from
+derailing. It’s better to under-do a little than to overdo and require several days off.
+The  SimpliFaster altitude guide  emphasizes that because of increased stress and reduced oxygen,
+“the reduced ability to recover from hard efforts”  is notable at altitude, especially before adaptations
+have occurred . They advise that athletes must run slower on easy days to allow proper recovery, and
+generally reduce training load initially to accommodate the body’s added stress . This might mean
+more Zone 1–2 work relative to normal. Runners often switch to measuring easy runs by  duration
+rather than distance  at altitude – e.g., instead of aiming for 10 miles, they’ll run for the equivalent time
+it would take at sea level. If 10 miles at sea level takes 65 minutes, at altitude they might still run 65
+minutes but cover only ~9 miles, and accept that as sufficient . This removes the mental pressure
+to “hit a mileage” that could push them into excessive effort.
+Altitude Sickness and Recovery:  We should note that if an athlete experiences moderate AMS (e.g.,
+headaches, poor sleep, low appetite), their recovery will be further impaired. It’s crucial to prevent AMS
+by ascending gradually if possible (for instance, instead of going straight to 2500 m, spend a night at
+1500–2000 m on the way up). If an athlete does get AMS symptoms, slowing down training and focusing
+on rest until they acclimatize is key. In severe cases, descending to a lower altitude for a day or two can
+help them recover and then retry going up.
+In summary, recovering at altitude demands extra care . Athletes should sleep more , rest more , and
+embrace easier training intensities to allow their bodies to adapt. With time (usually by the second week
+of an altitude camp), many athletes find a new groove where recovery begins to normalize as they
+acclimate. By the end of a multi-week camp, some even report feeling great as the hardest adjustment
+period is over and fitness has improved. The goal is to reach that point without having broken down
+along the way, which is why monitoring recovery is so crucial.
+Adjusting Training Intensity: Heart Rate and Pace Zones at
+Altitude
+One of the most practical challenges for athletes training at altitude is how to adjust their training paces
+and effort zones. Because altitude impairs performance capacity, the paces corresponding to various
+intensity zones (easy, threshold, interval, etc.) will be slower than at sea level. Similarly, heart rate
+responses can differ in the thin air . Properly adjusting expectations and using the right tools to gauge
+intensity is critical; otherwise, athletes risk either overtraining by chasing sea-level paces or under-
+training by being too cautious. In this section, we outline how to recalibrate pace and heart rate zones
+for altitude training.78
+79
+8081
+13
+
+---PAGE---
+
+Pace Adjustments and “Effort-Based” Training
+Expect Slower Paces:  A simple fact: at altitude you  will run slower  for the same effort. How much
+slower depends on altitude and the individual, but even at a relatively mild altitude like 1,500 m (~5,000
+ft), an endurance runner might see 3–5% slower times for the same exertion. At 2,500 m, the slowdown
+might be on the order of 6–10%. For example, if your sea-level easy run pace is 5:00 per km, at 2,500 m
+it might be closer to 5:20–5:30 per km for the same easy effort. This is a normal consequence of
+reduced VO₂max and increased energy cost of running in hypoxia . Coaches often have rules of
+thumb (Jack Daniels, for instance, produced charts of race time adjustments: a 5K at 1800 m might be
+~20 seconds slower than at sea level, etc., which translates roughly to training paces). The  German
+Journal of Sports Medicine  article quantified that time trial performance drops ~6.5–7% per 1000 m
+acutely , so training paces should be adjusted accordingly.
+Use Perceived Effort or Time:  One effective method is to train by effort (RPE) or by time instead of
+distance . The SimpliFaster guide suggests that instead of prescribing a certain pace or distance for
+runs at altitude, prescribe the  duration  that the workout would normally take at sea level . For
+instance, rather than 10 miles at 6:30/mile (~65 minutes) which the athlete might not achieve at altitude,
+just run 65 minutes at a steady effort . You’ll cover less distance, but you’ll have put in the same
+aerobic stimulus without the psychological stress of “missing the pace.” For hard efforts like tempo
+runs, they advise running for the same time  at tempo effort as you would for a given distance at sea
+level . This approach ensures the athlete trains the correct energy system (threshold, etc.) without
+overexerting to hit an arbitrary pace.
+If coaches prefer more concrete adjustments, some approximate pace corrections: - At 1,500 m (5,000
+ft): add ~3–4% to interval paces (e.g., a 4:00 min/km interval pace at sea level might be ~4:08–4:10 min/
+km at altitude). - At 2,000 m (6,600 ft): add ~5–6%. - At 2,500 m (8,200 ft): add ~8–10%. These are broad
+estimates  and  individual  variability  is  high.  Athletes  should  learn  to  listen  to  their  breathing  and
+muscular cues. If a pace that should feel “moderately hard” feels “extremely hard” at altitude, they need
+to back off, regardless of what the watch says.
+Interval Training Modifications:  For structured interval workouts, there are a few strategies to adapt
+them, as highlighted by SimpliFaster and other coaches : 1. Slower Pace, Same Volume:  Do the
+same workout volume and rest as at sea level, but accept slower repetition times (e.g., 6×1000 m
+repeats that you normally do in 3:00, might be 3:10–3:15 at 7,500 ft) . This keeps the aerobic stimulus
+similar , though the neuromuscular aspect of running at race pace is sacrificed. To counter that, some
+workouts near sea-level pace should be included later (see strategy 2 or 3). 2. Same Pace, Longer Rest:
+Keep your target sea-level pace for intervals, but extend the recovery periods to allow full recovery at
+altitude . For instance, if you want to run 1k repeats in 3:00 as usual, you might rest 3:30 instead of
+2:00 between reps. This ensures you hit the neuromuscular and VO₂max paces, but note it changes the
+workout physiology (more of a speed session with more rest). It can be useful sparingly, but if you
+overextend rest for every workout, you might not get the desired endurance adaptations. 3. Break into
+Shorter Reps (Alt. Pace Simulation):  Another trick is to split intervals into shorter segments with short
+rests, simulating the same total work but never letting the body get as oxygen-starved. For example,
+instead of 6×1600 m at 5:00 with 2:30 rest (sea-level workout), you could do sets of 400 m repeats : 6
+sets of 4×400 m at 75s (which is 5:00/mile pace) with 60s rest between 400s and 2:30 between sets .
+This way, you run the same total distance at sea-level speed, but each rep is short enough that altitude’s
+effect is less limiting, and you get brief recoveries to recharge. This approach allows the athlete to
+experience sea-level race cadence and form (neuromuscular benefit) while still accumulating volume.
+It’s a bit more complex to execute but highly effective – essentially a form of “interval within interval”
+training.46
+32
+80
+81
+82
+8384
+85
+84
+86
+14
+
+---PAGE---
+
+Most coaches will use a mix of these methods. For longer intervals or tempo runs, option 1 (just slower
+pace) is common early in the camp. As the athlete acclimates, they might incorporate some option 2 or
+3 workouts to reintroduce race pace.
+Don’t Chase Sea-Level Splits:  The overarching advice is do not stubbornly chase your sea-level splits at
+altitude , as it can lead to exhaustion or loss of confidence. As the COROS coaching article puts it: “Instead
+of chasing splits, use heart rate zones... Pace zones won’t shift immediately [to altitude] and trying to match
+them can lead to overtraining” . We’ll discuss heart rate next, but this quote encapsulates the risk
+– many an athlete has ruined an altitude camp by treating every workout as a test to prove they haven’t
+lost fitness, rather than adjusting to the reality of altitude.
+Heart Rate Zones and Monitoring
+Heart Rate Response at Altitude:  Heart rate (HR) is a useful metric at altitude, but it has its nuances.
+Initially, resting and submaximal exercise heart rates are elevated at altitude, due to lower oxygen and
+higher sympathetic drive . For a given easy run pace, your HR might be 10 bpm higher than normal
+in week 1. Over time, as you acclimate (increase stroke volume a bit, reduce stress hormones), your
+submax HR for that pace might come down closer to your usual.  Maximal heart rate , interestingly,
+often decreases  at altitude – many athletes cannot hit their sea-level max HR when oxygen is limited .
+This might be partly protective (the body limiting itself under hypoxia) or due to earlier fatigue. For
+example, a runner with a 190 bpm max at sea level might only reach ~180 bpm in an all-out effort at
+2500 m. 
+So the HR curve shifts: higher at submax, lower at max. What does that mean for training zones? - Your
+aerobic zones (Zone 1-2)  might show higher numbers than expected for a given pace initially. But if
+you train by HR, you’ll simply be going slower to keep in Zone 2 range. - Your threshold HR  (if defined
+as a percentage of max or a certain number) might actually remain similar . Many coaches advise using
+heart rate as a reliable guide because, despite the altitude, if you know your threshold is around 170
+bpm at sea level, working at that HR at altitude should equate to a similar physiological intensity (even
+though the speed will be lower). In other words, 170 bpm still reflects your body working at threshold
+effort, just the output is different. - Because max HR is a bit suppressed, the top end of your zones
+might compress. But practically, most athletes won’t be training at true max effort frequently.
+Using Heart Rate Zones:  The COROS altitude guide suggests that heart rate zones remain accurate
+across altitudes  because HR “responds directly to the physiological stress of reduced oxygen” .
+It recommends  “trust your HR”  over pace when in doubt . This is good advice for controlling
+intensity. For example, if a workout is meant to be at 85% HRmax (typical tempo effort), the athlete can
+aim for that HR regardless of the pace – thus ensuring they are stressing the body appropriately
+without overdoing it. 
+However , one must account for the initial changes in HR: in the first days, dehydration or anxiety might
+spike HR abnormally. It’s wise to wait a couple of days before strictly adhering to HR, or at least
+understand it might read high at first. Also, if an athlete normally uses HR-based training load metrics
+(like TRIMP or training stress scores), they should note that their Training Load might appear higher
+at altitude  for equivalent sessions, because the HR is higher . This is not necessarily a bad thing
+– it reflects the body working harder . In fact, some wearables have an “altitude acclimation” feature that
+monitors if your HR at rest is lowering over time at altitude, indicating adaptation .
+Adjusting  Zones:  If  an  athlete  has  very  dialed-in  pace  zones  from  sea-level  testing,  they  should
+essentially toss those out at altitude and either use HR zones or perceived effort. One could also do a
+short field test at altitude once acclimated (for example, a 20-minute time trial to gauge new threshold8788
+29
+31
+8788
+88
+8990
+91
+15
+
+---PAGE---
+
+pace and HR at altitude) and derive temporary zones from that. But since altitude camps are usually
+temporary, many prefer not to re-calibrate everything formally; instead, they just use more subjective
+control.
+Example:  Suppose a runner’s sea-level threshold pace is 4:00/km and threshold HR ~170. At 2,000 m,
+they might find that running 4:15/km gets their HR to 170. If they tried 4:00/km, HR might climb to 180+
+(which would be supra-threshold for them). So they should do threshold runs at ~4:15 pace to stay
+around 170 HR. Over a few sessions, they’ll know that “4:15 is my new tempo pace up here.” If they
+return again to altitude, they can recall these adjustments as a starting point (though fitness changes
+year to year , so always adjust if needed).
+Altitude and Races:  If an athlete is training for a race at altitude , pacing strategy must accommodate
+the reduced capacity. E.g., a marathon at 1800 m will be several minutes slower than at sea level for the
+same fitness. Training in that environment helps calibrate the feel. But since our focus is sea-level
+performance, we mainly emphasize altitude as a training stimulus rather than a race environment.
+Monitoring Recovery with HR:  As touched on earlier , HR can also guide recovery. If an athlete’s resting
+HR is elevated by, say, >5–7 bpm compared to their acclimated normal, it could indicate incomplete
+recovery or lingering fatigue. Heart rate variability (HRV)  monitors are also popular . Typically, expect a
+sharp  drop  in  HRV  on  first  arriving  at  altitude  (indicating  stress),  and  a  gradual  rebound  as
+acclimatization occurs. Athletes who maintain or regain good HRV scores (or low resting HR) after a
+week are likely coping well and can handle increased training loads.
+Other Training Zone Considerations
+Ventilation and “Breathing Zone”:  Some coaches use breathing rate or talk test for easy runs. At
+altitude, you’ll start breathing harder at lower intensities. An easy run might feel like you’re breathing as
+hard as a moderate run at sea level. That’s normal. The talk test (can you speak full sentences?) still
+works  –  if  you’re  gasping  where  you  normally  wouldn’t,  slow  down.  Don’t  be  alarmed  that  you’re
+breathing a lot even on easy runs; that’s just the ventilatory response to hypoxia.
+Perceived  Exertion  (RPE):  Ultimately,  RPE  is  a  reliable  gauge  when  an  athlete  is  honest  with
+themselves. At altitude, athletes need to internalize that  “easy means easy”  – if it feels like you’re
+pushing, then for an easy day it’s too fast. Conversely, a true hard effort will  feel extremely taxing at
+altitude (legs burning, lungs burning). Using the classic Borg scale or a 1–10 effort scale, athletes should
+aim to match the intended RPE of a workout rather than the speed. Coaches can educate athletes
+beforehand:  “Expect your 5K race pace effort to be 10-15 sec/km slower here. Focus on the effort, not the
+watch.”
+Training Zones Summary:  - Use Heart Rate and RPE  as primary guides for intensity at altitude. They
+ensure you’re in the right physiological zone. - Adjust pace targets down . It’s better to err on the side
+of slightly too slow than too fast initially. - Over the course of the camp, if adaptation occurs and paces
+improve at the same HR, that’s a sign of fitness/ acclimation gains. - Communicate : If you’re a coach,
+talk to your athletes about how the efforts should feel. Remove any stigma about running slower –
+frame it as doing the right thing to get the benefits of altitude. - For group training, athletes should be
+cautious not to turn sessions into races because everyone’s adaptation will vary. The group should
+agree to train at the appropriate effort, not the front runner’s sea-level pace.
+16
+
+---PAGE---
+
+Practical Coaching Tips for Altitude Training
+Bringing together all the above information, here is a summary of practical recommendations and
+coaching tips for implementing altitude training effectively:
+Ensure Sufficient Duration:  Plan altitude camps of at least 3–4 weeks  if the goal is to materially
+increase red blood cell mass and see performance gains . Smaller boosts can occur in 2
+weeks, but the optimal ratio of benefit to time is around 3–4 weeks of living high. Remember
+that RBC gains and performance benefits will taper off after ~2–3 weeks back at sea level, so
+schedule key races ideally within ~1–2 weeks of coming down .
+Choose the Right Altitude:  Moderate altitudes of ~1,800–2,500 m are generally recommended.
+Higher  altitudes  (3,000  m+)  produce  more  EPO,  but  also  more  stress  and  risk  of  illness/
+overtraining.  Many  find  ~2,000–2,200  m  to  be  a  “sweet  spot”  for  living  –  high  enough  to
+stimulate adaptation, low enough to still feel decent. For training in LHTL, being able to drop to
+~1,000 m or lower is ideal . If doing LHTH, consider a slightly lower elevation (e.g., 1,600–
+1,800 m) so that training isn’t as severely impacted; some studies indicated that athletes living
+and  training  around  2100–2500  m  had  improvements,  whereas  those  who  tried  >2800  m
+struggled . Individualize:  If an athlete has never been to altitude, a conservative altitude
+(e.g., 6,000 ft) is a good starting point to see how they respond .
+Iron Stores and Supplementation: Check iron status (ferritin levels)  before altitude training.
+Endurance athletes, especially females, are often borderline low on iron. Since EPO-driven RBC
+production consumes a lot of iron, starting an altitude camp with low ferritin can result in an
+inadequate  response  (the  body  can’t  make  new  RBCs  effectively) .  It’s  commonly
+recommended to supplement with iron for several weeks before  and during the altitude stay
+. Typical advice: 65 mg of elemental iron (e.g., ferrous sulfate) daily on an empty stomach
+with vitamin C to aid absorption, starting ~2-3 weeks pre-ascent. Continue through the camp.
+Use liquid iron if tolerable (higher absorption) . Monitor ferritin if the camp is long. Adequate
+dietary iron (red meat, leafy greens, beans) should also be emphasized.  Caution:  Don’t over-
+supplement to the point of iron overload – work with a medical professional on dosing. The goal
+is to be in a healthy ferritin range (~50–100 ng/mL) when at altitude.
+Hydration and Environmental Prep:  At altitude,  drink more fluids  than you think you need.
+Carry water and sip frequently . Also, be prepared for large temperature swings – days can be
+warm under the sun but nights cold.  Dress in layers  when training, as altitude sun can be
+intense but you cool quickly in shade or wind . Use sunscreen; UV radiation is stronger at
+altitude. All these seem basic, but an ill-prepared athlete who gets sunburned or dehydrated will
+have a harder time acclimating.
+Ramp Up Training Gradually:  In the first week at altitude, reduce training volume and intensity
+compared to a normal week. For example, some coaches cut volume by ~20% in week 1 and
+avoid very intense sessions in the first 3–4 days. This gives the athlete’s body a chance to
+acclimate (EPO is surging, fluid shifts are happening). After about 5-7 days, if the athlete is
+handling it, training load can begin to increase toward normal.  Avoid high-intensity interval
+training in the first few days ; instead, do light aerobic and perhaps some short strides. Once
+the initial AMS risk period is over and the athlete’s resting vitals stabilize, then introduce harder
+workouts.• 
+9293
+3
+• 
+39
+9495
+94
+• 
+9697
+98
+96
+98
+• 
+73
+99
+• 
+17
+
+---PAGE---
+
+Monitor Health and Well-being:  Stay vigilant for signs of  excess fatigue, illness, or AMS .
+Common red flags: persistent headache, loss of appetite, poor sleep, undue breathlessness or
+racing heart at rest, dizziness, or extreme lethargy. If an athlete experiences these, don’t push
+through  –  back  off  training,  ensure  hydration  and  nutrition,  consider  descending  a  bit  if
+symptoms are moderate/severe. Altitude sickness can usually be managed by rest and maybe a
+mild analgesic (for headache) and acetazolamide if needed. It typically resolves in 1–3 days with
+no hard training. It’s better to lose two days of training than to have an athlete feeling awful for
+two weeks.
+Leverage Technology (if available):  Devices like pulse oximeters can be used each morning to
+track O₂ saturation – this can be interesting data (e.g., seeing SpO₂ rise from 88% to 92% over a
+week as a sign of acclimation). Likewise, tracking resting heart rate and HRV with a wearable can
+provide feedback on adaptation. These aren’t strictly necessary, but they can validate how an
+athlete is coping. If HRV is continuously low and not rebounding, it may indicate that training
+load is too high or recovery is insufficient at altitude.
+Psychological  Coaching:  Athletes  might  feel  discouraged  when  they  see  slower  times.  It’s
+important to set their expectations beforehand: “You will be slower up there, and that’s normal. It
+doesn’t  mean  you’re  losing  fitness.”  Emphasize  the  effort-based  success  criteria  for  workouts.
+Celebrate  things  like  hitting  the  target  HR  or  power ,  rather  than  the  split.  Keep  the  team
+atmosphere positive – if everyone knows to expect the slow down, there’s less angst. Also,
+remind them that any struggle at altitude will pay off later: “If you can run 5×1000 m in 3:15 at
+7,000 ft today, imagine how much easier your 3:05’s will feel back at sea level with more red blood
+cells!”
+Descending  and  Peaking:  After  completing  an  altitude  block,  plan  the  return  to  sea  level
+strategically. Common practice: Descend about 7–10 days before a major competition  at sea
+level. Many athletes report feeling a big boost ~7 days after coming down, once any minor
+“rebound” effects settle (the first 1-2 days off altitude, some feel sluggish as plasma volume
+normalizes). By a week out, they have high RBC mass plus restored sleep and full oxygen –
+perfect for a race. Alternatively, some like to race very soon (1–3 days) after coming down, to
+“shock” the system. But beyond ~2–3 weeks after descent, the RBC mass advantage diminishes
+as older RBCs die off and EPO returns to low altitude baseline. Plan competitions accordingly to
+capitalize on the window of enhanced physiology.
+When Not to Do Altitude:  Despite its benefits, altitude training is not a magic bullet and it isn’t
+for everyone. If an athlete is inexperienced or prone to anemia, or if the timing before a key
+event is too short, it might do more harm than good to squeeze in a hurried altitude stint. Also, if
+an athlete is in a heavy competition season, going to altitude (which might initially undercut
+performance) mid-season could negatively affect races. Generally, altitude camps are best in
+base or early season or as a dedicated build before a targeted event, not randomly in the middle
+of a race circuit. 
+By  following  these  guidelines,  coaches  can  maximize  the  chance  that  their  athletes  emerge  from
+altitude training  fitter, faster, and ready to set personal bests at sea level . Altitude training is a
+powerful tool in the endurance coach’s arsenal – when applied with knowledge and care, it can simulate
+the  effect  of  “natural  EPO”  legally  and  effectively ,  boost  aerobic  capacity,  and  confer  a
+competitive edge.• 
+• 
+• 
+• 
+• 
+7100
+18
+
+---PAGE---
+
+Conclusion
+Altitude  training,  when  executed  properly,  offers  endurance  runners  and  athletes  a  unique
+physiological advantage. The low-oxygen environment triggers an erythropoietin-driven increase in
+red blood cells  and hemoglobin mass – nature’s way of enhancing oxygen transport – as well as a host
+of other adaptations like improved oxygen unloading (2,3-BPG increase), capillarization, and aerobic
+enzyme efficiency. These changes can translate into a noticeable performance improvement at sea
+level, often on the order of a few percent which is hugely meaningful in competitive contexts . 
+We explored the two main altitude training models: Live High–Train Low , which allows athletes to reap
+altitude  benefits  while  maintaining  high  training  quality  (and  is  generally  superior  for  sea-level
+performance gains) ; and Live High–Train High , the traditional approach that still builds red blood
+cells  but  requires  smart  adjustments  due  to  training  limitations .  Both  can  be  effective  if
+managed well, with LHTL being the preferred method for most scenarios where logistics permit.
+Athletes and coaches must also navigate the challenges of altitude : the first nights of fitful sleep, the
+sudden  spike  in  metabolic  demands  and  potential  weight  loss,  and  the  slower  recovery  between
+workouts.  By  anticipating  these  issues  –  prioritizing  sleep,  upping  caloric  intake  (especially
+carbohydrates), staying hydrated, and scaling back training load initially – one can prevent altitude from
+becoming a setback. As the saying goes in altitude circles, “Train high, don’t strain high .” Patience in
+the first days pays off in the later weeks.
+When it comes to  training guidance at altitude , the emphasis should be on  intensity control  rather
+than hitting specific speeds. Using heart rate and perceived effort as guides ensures the athlete is
+training the intended energy system without overreaching . Paces will naturally be slower; that’s
+expected and should not be resisted. Coaches can employ creative interval adjustments and time-based
+prescriptions to keep training effective and morale high. The outcome of a well-executed altitude camp
+is an athlete who arrives at sea level with higher red cell volume, intact speed and fitness (thanks to
+intelligent training adjustments), and often a mental boost from having thrived in a tough environment.
+For amateur and semi-professional runners, altitude training should be approached with the same rigor
+as any advanced training intervention. It’s not only for elites – recreational marathoners, for instance,
+might see gains from a hiking trip or few weeks working remotely from the mountains (as long as they
+maintain training appropriately). But it’s crucial to implement the principles outlined: get your iron
+checked, plan your training load, listen to your body, and don’t panic when you feel winded on an easy
+jog up high.
+In conclusion, altitude training remains a potent method to “take your endurance to new heights”  –
+literally and figuratively. By understanding the physiology (EPO, hemoglobin, etc.) and combining that
+knowledge  with  practical  coaching  strategies  (LHTL  vs  LHTH,  adjusting  zones,  recovery  protocols),
+athletes  can  safely  harness  hypoxia  to  enhance  their  sea-level  performance.  As  with  any  training
+modality, individual responses vary, so monitor and adjust the program to the athlete’s needs. When
+done correctly, the athlete will come down from the mountains fitter and faster , ready to capitalize on
+their newly augmented aerobic engine.  The mountains will have made them stronger, and the
+rewards will be reaped on the roads, tracks, and trails at sea level.
+Sources:
+Saunders, P. U., et al. “Live High-Train Low: Considerations for Altitude Training Programming.”
+Sports Medicine , vol. 49, 2019, pp. 123–136. – Discussion of LHTL efficacy and protocols. 3344
+42
+4643
+87
+1. 
+19
+
+---PAGE---
+
+Chapman, R. F., et al. “Altitude Training Considerations for the Distance Runner.” International
+Journal of Sports Physiology and Performance , vol. 8, 2013, pp. 851–858. – Covers individual
+variability, iron importance, and timing of performance peaks after altitude. 
+Wilber , R. L. Altitude Training and Athletic Performance.  Human Kinetics, 2004. –
+Comprehensive book on altitude physiology, historical accounts, and training recommendations
+for coaches. (Provides background on Mexico City 1968 and development of LHTL). 
+Gore, C. J., et al. “Statistics of Hemoglobin Mass Response to Altitude Training.” Medicine & Science
+in Sports & Exercise , vol. 45, no. 8, 2013, pp. 1608–1616. – Quantifies typical Hb_mass increases
+and variability among athletes in altitude camps. 
+Furian, M., et al. “Acute High-Altitude Exposure and Sleep Quality: Improved by Acclimatization.”
+Frontiers in Physiology , 2022, Art. 965021. – Study demonstrating initial sleep disturbance and
+partial acclimatization improvements . 
+Wickramasinghe, H., & Anholm, J. “Sleep and Breathing at High Altitude.” Sleep and Breathing , vol.
+3, 1999, pp. 89–102. – Classic paper detailing altitude sleep issues (periodic breathing,
+hypoxemia) . 
+Butterfield, G. E., et al. “Energy intake and metabolism at high altitude.” American Journal of
+Clinical Nutrition , vol. 85, 1992, pp. 1608–1616. – Findings on BMR increase ~17% at 4300 m
+with maintained diet . 
+Millet, G. P., et al. “Hypoxic Training and Pseudo-Anaerobic Performance.” Sports Medicine , 2010. –
+Insights on using hypoxic exercise (LHTH) for anaerobic performance, repeated sprint training
+under hypoxia. 
+Muraoka, I., & Gando, Y. “Effects of LHTH vs LHTL on Adaptations and Performance.” J. Physical
+Fitness and Sports Medicine , vol. 1, 2012, pp. 447–455. – Concluded LHTL yields ~1–4%
+performance gains over LHTH . 
+Bonetti, D. L., & Hopkins, W. G. “Sea-Level Performance Following Adaptation to Hypoxia: A Meta-
+Analysis.” Sports Medicine , vol. 39, 2009, pp. 107–127. – Meta-analysis showing small but
+significant benefits of altitude for sea-level performance, and discussing individual responders. 
+(Additional citations are embedded in text as per references 【 】.)
+Altitude training - Wikipedia
+https://en.wikipedia.org/wiki/Altitude_training
+Making the Most of Your Stint at Altitude
+https://simplifaster .com/articles/altitude-training-optimization/
+Impact of Altitude Training on Athletes’ Aerobic Capacity: A Systematic Review and Meta-
+Analysis
+https://www.mdpi.com/2075-1729/15/2/305
+Physiological and performance effects of live high train low altitude ...
+https://www.sciencedirect.com/science/article/pii/S2665944123000160
+Altitude Exposure at 1800 m Increases Haemoglobin Mass in ... - NIH
+https://pmc.ncbi.nlm.nih.gov/articles/PMC4424472/
+Hypoxic Training in Natural and Artificial Altitude
+https://www.germanjournalsportsmedicine.com/archive/archive-2022/issue-3/hypoxic-training-in-natural-and-artificial-
+altitude/
+Year-to-year variability in haemoglobin mass response to two ...
+https://bjsm.bmj.com/content/47/Suppl_1/i512. 
+3. 
+4. 
+5. 
+55
+6. 
+50 61
+7. 
+68 69
+8. 
+9. 
+42
+10. 
+1 2 3 4 5 827 36 37 39 40 45 46
+6 721 25 33 35 38 65 73 78 79 80 81 82 83 84 85 86 92 93 94 95 96 97 98 99100
+911 12 48
+10
+13
+14 17 18 19 20 22 23 24 28 29 32
+15
+20
+
+---PAGE---
+
+Hypoxia-inducible erythropoietin expression: details matter | Haematologica
+https://haematologica.org/article/view/10093
+How Altitude Impacts Your Performance
+https://coros.com/stories/coros-coaches/c/how-altitude-impacts-performace
+Effect of Altitude on the Heart and the Lungs | Circulation
+https://www.ahajournals.org/doi/10.1161/circulationaha.106.650796
+Effects of altitude on exercise level and heart rate in patients ... - NIH
+https://pmc.ncbi.nlm.nih.gov/articles/PMC2848353/
+Effects of the “live high-train high” and “live high-train low” protocols on
+physiological adaptations and athletic performance
+https://www.jstage.jst.go.jp/article/jpfsm/1/3/1_447/_article
+Sleep at high altitude: guesses and facts
+https://journals.physiology.org/doi/full/10.1152/japplphysiol.00448.2015
+Sleep and Breathing at High Altitude - PubMed
+https://pubmed.ncbi.nlm.nih.gov/11898114/
+Frontiers | Acute high altitude exposure, acclimatization and re-exposure on
+nocturnal breathing
+https://www.frontiersin.org/journals/physiology/articles/10.3389/fphys.2022.965021/full
+Effect of Short-Term Acclimatization to High Altitude on Sleep and ...
+https://pmc.ncbi.nlm.nih.gov/articles/PMC3274343/
+Ascent to Altitude as a Weight Loss Method - PubMed Central - NIH
+https://pmc.ncbi.nlm.nih.gov/articles/PMC4091035/
+www.nationalacademies.org
+https://www.nationalacademies.org/read/5197/chapter/26
+Changes in body mass, appetite-related hormones, and appetite ...
+https://journals.physiology.org/doi/10.1152/japplphysiol.00369.2022
+Weight Loss and Fat Metabolism during Multi-Day High-Altitude ...
+https://www.mdpi.com/2075-1729/12/4/545
+Taste and Appetite at Altitude: A Comprehensive Review of Sensory ...
+https://www.liebertpub.com/doi/10.1089/ham.2024.0018
+Effect of Moderate Altitude on Peripheral Muscle Oxygenation ... - NIH
+https://pmc.ncbi.nlm.nih.gov/articles/PMC3905301/
+(PDF) Effects of altitude on exercise level and heart rate in patients ...
+https://www.researchgate.net/publication/
+43135086_Effects_of_altitude_on_exercise_level_and_heart_rate_in_patients_with_coronary_artery_disease_and_healthy_controls16
+26 63 64 74 87 88 89 90 91
+30
+31
+34 41 42 43 44 47
+49
+50 51 52 57 61 62
+53 54 55 58 59 60
+56
+66
+67 68 69 75
+70
+71
+72
+76
+77
+21
+
+---PAGE---
+

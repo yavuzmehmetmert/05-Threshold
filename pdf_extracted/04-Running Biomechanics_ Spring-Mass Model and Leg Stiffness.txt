@@ -1,0 +1,969 @@
+Running Biomechanics: Spring-Mass Model and
+Leg Stiffness
+Introduction
+Running  is  a  complex  biomechanical  process  often  modeled  in  terms  of  springs  and  masses.
+Understanding how our legs function like springs, and how stiffness in our tendons and muscles affects
+running, can provide valuable insights for both improving performance and reducing injury risk. This
+document provides a deep dive into  running biomechanics , focusing on the  spring-mass model  of
+running and the related concept of leg stiffness . Key topics include: how elastic energy is stored and
+released in the Achilles tendon and plantar fascia, definitions of  vertical stiffness (K_vert)  and  leg
+stiffness (K_leg)  and their relationship to running economy, the impact of running cadence and vertical
+oscillation on impact forces, and how plyometric training  can increase tendon stiffness without adding
+muscle mass. The content is presented in a practical, coaching-oriented manner , aimed at a broad
+range of runners – from amateurs (including those prone to injuries) to semi-professionals – to help
+translate biomechanics research into actionable training insights.
+Short, focused sections and bullet points are used for clarity, making it easy to scan and find key points.
+By the end of this document, coaches and runners should have a solid understanding of spring-like
+mechanics in running and how to apply these principles to improve running efficiency and safety.
+The Spring-Mass Model of Running
+In  running  biomechanics,  a  simple  yet  powerful  representation  is  the  spring-mass  model .  In  this
+model, the runner's body is depicted as a point mass (located at the center of mass, roughly near the
+torso) attached to a massless spring that represents the leg . Each running step is analogous to
+compressing and rebounding a spring. When the foot contacts the ground during the stance phase, the
+leg “spring” compresses (bending at the ankle, knee, and hip) under the body weight, storing elastic
+energy. In the latter part of stance, the spring recoils, releasing energy to propel the body upward and
+forward into the next step. This spring-like behavior can be observed in the vertical motion of a runner’s
+center of mass and the force applied to the ground, which together follow a characteristic pattern
+resembling a bouncing spring . The spring-mass model helps explain why running has a natural
+bounce and how mechanical energy is conserved and returned from step to step with relatively high
+efficiency.
+Key characteristics of the spring-mass model:
+-  Compression  and  Rebound:  During  foot  contact,  the  leg  acts  like  a  compressing  spring.  The
+maximum compression occurs at mid-stance, after which the spring recoils to push the runner off the
+ground .
+-  Energy Storage:  As the leg compresses, elastic structures (tendons and connective tissues) store
+potential  energy.  This  stored  energy  is  then  released  as  kinetic  energy  during  push-off,  aiding  in
+forward propulsion.
+- Oscillation of COM:  The runner’s center of mass (COM) undergoes a slight up-and-down oscillation
+each stride. It descends during the loading phase and rises during the propulsion phase, much like a
+mass bouncing on a spring. The amplitude of this COM oscillation is linked to the system’s stiffness – a1
+2
+1
+1
+
+---PAGE---
+
+stiffer leg spring results in less vertical displacement for a given force.
+-  Resonant  Frequency:  Every  spring-mass  system  has  a  natural  (resonant)  frequency  at  which  it
+oscillates most efficiently. In running, there may be an optimal cadence or stiffness at which the effort
+(energy cost) is minimized for a given speed . Deviating from this optimum (e.g. running with a
+stride frequency much higher or lower than the natural frequency of the runner’s “spring”) can increase
+energy cost .
+By modeling running with this simple spring-mass analogy, researchers and coaches can quantify how
+“bouncy” or stiff a runner’s gait is, and how changes in mechanics (like bending the knees more or less)
+will affect forces and energy use. It establishes a foundation for discussing  leg stiffness  and how it
+influences running performance and economy, which we will explore in later sections.
+Elastic Energy Storage in the Achilles Tendon and Plantar Fascia
+A remarkable feature of human running is the body’s ability to  store and return elastic energy  in
+tendons and other connective tissues. Two key structures in this elastic energy recycling system are the
+Achilles tendon  and the plantar fascia  (along with the foot’s arch). These act like springs that stretch
+under load and spring back, contributing to the efficiency of running.
+Achilles Tendon: Nature’s Rubber Band
+The Achilles tendon (highlighted above) connects the calf muscles (gastrocnemius and soleus) to the heel bone
+(calcaneus). It is one of the strongest and thickest tendons in the body, acting like a powerful spring to store
+and release energy during running.
+The Achilles tendon plays a pivotal role in running mechanics. When you land on your foot during
+running, your ankle flexes (dorsiflexes) under the load, which stretches the Achilles tendon. This action
+stores elastic strain energy  in the tendon, much like stretching a rubber band. As you push off into the
+next stride (plantarflexing the ankle), the Achilles tendon recoils, releasing that stored energy to help
+propel you forward and upward . This cycle of energy storage and return reduces the amount of
+work the muscles in the calf must do, thereby improving efficiency.
+Research  has  quantified  just  how  much  energy  the  Achilles  tendon  can  handle.  Classic  studies
+estimated that the Achilles tendon can store on the order of 35 Joules  of energy with each step when
+running at moderate speeds (~4.5 m/s, roughly a 6-minute mile pace) . More recent analyses using
+advanced models and imaging techniques have shown that at faster speeds, the contribution of tendon
+elasticity becomes even more pronounced. For example, as running speed increases from a jog (~2 m/s)
+to a sprint (≥8 m/s), the percentage of positive work done by the ankle’s muscle-tendon unit that comes
+from tendon elastic recoil (as opposed to direct muscle work) rises significantly – one study found it
+increased from about 53% to 74%  for the soleus muscle’s tendon and similarly from 62% to 75%  for the
+gastrocnemius’ tendon . In essence, at top speeds, three-quarters or more of the ankle’s output
+can be attributed to elastic energy return from the stretched Achilles tendon, with the muscles acting in
+a more isometric manner to facilitate this spring action.
+To put it another way, thanks to the long Achilles tendon, the plantar-flexor muscles (calf muscles) can
+let the tendon do a large portion of the work. Up to around 60% of the mechanical work  done by the
+muscle-tendon unit during running can be temporarily stored as elastic energy in the Achilles tendon
+and then released . This greatly reduces the metabolic cost: the muscles don’t have to shorten as
+much or as quickly, which saves energy. The tendon’s elasticity effectively “recycles” energy that would
+otherwise be lost as heat. This is a crucial mechanism behind running efficiency – it’s one reason3
+4
+56
+7
+89
+6
+2
+
+---PAGE---
+
+humans  (and  many  animals)  can  run  for  extended  periods  without  exhausting  their  muscles
+immediately; the tendons provide free energy return.
+It’s worth noting that the Achilles tendon doesn’t act alone – the whole triceps surae  muscle-tendon
+unit (gastrocnemius and soleus muscles with the Achilles tendon) is structured to optimize this effect.
+The muscles have relatively short fibers and attach to the heel via the long tendon, a design that allows
+significant tendon stretch while muscle fibers change length only minimally . During running,
+the calf muscle fibers can behave quasi-isometrically (staying nearly the same length) while the Achilles
+tendon stretches and recoils. This means the muscles can operate at their optimal length and velocity
+for force production, further improving efficiency, as a near-isometric muscle contraction is far more
+economical than a fast shortening contraction . Studies have shown that when the soleus muscle
+operates  in  this  optimized  way  (high  force,  low  shortening),  runners  have  better  economy  (lower
+oxygen consumption for the same speed) .
+In summary, the Achilles tendon:  - Stores significant elastic energy with each foot strike and releases
+it at push-off, contributing free propulsion. - Can account for a majority of the work done at the ankle
+joint (especially at higher speeds), reducing the required muscle work . - Enables muscles to
+function  more  economically  by  allowing  them  to  act  isometrically  (or  nearly  so)  while  the  tendon
+handles length change, thereby saving metabolic energy . - Helps explain why improving Achilles
+tendon properties (like stiffness, which we discuss later) or technique to better utilize the tendon’s
+spring could improve running economy.
+From  a  coaching  perspective,  this  highlights  the  importance  of  a  healthy,  strong  Achilles  tendon.
+Runners often do exercises like eccentric heel drops or plyometrics (which we’ll cover) to strengthen the
+Achilles and improve its stiffness and energy-return capability. However , one must also be cautious – the
+Achilles endures very high forces (on the order of  6-12 times body weight  during running ), and
+sudden changes in training or poor biomechanics can overload it, potentially leading to injury. Gradual
+training that enhances the tendon’s capacity can both improve performance and reduce injury risk.
+Plantar Fascia and the Foot’s Arch: The Spring in Your Step
+The plantar fascia (highlighted above) spans the underside of the foot, supporting the arch. It behaves like a
+spring by stretching and shortening during each stride, storing elastic energy when the arch flattens and
+releasing it as the arch recoils.
+While the Achilles tendon is the star of elastic energy storage in the lower leg, the plantar fascia  and
+the associated arch of the foot play an essential supporting role. The plantar fascia is a thick band of
+connective tissue running along the bottom of the foot from the heel to the forefoot. Together with the
+ligaments and muscles of the foot, it forms the longitudinal arch , which is not rigid – it behaves like a
+spring that flattens and recoils during gait.
+During the foot strike and mid-stance of running, the arch of the foot temporarily flattens  under load,
+which stretches the plantar fascia (and related ligaments). This is often described by the  windlass
+mechanism : as the toes dorsiflex (bend upward) and weight is applied, the plantar fascia winds around
+the metatarsophalangeal joints (the ball of the foot), increasing tension. This process stores elastic
+strain energy in the stretched arch (similar to stretching a spring) . Later in stance, as the heel
+lifts and the runner moves to push off, the tension in the plantar fascia helps to shorten and raise the
+arch  (the  windlass  mechanism  reels  the  arch  back  up),  releasing  the  stored  energy  to  aid  in  the
+propulsion of the body forward . Essentially, the foot’s arch and plantar fascia act like a  bow and
+arrow : the arch flattens (bowstring stretches) then springs back, adding a springy push to the stride.1011
+1213
+14
+96
+1314
+15
+1617
+17
+3
+
+---PAGE---
+
+The contribution of the arch’s spring to running efficiency is significant. Researchers Ker et al. famously
+concluded that “the arch of the foot stores enough strain energy to make running more energy efficient.”  In
+quantitative terms, studies have found that the energy stored and returned by the deformation of the
+foot arch is non-trivial. For example, one study indicated that the foot’s arch can store and return on
+the order of 17% of the energy  needed for each step (this is a figure sometimes cited from classical
+studies, although exact percentages vary by speed and individual). More recent works, such as Welte et
+al. (2021), reaffirm that the arch behaves like a spring:  “the plantar fascia stretches and then shortens
+throughout gait as the arch-spring stores and releases elastic energy.” . In running, this means some of
+the impact energy when your foot hits the ground is absorbed by the flattening of your arch and then
+given back to help push you off the ground.
+The combined effect  of the Achilles tendon and plantar fascia working in series (one behind the ankle,
+one within the foot) is often likened to a two-spring system: one large spring from calf to heel, and
+another from heel to toes. The coordination of these springs is crucial. If the arch is too floppy or the
+plantar fascia too lax, energy is lost (the arch might collapse excessively, dissipating energy as heat or
+strain on tissues rather than storing it). If the arch is too rigid, it might not store enough energy or
+could  transfer  stress  upward,  potentially  leading  to  injuries.  A  well-tuned  arch  will  compress  just
+enough to store energy and then recoil efficiently at toe-off .
+Why it matters for coaches and runners:  A strong and well-functioning plantar fascia contributes to
+running  economy  and  helps  prevent  injuries  like  plantar  fasciitis  or  stress  fractures  in  the  foot.
+Strengthening the intrinsic foot muscles (which support the arch) and maintaining the health of the
+plantar fascia can improve this natural shock absorption and recoil. Drills like short foot exercises (to
+strengthen  the  arch)  or  simply  running  barefoot  on  a  soft  surface  occasionally  (which  naturally
+strengthens the arch) have been suggested by some coaches to enhance the foot’s spring mechanism
+(with caution to avoid overdoing it). It’s also observed that running form can influence arch dynamics: a
+runner who overstrides with a heavy heel strike might load the arch in a less-than-ideal way, whereas a
+midfoot strike can allow a smoother engagement of the arch spring – though foot strike patterns vary
+by individual and there is no one-size-fits-all technique.
+In summary, the plantar fascia and foot arch act as the  lower spring  of the leg, complementing the
+Achilles tendon:
+- They store elastic energy  when the foot is loaded (arch flattens) and return energy  during push-off
+(arch recoils), contributing to forward propulsion .
+-  They  dynamically  adjust  foot  stiffness:  a  compliant  arch  at  landing  helps  absorb  shock,  then  a
+stiffening arch at push-off provides a lever for efficient force transfer .
+- A well-conditioned arch can  improve running economy  by saving energy (the more work done by
+passive structures like tendons, the less the muscles have to do). Indeed, enhancing arch stiffness has
+been linked with better energy efficiency in running .
+- Proper training and possibly footwear choice (shoes that don’t overly immobilize the arch) can help
+maintain the foot’s natural spring function.
+Both the Achilles tendon and plantar fascia illustrate the principle that stiffness and elasticity in the
+right measure can improve performance . This sets the stage for understanding leg stiffness  more
+broadly – which is essentially how these springs (and others in the leg) combine to affect the mechanics
+of running.16
+1819
+1617
+1719
+20
+4
+
+---PAGE---
+
+Defining Vertical Stiffness (K_vert) and Leg Stiffness (K_leg)
+When we talk about a runner being “stiff” or “springy,” we often refer to measurable quantities known
+as  vertical  stiffness  and  leg  stiffness .  These  terms  come  from  the  spring-mass  model  and  help
+quantify how the runner’s leg-spring behaves during the contact phase of running. While they are
+related concepts, they have specific definitions:
+Leg Stiffness (K_leg):  In running biomechanics, leg stiffness is defined as the ratio of the peak
+vertical ground reaction force (vGRF) to the maximum leg spring compression  that occurs during
+the stance phase . Here, “leg spring compression” (ΔL) is the change in length of the leg
+(often measured from hip to ankle or hip to foot) from the moment of touchdown to the point of
+maximum knee/ankle bend at mid-stance. Essentially, it tells how much force is generated per
+unit  displacement  of  the  leg  spring.  A  higher  K_leg  means  that  for  a  given  force,  the  leg
+compresses less – in other words, the leg behaves more stiffly (it’s harder to bend). 
+Vertical Stiffness (K_vert):  Vertical stiffness is defined as the ratio of the peak vertical ground
+reaction force to the maximum vertical displacement of the center of mass (COM)  during stance .
+The  vertical  displacement  of  the  COM  (Δy)  is  how  far  the  runner’s  center  of  mass  moves
+downwards from initial contact to mid-stance. K_vert thus indicates how “bouncy” the runner is
+in the vertical direction. A high K_vert means the runner’s COM doesn’t drop very much under
+load (for a given force), i.e. the runner is bouncing less and is more rigid vertically.
+To visualize the difference: imagine a running step. When the foot hits the ground, your body’s center of
+mass starts to lower and your leg joints bend. Leg stiffness (K_leg)  is concerned with how much the leg
+length  changes (hip-to-foot distance shortens as knee/ankle bend) under the force, whereas  vertical
+stiffness (K_vert)  focuses on how much the body’s height  (COM height) changes under that force. The
+leg can compress not only by vertical motion but also by geometry (the leg angle). If you land more
+upright  versus  more  squat,  the  leg  compression  vs  COM  drop  might  differ .  In  a  perfectly  vertical
+landing, leg compression and COM drop are similar; but if the leg is at an angle, some leg compression
+doesn’t translate purely to vertical drop of COM.
+Mathematically, these stiffness values are often calculated using a simple harmonic motion analogy
+where the ground reaction force approximates a sine-wave during contact. For example, one method
+uses: 
+where   is the peak vertical ground reaction force (often normalized to body weight),   is the
+downward displacement of COM, and   is the compression of the leg spring . Researchers like
+McMahon & Cheng (1990) popularized these calculations for running.
+It’s important to note units: Stiffness is measured in kN/m (kilonewtons per meter) if using absolute
+units. Many times, for comparison between runners of different weights, the force might be normalized
+to body weight and stiffness reported in e.g. “body weights per meter”. Regardless, higher numbers
+mean a stiffer system.• 
+2
+• 
+2
+K=vert ,
+ΔyFmax
+K=leg ,
+ΔLFmax
+Fmax Δy
+ΔL 2
+5
+
+---PAGE---
+
+Relationship between K_vert and K_leg:  Though related, K_vert and K_leg are not identical and can
+differ based on running mechanics: - K_vert is influenced by how much you allow your body to bounce.
+Even if the leg compresses, if your posture or running mechanics allow your hips to drop a certain
+amount, that affects K_vert. - K_leg is influenced by the composite stiffness of all joints (ankle, knee, hip)
+acting together along the leg’s length. In practice, these values often correlate, but one can change
+without the other . For instance, running with a more bent-knee style might increase leg compression
+(affecting K_leg) but also lower the body more (affecting K_vert). 
+Typical values and factors:  As an example, a moderately trained runner might have a leg stiffness on
+the order of 8–12 kN/m and a vertical stiffness in somewhat a similar range normalized to body weight
+(exact values depend on measurement specifics). Several factors affect stiffness: -  Speed:  As running
+speed increases, studies have found that  vertical stiffness (K_vert) tends to increase  (you become
+“stiffer” vertically at higher speeds), while leg stiffness (K_leg) often remains relatively constant  or
+changes less dramatically . The reasoning is that at higher speeds, ground contact time is shorter
+and you naturally adopt a bouncier , stiffer stride to accommodate the greater forces, thus COM doesn’t
+drop as much (high K_vert). But the absolute leg compression might not change drastically, so K_leg
+stays in a narrow range. - Footwear and Surface:  A softer surface or heavily cushioned shoe can allow
+more COM displacement (lower K_vert) as the surface itself deforms, and runners often subconsciously
+adjust leg stiffness when going from soft to hard surfaces (stiffer leg on soft ground to maintain
+bounce). This is known as stiffness regulation. - Fatigue:  As a runner fatigues, leg and vertical stiffness
+can change – sometimes stiffness decreases with extreme fatigue (leading to more collapse in each
+step), although trained runners may maintain stiffness to preserve economy. - Foot strike and form:  A
+forefoot  striker  might  exhibit  different  stiffness  characteristics  than  a  heel  striker .  For  example,  a
+habitual forefoot striker may have a stiffer ankle but more knee flex (or vice versa) depending on their
+style, affecting effective stiffness. - Anatomy and Strength:  Stronger tendons and muscles can handle
+and impart greater forces for less deformation, thus increasing stiffness. Someone with very compliant
+joints or weaker connective tissue might exhibit lower stiffness (more give).
+To avoid confusion: Stiffness in this context is not “tightness” in a colloquial sense, but a mechanical
+description of spring behavior . A highly trained runner with a light, springy step has  high stiffness  in
+these definitions (they spring off the ground quickly with little bounce loss), whereas a runner who feels
+“mushy” with each step (deep sink and slow rebound) has lower stiffness .
+So why do we care about K_leg and K_vert? Because they relate to running economy and injury risk ,
+as we discuss next. These metrics give us a way to quantify and correlate how changes in training or
+biomechanics affect performance.
+Leg Stiffness, Vertical Stiffness, and Running Economy
+Running  Economy  (RE)  refers  to  how  efficiently  a  person  uses  energy  while  running  at  a  given
+submaximal speed. It’s often measured by the oxygen consumption (VO₂) at a steady running pace –
+lower  VO₂  for  the  same  speed  =  better  economy.  Many  factors  contribute  to  running  economy,
+including biomechanics. Leg and vertical stiffness are particularly interesting because they determine
+how much energy is conserved versus lost each step.
+Intuitively, if you are too “bouncy” (low stiffness), you waste energy bobbing up and down. If you are
+extremely rigid (perhaps very high stiffness), you might minimize vertical motion but could generate
+large impact forces or not store energy effectively. There seems to be an optimal range of stiffness for
+economy, and indeed research has looked into correlations between stiffness and oxygen cost.21
+6
+
+---PAGE---
+
+A seminal study by Dalleau et al. (1998) found a strong relationship between leg stiffness and running
+energy cost . In that study, eight trained runners ran at 90% of their maximal aerobic velocity, and
+their energy cost (Cr , in ml O₂/kg/m) was measured. The stiffness of their legs was computed via a
+spring-mass  model.  The  result:  running  cost  was  significantly  negatively  correlated  with  leg
+stiffness  (r  =  –0.80) .  In  simpler  terms,  runners  with  higher  leg  stiffness  had  better  running
+economy (lower oxygen cost). Additionally, they found that when runners’ actual step frequency was
+close to the resonant frequency of their leg-spring system (i.e., they ran “in tune” with their natural
+spring rate), they were more economical . If there was a big mismatch between preferred step rate
+and the leg’s natural frequency, energy cost went up . This suggests that both having an optimal
+stiffness and cadence to match that stiffness improves efficiency.
+Other studies have echoed and expanded on these findings: - Heise and Martin (1998) reported that
+vertical  stiffness  (K_vert)  had  a  moderate  correlation  with  running  economy,  whereas  leg  stiffness
+(K_leg) did not show a significant correlation in their data. This indicates that  how much you bounce
+vertically  might be a better predictor of economy than leg compression in some cases. - Man et al.
+(2016) found both K_vert and K_leg significantly correlated with RE in their sample, supporting the idea
+that stiffer runners are more economical . - A 2022 study noted in Frontiers Physiology states that
+K_vert  and  K_leg  are  generally  considered  contributors  to  improved  RE  because  they  can  reduce
+energy cost in vertical movements and increase elastic energy storage  in the muscle-tendon units
+. The rationale is that a stiffer system wastes less energy on unnecessary motion (like excessive up-
+and-down movement) and can better harness elastic return .
+However , findings aren’t completely uniform across all studies: For example, in the same Frontiers
+article, the authors found in recreational runners that vertical stiffness (K_vert)  correlated moderately
+with RE (r ≈ –0.45, p = 0.049), but leg stiffness (K_leg)  did not show a significant correlation .
+Their primary finding was that K_vert (global stiffness of the bounce) was linked to better economy,
+whereas  the  stiffness  at  individual  joints  or  the  overall  leg  compression  was  less  directly  tied  to
+economy in that group . This might be due to individual variations in running form or the level of
+the  runners  (perhaps  in  less  trained  runners,  technique  differences  make  vertical  motion  more
+important).
+Despite some mixed results, the overall consensus  leans toward the idea that some degree of stiffness is
+beneficial for running economy : You want enough stiffness to capitalize on elastic energy return and to
+avoid wasting energy, but not so much stiffness that you cause extreme impact forces or mechanical
+inefficiencies. Essentially, a well-trained runner often naturally finds that sweet spot. If a runner is too
+wobbly (too compliant), they might benefit from strength and plyometric training to increase stiffness
+and improve economy . Conversely, if a runner is extremely stiff (which might show up as very
+high impact peaks or perhaps higher injury risk), they might need to ensure they have adequate shock
+absorption capacity (maybe through slight adjustments in form or footwear).
+Why would higher stiffness improve economy?  Two main reasons: 1.  Reduced Vertical Motion =
+Reduced Work:  Every time you bounce higher than necessary, you have to lift your body’s weight up,
+which costs energy, and then absorb it on the way down. A stiffer runner limits that vertical oscillation,
+meaning less energy expended lifting the body and less braking on landing . Essentially, more of the
+energy is directed into forward motion instead of up-and-down. 2. Better Elastic Return:  A stiff leg acts
+like a taut spring that can store and release energy quickly. More of the stride’s energy is stored in
+tendons and returned, and less is lost as heat or muscle work. Dalleau et al. (1998) theorized this was
+the reason stiffer legs were more economical – the elastic elements did more work, sparing metabolic
+energy . And as discussed earlier , tendons operating in their optimal range can significantly cut
+down the energy muscles need to expend for a given force .3
+4
+22
+4
+23
+24
+24
+2526
+2728
+2329
+24
+23
+14
+7
+
+---PAGE---
+
+There is also an optimal cadence interaction: If a runner has a very compliant leg, they might naturally
+adopt a slower cadence with longer contact times, which can hurt economy. Too stiff and they might
+have an unnaturally high cadence or very short contact that isn’t metabolically optimal either . Coaches
+sometimes speak of finding your optimal bounce . 
+Practically, how can this knowledge be used?
+-  Assessing  Stiffness:  Coaches  can  indirectly  gauge  if  an  athlete  is  too  compliant  or  too  stiff  by
+observing running form and maybe measuring things like vertical oscillation (some running watches
+give an estimate of vertical oscillation in centimeters). If a runner’s vertical oscillation is excessively high
+(bounding run), they might be wasting energy. If it’s extremely low and they look like they are shuffling,
+that could indicate either efficiency or possibly over-braking (depending on context). Ground contact
+time  is  another  indirect  metric;  very  long  contact  times  often  correlate  with  lower  stiffness  (and
+sometimes poorer economy), whereas very short contact times correlate with high stiffness and often
+better  performance  up  to  a  point.  -  Training  Interventions:  If  a  runner  is  identified  as  relatively
+compliant (low stiffness, high bounce, long contact), plyometric or strength training might help increase
+their stiffness and improve economy. Indeed, Dalleau’s work implied that if you could safely increase leg
+stiffness, you’d likely lower energy cost . We will discuss plyometrics later , which are commonly used
+for this purpose. On the other hand, if a runner is extremely stiff and getting injured (like always
+nursing shin splints or joint pain from high impacts), a coach might work on their form to introduce a
+bit more compliance (e.g., encouraging a slight increase in knee flexion on landing, or softer footwear)
+to protect them, though this might come with a small economy cost. -  Personal Optimization:  Each
+individual may have a unique optimal stiffness. There is evidence that runners self-optimize stiffness to
+some degree. For instance, if you give a runner a new pair of shoes or a different surface, after a few
+steps they unconsciously adjust leg stiffness (a phenomenon observed where runners on a soft surface
+will stiffen their leg to keep overall behavior consistent). It suggests that the body tries to maintain an
+optimal COM oscillation for efficiency and comfort. 
+In summary,  vertical stiffness and leg stiffness are key biomechanical factors tied to running
+economy . Many studies support the view that a stiffer (but not too stiff) leg spring improves economy
+by  minimizing  wasted  energy  and  maximizing  elastic  return .  A  practical  take-home  is  that
+training aimed at improving the spring-like properties of the legs – stronger muscles and tendons,
+plyometric ability – could make a runner more efficient. Indeed, elite runners often exhibit high stiffness
+values: they appear to “float” with minimal vertical motion and quick, springy contacts. Recreational
+runners can often improve economy by gently shifting toward those characteristics, within safe and
+individualized limits.
+Next, we’ll examine how specific changes in running form – namely  cadence (step frequency)  and
+vertical oscillation  – impact the forces experienced during running. This ties closely into stiffness: for
+example, increasing cadence usually affects stiffness and oscillation in ways that can reduce impact
+stresses.
+Impact of Cadence and Vertical Oscillation on Impact Forces
+Running impact forces are those jarring loads that occur each time the foot hits the ground. These
+forces – particularly the vertical ground reaction force and its loading rate – have been associated with
+injury risk (e.g., higher impact peaks and loading rates have been linked to stress fractures, plantar
+fasciitis, etc., in some studies). Two highly interrelated factors that influence impact forces are cadence
+(how many steps per minute you take) and vertical oscillation  (how much your body moves up and
+down each stride). 22
+23 3
+8
+
+---PAGE---
+
+Running Cadence:  This is typically measured in steps per minute (spm). A higher cadence means you
+take more, shorter steps in a given time. A lower cadence means fewer , longer strides.
+Vertical  Oscillation:  This  measures  the  vertical  movement  of  the  torso  (or  COM)  during  running,
+usually reported in centimeters. For example, a runner might have a vertical oscillation of ~8 cm,
+meaning their torso moves roughly 8 cm up and down with each step.
+These two are inversely related in practice: If you increase your cadence (while maintaining the same
+speed), each step is shorter , so you don’t have time (or need) to launch as high in the air , which generally
+reduces vertical oscillation . Conversely, a low cadence with long strides often comes with a higher
+bounce per step.
+So how do they affect impact forces? -  Higher Cadence (lower oscillation) : Taking more steps per
+minute (usually 5–10% more than a runner’s self-selected cadence) has been found to  reduce impact
+forces and loading rates . Essentially, each step is less “hard” because the runner is landing with slightly
+less speed per step (since speed = stride length × stride rate, if stride length is shorter , the foot has less
+distance to fall and less braking to do at each contact). Research backs this up: A 5–10% increase in
+cadence  can lead to noticeably lower peak vertical ground reaction forces and lower loading rates
+at a given running speed . One systematic review in 2025 concluded that a moderate cadence
+increase “ induces beneficial biomechanical changes, including reduced vertical ground reaction forces, lower
+loading rates, shorter stride length, decreased vertical oscillation of the center of mass, and improved lower-
+limb joint alignment, without compromising energy efficiency .” . That’s a powerful statement: by
+simply  upping  the  cadence  a  bit,  a  runner  can  make  their  stride  softer  and  safer  and not  pay  a
+metabolic penalty (in fact, some studies showed a slight improvement in running economy with higher
+cadence, likely because of improved mechanics and reduced braking) .
+Lower Cadence (higher oscillation) : If a runner has a low cadence, they are typically bounding
+more with each step (higher vertical oscillation) and covering more ground per stride. This often
+results in a harsher landing. The foot might land further ahead of the body (overstriding) which
+increases braking forces, and the vertical drop of the COM is larger which leads to a larger
+impact peak when that motion is arrested at foot contact. Therefore, lower cadence (or excessive
+stride length) is associated with higher impact forces and loading rates . Clinically, many gait
+retraining programs for injured runners involve increasing cadence precisely to counteract this.
+For instance, someone with tibial stress fractures or knee pain might be coached to increase
+cadence by ~7.5–10%, because it’s been shown to reduce the impact loading on the tibia and
+knee significantly (some studies demonstrated ~20% reduction in knee joint forces with ~10%
+cadence increase) .
+Vertical Oscillation’s role:  Vertical oscillation is basically a direct measure of how much kinetic energy
+goes into lifting the runner’s mass each step. The more you go up, the more you must come down – and
+that “coming down” translates to impact. A high vertical oscillation means the runner is getting a lot of
+airtime and then experiencing a big impact on landing (unless they are extraordinarily light on their
+feet). A lower oscillation means a flatter trajectory with presumably lower collision forces. 
+From a physics perspective, when you land from a greater height, the impact force is higher (assuming
+the leg stiffness doesn’t change to compensate). So reducing vertical oscillation can directly reduce
+impact magnitude. A practical example: if a runner bounces 10 cm versus 5 cm, the difference in drop
+height can be felt as a harder thud. 
+However , it’s worth noting there’s an interplay: a stiff runner can have low oscillation but might have
+high instantaneous impact if not attenuated by joints. Typically though, studies confirm that decreasing3031
+3032
+3334
+• 
+3536
+9
+
+---PAGE---
+
+vertical oscillation through technique (such as increasing cadence or changing foot strike softly)
+leads to lower impact peaks and gentler loading . 
+Evidence from literature:
+A 2020 study by Adams et al. found that when runners increased their step rate by 5–10%, the peak
+vGRF and shock at the tibia both decreased, and the braking impulse was reduced as well . Another
+study reported that a +7.5% cadence increase resulted in ~15–20% reduction in energy absorbed at the
+knee and hip joints, highlighting how cadence can shift loading patterns to be safer . The systematic
+review  by  Figueiredo  et  al.  (2025)  summarized  across  many  studies  that  cadence  modifications
+consistently show “reduced vertical ground reaction forces, lower loading rates, shorter stride length,”  and
+importantly “did not negatively affect metabolic cost and, in some cases, enhanced running economy.”
+. This means runners can often get a double benefit – run softer and not lose efficiency.
+One concept here is “duty factor”  – the fraction of the gait cycle spent on the ground. A higher cadence
+often  increases  duty  factor  (slightly  longer  relative  contact  time,  since  cycle  is  shorter)  which  can
+distribute forces more evenly. Some researchers categorize running styles as “gazelle” (more flight,
+lower duty factor) vs “elephant” (more ground contact, higher duty factor). Neither is inherently bad, but
+extreme gazelle (very bouncy) means high impacts, while extreme elephant might mean very shuffling
+gait (low impact but possibly less efficient at fast speeds). Ideally, there’s a balance, and a mid-high
+cadence tends to find that.
+Cadence and Leg Stiffness:  When you increase cadence, interestingly, vertical stiffness tends to go up
+– because you are reducing vertical movement (Δy goes down), so for the same force, K_vert = F/Δy
+increases. Indeed, one study on downhill running found that going to +10% cadence raised K_vert by
+~16% . However , the peak force itself might slightly drop or stay similar (they found GRF changes
+were  small,  but  loading  rate  changes  were  present).  The  net  effect  is  shorter ,  quicker ,  “snappier”
+contacts (higher stiffness in spring terms, but lower absolute impact). This can be a bit confusing:
+stiffness goes up, yet impact goes down? The resolution is that by changing the movement pattern, the
+nature of force application changes – you might have a slightly higher average stiffness, but because
+you’re not dropping as far , you never develop as high a collision speed/force at contact.
+Practical advice on cadence and oscillation:
+- Many coaches recommend that recreational runners experiment with a slight cadence increase if they
+have high vertical oscillation or are injury-prone. A commonly cited benchmark is ~170–180 steps per
+minute as an optimal range for distance running, though it varies by individual and speed (elite runners
+often run at 180+ spm even at moderate paces). If someone is at, say, 160 spm at their easy pace with a
+bounce of 10 cm, increasing to ~170 spm might smooth out their gait. - Changes should be made
+gradually. Jumping directly to a much higher cadence can feel awkward and tiring at first. Using a
+metronome or music with a certain beat can help retrain cadence. - The goal is not to eliminate vertical
+oscillation (some bounce is natural and needed to store energy in tendons) but to avoid excessive,
+wasteful bounce. Likewise, overly high cadence can have diminishing returns; beyond a point, very high
+cadence can reduce stride length so much that it might impair efficiency or just be unsustainable.
+There’s a personal optimum range. - Signs of improvement:  When a runner increases cadence, they
+often report a feeling of lighter steps. If using a device, they may see metrics like “vertical oscillation” in
+cm drop, and “ground contact time” might also drop slightly because each step is quicker . Impact-
+related metrics like “vertical oscillation ratio” (oscillation relative to stride length) should improve.
+In summary,  cadence and vertical oscillation significantly affect impact forces : a higher cadence
+(with lower vertical oscillation) generally leads to lower impact shocks and a more gentle, efficient stride
+. For injury-prone runners, this knowledge is empowering – it means they can actively adjust
+their form to reduce injury stress. For all runners, it’s a reminder that how you run (not just how far or3031
+35
+33
+31
+3738
+3031
+10
+
+---PAGE---
+
+fast)  affects  the  loads  on  your  body.  Simple  form  tweaks  like  a  small  cadence  increase  can  yield
+meaningful reductions in the pounding your body takes, often with no downside to performance (and
+potentially an upside). 
+Next, we will delve into plyometric training  – a method used to enhance that springiness (stiffness of
+tendons) we’ve been discussing – and examine how it can increase tendon stiffness and power without
+necessarily adding muscle mass.
+Plyometric Training and Tendon Stiffness (Without Adding
+Muscle Mass)
+Plyometric training, often simply called “plyometrics,” refers to exercises that involve rapid stretching
+and contracting of muscles – typically jumps, hops, and bounding movements. The classic examples are
+jump squats, box jumps, depth jumps (stepping off a box and immediately jumping upon landing), and
+bounding drills. Plyometrics are well known to improve explosive power and are a staple for athletes in
+sports requiring jumping or sprinting. But they are also highly relevant for distance runners because of
+their effect on the muscle-tendon unit , especially on tendon stiffness .
+One of the key adaptations from plyometric training is an increase in tendon stiffness  and improved
+efficiency  of  the  stretch-shortening  cycle,  often  without  substantial  increases  in  muscle  size
+(hypertrophy). This is ideal for runners: they want more springiness and power , but extra muscle mass
+(especially in the legs) can be counterproductive for distance running due to the energy cost of carrying
+that weight.
+How plyometric training increases tendon stiffness:
+When you do plyometric exercises, you are essentially training your muscles and tendons to handle
+stretch loads and recoil quickly. For example, a depth jump forces the Achilles tendon to endure a quick
+stretch on landing and then shorten during the rebound jump. Repeated exposure to this kind of
+loading triggers adaptations: - Tendons adapt by possibly adding collagen cross-links and altering their
+material properties, resulting in a stiffer tendon (meaning it deforms less under a given load). - The
+neuromuscular system learns to better coordinate the muscle contraction with tendon recoil (timing the
+muscle’s force production to take advantage of the tendon’s elastic return). - Muscles become better at
+generating force quickly (increased rate of force development), but interestingly, plyometrics often do
+this without a proportional increase in maximal strength or muscle size, indicating neural adaptations
+play a big role.
+Studies have demonstrated these effects. For instance, a training experiment by Hirayama et al. (2017)
+had one group of men perform 12 weeks of plyometric training focusing on the ankle (depth jumps
+targeting the Achilles). The results were telling: the Achilles tendon stiffness increased significantly,
+while  maximal  muscle  strength  remained  unchanged .  In  other  words,  the  participants’  calf
+muscles didn’t get notably stronger in a one-rep max sense, nor did they grow large, but their tendons
+could  handle  loads  more  stiffly  after  training.  Functionally,  these  athletes  improved  their  jump
+performance (greater rebound height, shorter ground contact times) due to the tendon becoming more
+spring-like . The study suggests that the gains in performance were largely because the tendon
+could store and release energy more effectively and the muscle could work in a more optimal, quick
+manner – not because the muscle got bigger or could produce massively more force in a slow test.
+Meta-analyses support the tendon-stiffening effect of plyometrics. A 2022 systematic review and meta-
+analysis (Ramírez-Cruz et al.) found that plyometric training led to a  moderate increase in tendon
+stiffness  (effect  size  SMD  ≈ 0.55)  on  average  across  studies .  At  the  same  time,  they  found39
+4041
+42
+11
+
+---PAGE---
+
+plyometrics produced small-to-moderate increases in muscle fascicle length and slight increases in
+muscle  cross-sectional  area  (in  some  cases),  but  not  huge  hypertrophy .  In  practical  terms,
+plyometrics might make your muscles a bit more tuned (maybe slightly longer fibers, which can be
+good for contraction speed), but they won’t bulk you up like heavy weightlifting would. The muscle
+architectural changes (like pennation angle and fiber length adjustments) from plyo are not always
+consistent – some studies show no change, some show a little change, but any hypertrophy is relatively
+minor (on the order of single-digit percentage increases in muscle size) . In contrast, traditional
+heavy strength training would typically cause larger muscle size gains.
+There have been specific studies on Achilles tendon stiffness: some show significant increases after
+plyometric regimens, others show minimal change, possibly due to differences in training intensity or
+duration: - Burgess et al. (2007)  and Wu et al. (2010)  both found increases in Achilles tendon stiffness
+(~5–10%) after 6-8 weeks of plyometric training . - Other researchers like Kubo et al. did not find a
+change after 12 weeks in some protocols , which suggests that factors like the type of plyometric
+exercise and volume or maybe initial fitness levels matter . A meta-analysis indicated that lower volumes
+of plyo (<250 jumps/week) over longer periods (>7 weeks) were optimal for improving tendon stiffness
+ –  essentially  emphasizing  quality  and  consistency  over  sheer  quantity  of  jumps.  -  Even  when
+tendon  stiffness  doesn’t  dramatically  change  in  a  given  study,  plyo  can  reduce  tendon  hysteresis
+(energy loss in the stretch-recoil cycle) , meaning the tendon springs back more efficiently.
+Why is increasing tendon stiffness beneficial for runners? A stiffer tendon will stretch less under a given
+force,  which  means  it  stores  and  returns  energy  more  quickly  (less  dissipated  as  prolonged
+deformation). In running, a stiff tendon can make the leg spring stiffer (increasing K_leg and K_vert
+potentially) which, as we discussed, can improve running economy and performance. It also can make
+your stride feel more “snappy” – you spend less time on the ground and have a stronger push-off.
+Indeed,  plyometric  training  often  results  in  reduced  ground  contact  times  and  increased  reactive
+strength index (jump height divided by contact time) – key indicators of a more effective stretch-
+shortening cycle.
+Crucially, this is done without adding muscle mass  in any significant way. Endurance runners are wary
+of  heavy  weight  training  because  bulking  up  muscle  could  slow  them  or  increase  energy  cost.
+Plyometrics offer a way to get stronger in a functional sense (more power , stiffer springs) without
+carrying much additional weight. It’s largely a neural and tendon adaptation: - Neural Adaptation:  Plyo
+improves motor unit recruitment speed and coordination. For example, after plyo, the muscle might
+activate  slightly  earlier  or  more  powerfully  in  the  landing  phase  to  brace  the  tendon  (as  seen  by
+increased EMG activity in the later half of braking phase in Hirayama’s study) , and reduce antagonist
+co-contraction (the opposing muscles relax more, which was observed as decreased tibialis anterior
+activity during plantarflexion movement in that study) . - Tendon Adaptation:  Repeated stretch-load
+cycles signal the tendon to remodel. There’s some evidence that collagen synthesis increases and the
+tendon’s material properties change – less creep, more stiffness, possibly slight hypertrophy of the
+tendon cross-sectional area in some cases (though many studies found no significant change in area,
+just material stiffness). Some long-term plyo interventions did show a bit of tendon thickening, which
+could accompany stiffness gains, but again not enough to weigh one down.
+One interesting note: Plyometric training seems to improve what’s called the muscle-tendon behavior .
+After  training,  muscle  fibers  might  contract  more  isometrically  while  the  tendon  does  more  work
+(similar to how elite running works). This was observed as more tendon length change and less muscle
+fascicle shortening during movements after training . That’s exactly what we want in running –
+the muscle acts efficiently, the tendon does the stretchy work.4344
+4445
+46
+47
+48
+49
+50
+51
+5253
+12
+
+---PAGE---
+
+Plyometrics and Injury Prevention:  Increasing tendon stiffness could potentially help prevent certain
+injuries by making tendons more resilient to high loads (a stiffer , stronger tendon may be less likely to
+strain). However , too stiff could also be an issue if muscles can’t handle the rate of loading – it’s a
+balance. Plyo also conditions muscles and joints to handle impacts better , which might reduce injury risk
+from sudden loads. For example, plyometric training has been shown to reduce indicators of tendon
+injury risk by teaching the tendon to handle stretch without as much hysteresis (heat buildup).
+Implementing Plyometric Training for Runners:
+For an amateur or injury-prone runner , plyometrics should be introduced carefully: - Start with low-level
+plyometrics like jump rope, skipping, ankling, or small hops. Even simply doing some short jumps in
+place focusing on quick ground contact can begin the adaptation. - Emphasize quality over quantity: a
+few sets of jumps (like 2–3 sets of 10 hops) two or three times a week might be enough to stimulate
+tendon adaptation, especially initially. - Rest and gradual progression are key. Tendons adapt slower
+than muscles (often taking weeks to months), so one must progressively increase plyometric intensity/
+volume to avoid tendonitis. - Exercises can progress from simple (in-place pogo jumps, jump rope) to
+more advanced (single-leg hops, bounding, depth jumps from a small drop height) over weeks and
+months. - Plyometrics can be done year-round but often are emphasized in off-season or base training
+to build the reactive qualities, and then maintained with a smaller dose during peak racing season.
+Semi-professional  or  well-trained  runners  often  already  incorporate  plyometrics.  They  might  do
+explosive hill sprints (which are plyometric in nature), bounding drills, or specific jump exercises a
+couple of times per week. They tend to reap benefits in running economy – for instance, studies have
+shown plyometric training can improve 5K time or running economy in well-trained runners by a few
+percent, which is significant at high levels.
+Evidence of performance improvement:  A classic study by Spurrs et al. (2003) showed 6 weeks of
+plyometric training improved running economy by ~4% in trained runners and also improved a 3 km
+time trial performance. This was attributed to increased leg stiffness from plyo. Many subsequent
+studies have echoed that plyo can improve running economy (while heavy weight training can too, plyo
+has the advantage of less hypertrophy).
+To sum up, plyometric training is a targeted way to increase tendon stiffness and neuromuscular
+efficiency without adding muscle bulk :
+- It causes tendons (like the Achilles) to become stiffer and more spring-like .
+- It improves the coordination of the stretch-shortening cycle, allowing muscles and tendons to store
+and release energy quickly.
+- It results in minimal muscle hypertrophy; strength and power gains come from neural and tendon
+changes, so a runner’s weight doesn’t significantly increase (and muscle architecture changes, if any,
+may actually favor speed – e.g., slightly longer muscle fascicles) .
+- The outcome for runners is often better running economy, higher reactive strength, shorter ground
+contact times, and possibly a reduced injury risk due to more robust tendons.
+In the next section, we will tie these topics together and offer practical guidelines – effectively creating a
+“coaching manual” perspective – for different types of runners: amateurs, injury-prone runners, and
+semi-professional competitors. We will discuss how an understanding of spring-mass mechanics and
+stiffness can be applied in training and technique to benefit each group.3942
+4454
+13
+
+---PAGE---
+
+Practical Applications: Coaching Strategies for Different Runners
+Understanding the spring-mass model and leg stiffness is one thing – applying it to training is another .
+In this section, we’ll break down recommendations for different categories of runners (amateur , injury-
+prone, semi-professional), as those were identified as key groups of interest. The goal is to translate the
+science into usable advice that can guide coaching and training decisions.
+For Amateur Runners
+Profile:  Amateurs are runners who may be relatively new to running or recreational in their training
+volume. They might not have an extensively developed spring-like stride yet and could be more prone
+to form inefficiencies. 
+Common traits and issues:  Many amateur runners exhibit a pronounced vertical bounce, overstride,
+or generally have not optimized their cadence. They might lack strength in key muscle groups or
+stiffness in tendons, which can make them susceptible to injuries when mileage increases or when they
+try to run faster .
+Strategies:
+- Cadence and Form Cues:  A simple starting point is to check their cadence at an easy running speed. If
+it’s  significantly  below  ~170  spm,  discuss  trying  a  slightly  higher  cadence.  Use  cues  like  “imagine
+running on hot coals” (to encourage quick, light steps) or have them run with a metronome app for
+short  periods  to  get  the  feel  of  a  quicker  turnover .  This  usually  reduces  overstriding  and  vertical
+oscillation automatically, leading to softer landings and potentially fewer injuries. Emphasize a midfoot
+landing under the body if they are severe heel-strikers causing braking, but don’t force a drastic change
+– often cadence fixes a lot of that naturally. -  Strength and Plyometrics (Introductory):  Amateurs
+often benefit from basic strengthening of the lower limb. Before diving into plyometrics, they should
+build a base of strength: exercises like calf raises, lunges, squats, and core work help prepare the
+muscles and tendons. Then, introduce low-level plyometrics: skipping rope is fantastic – it teaches quick
+rebounding off the ground and is adaptable to any fitness level (start with maybe 30 seconds on, 30 off,
+for a few rounds). Another drill is the “ankling” drill (short, quick steps, focusing on springing off the
+forefoot). Encourage them to do perhaps two short plyometric sessions a week as part of warm-ups
+(e.g., 5 minutes of various jumps). - Gradual Mileage and Surfaces:  Because their tendons might not
+be as stiff or resilient, building mileage gradually is key to allowing those tissues to adapt (tendons
+strengthen with repeated use, but too much too soon causes overuse injuries). Running on mixed
+surfaces can also be good – a slightly softer surface (dirt trail) can reduce harsh impacts while they’re
+learning, but also don’t avoid hard surfaces entirely as some exposure will stimulate adaptation (it’s
+about balance). - Shoes:  A moderate shoe that isn’t overly cushioned or overly minimal is usually good
+for amateurs. Extremely cushioned shoes can sometimes encourage sloppy form (since they mask
+feedback), whereas a moderate shoe gives some protection but still allows them to feel if they are
+pounding. Some drills in barefoot or socks on grass can heighten their perception of stiffness and
+spring (when barefoot, people naturally adopt a springier , higher-cadence gait – a useful teaching tool,
+used sparingly). - Education:  Teach them about the spring-mass model in simple terms. For example,
+you might say: “Think of yourself like a pogo stick. If you keep your pogo stick spring firm and land with
+quick bounces, you go forward efficiently. If you collapse too much on each bounce, it’s like a soft spring
+that wastes energy.” Analogies can help amateurs understand why we suggest these changes. When
+they feel the difference (landing softly vs hard), they’ll intuitively grasp it.
+Goal:  The amateur runner should, over time, develop a stride that has a reasonable stiffness – not
+floppy, not ramrod stiff – and should find that running actually feels easier when they implement these
+14
+
+---PAGE---
+
+tips. They may notice improved times at the same effort (due to better economy) and fewer aches (due
+to reduced impact).
+For Injury-Prone Runners
+Profile:  Injury-prone runners can be of any experience level, but they share a tendency to suffer from
+overuse  injuries  (shin  splints,  knee  pain,  plantar  fasciitis,  Achilles  tendinopathy,  etc.).  Often,
+biomechanical factors like high impacts, poor shock absorption, or muscular imbalances contribute.
+Common issues:  These runners might have either too low stiffness (causing joint overstress and sloppy
+form) or too high localized stiffness (e.g., very tight calves leading to Achilles overload). Frequently, they
+might exhibit heavy heel strikes with high loading rates, or conversely, some try to overcorrect and end
+up with too rigid a gait that doesn’t absorb shock.
+Strategies:
+- Gait Retraining:  If a runner has a history of impact-related injuries (say tibial stress fractures or knee
+pain),  focus  on  reducing  their  vertical  loading  rate .  This  typically  means  working  on  increasing
+cadence  and  reducing  vertical  oscillation ,  as  discussed  earlier .  A  5-10%  cadence  tweak  can
+dramatically lower the forces on the tibia and knee . We often video such a runner and show
+them the difference before and after: shorter stride, foot landing closer under the body, quicker rollover
+–  all  correlate  with  lower  injury-producing  forces.  -  Strength/Stiffness  Imbalances:  Injury-prone
+runners often have particular weak links – maybe weak hips causing poor control, or weak calves
+causing over-reliance on passive structures. A targeted strength program (not just general, but based
+on  their  injury  pattern)  is  key.  For  example,  for  a  runner  with  Achilles  issues,  eccentric  calf
+strengthening is crucial to build tendon tolerance; for someone with runner’s knee, strengthening
+quads/hips can allow them to better handle the spring forces without pain. -  Introduce Plyometrics
+Carefully:  While plyometrics can increase stiffness (which is usually good for performance), with injury-
+prone individuals, we must ensure they have the capacity to handle it. Low-impact plyometrics (like
+hopping in place on two legs, or low step jumps) can actually  increase tendon tolerance  and stiffness,
+which  could  help  prevent  injury  –  but  volume  and  intensity  must  be  low  and  progress  slow.
+Counterintuitively,  some  rehab  protocols  for  Achilles  issues  include  plyometric  hops  because  they
+encourage  the  tendon  to  adapt  to  loading  (under  controlled  conditions).  The  key  is  to  start  with
+something  like:  2×10  easy  hops  in  place,  see  how  they  respond,  then  build  up.  -  Recovery  and
+Flexibility:  While  we  focus  on  stiffness  benefits,  we  should  ensure  injury-prone  runners  maintain
+adequate flexibility and recovery. A tendon that’s too stiff without muscle support could be problematic.
+Encourage proper warm-ups (dynamic stretches, drills) and cooldowns (gentle static stretching, foam
+rolling)  to  keep  muscle-tendon  units  healthy.  Rest  and  not  overtraining  are  obvious  but  worth
+emphasizing – you want the tendon and muscles to have time to strengthen between sessions. - Form
+and Footwear:  Sometimes a small form tweak can offload a trouble area. For example, a slight forward
+lean and increasing cadence can reduce heel strike severity, which might relieve recurring knee pain. Or
+landing a bit more midfoot can distribute load more to the arch and calf and less to the heel (helpful or
+not depending on injury). Footwear can assist: e.g., a runner with chronic plantar fasciitis might benefit
+from a shoe with a slight rocker and good arch support to reduce fascia strain, at least while they rehab.
+However , long term, strengthening the arch (foot exercises) and gradually reintroducing normal loads
+will build resilience. -  Monitoring:  Injury-prone runners should monitor metrics like pain and also
+perhaps use tech (if available) that monitors impact (some insoles or footpods give impact G-force
+data).  They  will  see  that  things  like  cadence  adjustments  or  plyo  training  over  weeks  are  making
+tangible differences (e.g., “I noticed my average impact g’s dropped after I started focusing on softer
+landings”).3031
+15
+
+---PAGE---
+
+Goal:  The aim is to break the injury cycle by addressing the root mechanical causes. Over time, the
+injury-prone runner ideally becomes a more resilient runner: tendons stiffer and stronger , muscles able
+to support the joints, and running form that minimizes destructive forces. They should feel that they
+can run the same distances with less soreness, and see injuries becoming less frequent or severe.
+For Semi-Professional (Competitive) Runners
+Profile:  These runners are already experienced, possibly competing at a high level (club, collegiate,
+national levels). They typically have good running form and decent natural stiffness. Their goals are
+performance-oriented – every bit of efficiency and power counts.
+Common traits:  Semi-pro runners often have relatively high leg stiffness and well-developed elastic
+components (from years of running, which itself conditions tendons). However , there may still be room
+for improvement – especially via strength and conditioning. Additionally, some may have slight form
+quirks or imbalances that if corrected could yield performance gains or prevent injuries that derail
+training.
+Strategies:
+- Advanced Plyometric and Strength Training:  At this level, targeted plyometric training is arguably
+most beneficial. They can incorporate complex plyometrics like depth jumps, single-leg bounds, hurdle
+hops, and reactive drop jumps (minimal ground contact). Because these athletes likely already do some
+form of S&C, periodizing plyometrics into their program is key (e.g., a plyo block in the off-season or
+base phase to build explosive qualities, then maintenance during competition season). They might do
+plyos 2x/week, focusing on quality (like 3×5 bounds, 3×10 box jumps, etc., high intensity, full recovery
+between sets). This will seek to further increase tendon stiffness and reactive strength. Heavy weight
+training (like heavy squats or calf raises) can also increase tendon stiffness and muscle power – some
+coaches mix both heavy lifting and plyo in a program for middle-distance and distance runners to
+maximize stiffness and strength (heavy slow loads can also increase stiffness via tendon adaptation,
+albeit with some hypertrophy; the combination with plyo can yield stiffness plus power). The key is to
+monitor that any muscle mass gains are minimal or at least don’t harm their strength-to-weight ratio. -
+Running Form Tweaks for Marginal Gains:  At this level, big form changes are usually not advised
+(their form got them this far). But small things: for example, arm carriage, posture, or ensuring they
+aren’t over-striding as they get tired, can be worked on. Drills such as high knees, A-skips, and bounding
+can reinforce good mechanics that keep their stiffness optimal. Many high-level runners naturally find
+their optimal cadence (often 180+ spm at race pace), but if someone is an outlier (say they have an
+unusually low cadence for their speed), investigating that might help. Also, focusing on a powerful but
+controlled  push-off  (not  over-extending  ground  contact)  –  this  is  more  about  neuromuscular
+conditioning than conscious thought at race time, which again points to plyometric and technique drills
+in practice. -  Monitoring and Data:  These runners might have access to more sophisticated analysis
+(force plates, high-speed video, lactate and VO₂ testing). Using these tools, a coach can measure their
+stiffness parameters and economy. For instance, doing a submaximal treadmill test to measure oxygen
+consumption and ground reaction forces can directly tell us their K_vert and running economy. If their
+economy could be better , we might hypothesize increasing stiffness 10% could help, and design training
+accordingly. It becomes a game of fine-tuning. -  Injury Prevention (High stakes):  For competitive
+runners, avoiding injury is paramount to allow consistent training. Even though they are strong, the
+high training loads mean tendon health is still a concern. Implement “prehab” routines: e.g., eccentric
+calf drops and foot strengthening to keep the Achilles and plantar fascia robust, since they are pushing
+these to the max with stiff, high-force running. Regularly assess for any signs of tendon pain and adjust
+training if needed (sometimes a slight deload or a swap to more soft-surface running for a week can
+ward off developing tendinopathy). - Shoes and Gear:  Semi-pros also can consider newer technologies:
+e.g., carbon-fiber plated racing shoes which effectively act like an additional spring. These shoes have
+16
+
+---PAGE---
+
+been shown to improve running economy (partly by assisting the ankle joint work and likely engaging
+elastic return). Adopting these – as basically all elites have – is part of optimizing the spring-mass
+behavior (the plate and foam store and release energy like an external tendon). Training in them
+sparingly (to avoid altering natural stiffness too much in daily runs, since the foam can do a lot of work)
+but racing in them is a strategy. Additionally, lightweight spikes or flats in workouts can condition the
+legs to a higher stiffness environment (because less shoe cushioning = your body stiffens up the leg
+more to compensate). -  Optimize Recovery:  Stiffness can be a double-edged sword if recovery is
+lacking. High stiffness running puts stress on the system; ensuring adequate protein (for collagen
+repair), sleep (growth hormone for tissue repair), and recovery modalities (like massage focusing on
+muscles, since the tendons get no direct blood supply) will help keep that stiffness an asset and not
+turn into an injury.
+Goal:  The semi-professional runner aims to maximize the efficiency of their spring-mass system. That
+means having very high (but appropriate) leg stiffness for their event – for example, middle-distance
+runners may want extremely high stiffness for speed, whereas marathoners want high stiffness but also
+a bit of compliance for shock absorption over long distances. By plyometric training and fine-tuning
+form, they squeeze out extra percent improvements in running economy and performance. Over a 10k,
+a 2-3% gain in economy can be dozens of seconds. Over a marathon, it’s minutes. At the competitive
+level,  these  gains  are  the  difference  between  podiums  and  mid-pack.  So,  they  implement  these
+strategies methodically and monitor their bodies closely.
+Balancing Stiffness and Compliance
+A final note for all levels: There is an optimal balance. Too much stiffness  can increase impact forces
+beyond what tissues can handle and make the ride harsh (imagine running with knees almost locked –
+you’d get injured quickly).  Too much compliance  wastes energy and can also cause injury through
+excess joint motion (e.g., excessive pronation, knee valgus, etc., when things are too loose). The sweet
+spot is a leg that is springy and elastic, storing energy and protecting the body, but also forgiving
+enough to absorb shock and adapt to terrain.
+Runners and coaches should thus aim to adjust stiffness into the optimal range: strong and springy, but
+with  soft  landings.  The  strategies  above  –  cadence  adjustment,  plyometric  and  strength  training,
+technique drills – are all tools to move the needle on that stiffness-compliance spectrum.
+By paying attention to these details, runners can run more efficiently (faster times, less effort)  and
+more safely (fewer injuries) . It truly exemplifies the mantra “train smarter , not just harder .” The science
+of running biomechanics, particularly concepts like the spring-mass model and leg stiffness, gives us
+the knowledge to train smarter .
+Conclusion
+Running might appear as simple as putting one foot in front of the other , but beneath that simplicity
+lies a sophisticated spring-mass system. The  Achilles tendon and plantar fascia  work as powerful
+natural  springs,  storing  and  returning  energy  each  step  to  make  running  economical .  The
+concepts  of  vertical  stiffness  and  leg  stiffness  help  us  quantify  this  springiness,  and  they  have
+demonstrated links to running performance – with evidence that runners who optimize their stiffness
+tend to run more efficiently . 
+We learned that by modifying cadence and vertical oscillation , runners can significantly alter impact
+forces: a slight increase in cadence can reduce the pounding on the legs without compromising speed56
+24 3
+17
+
+---PAGE---
+
+. This is an accessible change most runners can implement immediately for injury prevention
+and possibly a free boost in economy. 
+Furthermore,  plyometric training  emerges as a powerful method to enhance the leg’s spring-like
+properties. It increases tendon stiffness and neuromuscular coordination without adding the burden of
+extra muscle mass . In essence, plyometrics helps runners become bouncier and more explosive
+– translating to quicker , more efficient strides on the road or trail.
+For amateur runners , adopting these insights means focusing on good form habits early (like avoiding
+too much bounce) and gradually strengthening their “springs” to handle more running. For  injury-
+prone runners , it means making form tweaks like cadence adjustments and targeted strengthening to
+break out of the injury cycle by reducing harmful forces. And for semi-professional runners , it’s about
+marginal gains – refining an already decent spring system into an excellent one through advanced
+plyometrics and careful technique work, shaving off precious seconds in competition.
+Ultimately, running is an interplay between force, motion, and energy. By viewing the body as a spring-
+mass system, coaches and runners can better understand why certain techniques or trainings yield
+results.  The  spring-mass  model  and  stiffness  concepts  give  a  framework  to  diagnose  issues  (e.g.,
+“Maybe my stride is too bouncy, costing me energy”) and to prescribe solutions (e.g., “I’ll do jump drills
+to stiffen my legs and increase my cadence a bit”). 
+The key takeaway is integration : incorporate drills and training that enhance elastic energy usage (like
+plyos and strength work), tweak running mechanics for optimal stiffness (appropriate cadence, posture,
+and footstrike), and always balance it with recovery and individual comfort. When done well, a runner
+will feel the difference – running will seem smoother and easier , almost like the ground is giving back
+energy on each stride (which, in fact, it is, via those tendons and muscles acting like springs).
+Incorporating  these  principles  into  a  coaching  manual  or  training  plan  can  elevate  a  runner’s
+performance while keeping them healthier . Science and practice together show that a springier runner
+is often a better runner  – more efficient, faster , and less injury-prone. Whether one is lacing up for
+their first 5k or competing for a championship, leveraging our natural springs to the fullest is a smart
+step (or bounce) toward running success.
+Sources:  The  information  presented  is  supported  by  contemporary  research  in  biomechanics  and
+physiology,  including  studies  on  tendon  energy  return ,  stiffness  and  running  economy
+correlations , effects of cadence on impacts , and plyometric training adaptations ,
+among others, as cited throughout this document. These references provide deeper reading for those
+interested in the experimental details and data behind these concepts. 
+Diagram of the spring-mass model in running. The model is moving from... | Download Scientific
+Diagram
+https://www.researchgate.net/figure/Diagram-of-the-spring-mass-model-in-running-The-model-is-moving-from-left-to-right-
+L-0_fig2_337807564
+Grizzlies and gazelles: Duty factor is an effective measure for categorizing running style in English
+Premier League soccer players
+https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor .2022.939676/pdf
+The spring-mass model and the energy cost of treadmill running - PubMed
+https://pubmed.ncbi.nlm.nih.gov/9535587/30 31
+39 42
+8 6
+24 3 30 31 39 42
+1
+2
+3 422
+18
+
+---PAGE---
+
+The extensibility of the plantar fascia influences the windlass mechanism during
+human running - PubMed
+https://pubmed.ncbi.nlm.nih.gov/33468002/
+(PDF) The influence of Achilles tendon mechanical behaviour on “apparent” efficiency
+during running at different speeds
+https://www.researchgate.net/publication/
+343868317_The_influence_of_Achilles_tendon_mechanical_behaviour_on_apparent_efficiency_during_running_at_different_speeds
+Muscle mechanical work and elastic energy utilization during ...
+https://www.sciencedirect.com/science/article/pii/S096663620500072X
+(PDF) Tendon elastic strain energy in the human ankle plantar-flexors and its role with increased
+running speed
+https://www.researchgate.net/publication/263324817_Tendon_elastic_strain_energy_in_the_human_ankle_plantar-
+flexors_and_its_role_with_increased_running_speed
+Frontiers | Plyometric Training Favors Optimizing Muscle–Tendon
+Behavior during Depth Jumping
+https://www.frontiersin.org/journals/physiology/articles/10.3389/fphys.2017.00016/full
+Understanding Ten Key Biomechanical Functions Of The Plantar ...
+https://www.hmpgloballearningnetwork.com/site/podiatry/understanding-ten-key-biomechanical-functions-plantar-fascia
+Spring-like leg behavior and stiffness regulation using running ...
+https://www.sciencedirect.com/science/article/abs/pii/S0021929013003345
+Frontiers | Not Lower-Limb Joint Strength and Stiffness but Vertical Stiffness
+and Isometric Force-Time Characteristics Correlate With Running Economy in Recreational Male
+Runners
+https://www.frontiersin.org/journals/physiology/articles/10.3389/fphys.2022.940761/full
+cureus.com
+https://www.cureus.com/articles/390565-the-influence-of-running-cadence-on-biomechanics-and-injury-prevention-a-
+systematic-review.pdf
+[PDF] Cadence impact on cardiopulmonary, metabolic and biomechanical ...
+https://pmr .med.ufl.edu/wordpress/files/2022/09/CADENC1.pdf
+(PDF) Effects of Plyometric Training on Lower Body Muscle Architecture, Tendon Structure, Stiffness and Physical Performance: A
+Systematic Review and Meta-analysis
+https://www.researchgate.net/publication/
+359383007_Effects_of_Plyometric_Training_on_Lower_Body_Muscle_Architecture_Tendon_Structure_Stiffness_and_Physical_Performance_A_Systematic_Review_and_Meta-
+analysis
+3_205
+https://www.jstage.jst.go.jp/article/jpfsm/3/2/3_205/_pdf
+The effects of plyometric jump training on lower-limb stiffness in ...
+https://www.sciencedirect.com/science/article/pii/S2095254621000533
+Effects of plyometric training on muscle–tendon mechanical ... - NIH
+https://pmc.ncbi.nlm.nih.gov/articles/PMC8554776/516 17 18 19
+612 13 14 15
+7
+8 9
+10 11 39 40 41 50 51 52 53
+20
+21
+23 24 25 26 27 28 29
+30 31 32 33 34 36
+35 37 38
+42 43
+44 45 46 47 54
+48
+49
+19
+
+---PAGE---
+

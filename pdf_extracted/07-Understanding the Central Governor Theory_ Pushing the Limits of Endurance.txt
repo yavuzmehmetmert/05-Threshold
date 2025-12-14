@@ -1,0 +1,837 @@
+Understanding the Central Governor Theory:
+Pushing the Limits of Endurance
+Introduction
+Every endurance athlete, from marathon runners to cyclists, has felt that wall of fatigue – the burning
+legs, ragged breath, and that nagging voice in your head urging you to slow down or stop. But have you
+ever noticed that, despite feeling  utterly  spent, you can still sprint the last stretch of a race or find a
+burst of energy when a finish line is in sight? This puzzling observation lies at the heart of an intriguing
+idea in exercise science known as  Tim Noakes’ Central Governor Theory (CGT) . According to this
+theory,  fatigue  isn’t  just  about  faltering  muscles  or  empty  fuel  tanks  –  it’s  also  a  protective
+mechanism orchestrated by your brain . In this coaching-style guide, we will explore what the
+Central Governor Theory is and its implications for your endurance limits. We’ll break down how the
+brain regulates muscle power to prevent dangerous “catastrophic” failures of your body’s homeostasis,
+clarify  the  difference  between  peripheral  fatigue  (in  your  muscles)  and  central  fatigue  (in  your
+nervous system), and examine why a stressful day at work can leave you  feeling  weaker during your
+evening run. Most importantly, we will discuss practical, science-backed strategies to “hack” or train this
+central governor – helping you unlock that  reserve capacity  we all suspect is hidden just beyond the
+point of exhaustion. 
+Whether you’re a competitive runner , a coach, or a recreational athlete, understanding how your mind
+and body interact during exercise can be a game-changer . Let’s dive into the science of fatigue and learn
+how to push those limits safely and intelligently, turning that mysterious extra gear at the end of a race
+into a reliable part of your endurance toolkit.
+The Central Governor Theory: Your Brain as a Safety Regulator
+In the traditional view of exercise fatigue, your  muscles  and cardiovascular system dictate when you
+have  to  stop.  Run  hard  enough  and  eventually  lactic  acid  build-up,  depleted  energy  stores,  or
+overheating muscles will force you to slow down – this is often called the “catastrophic failure” model
+of fatigue . The assumption was that exercise continues to maximal effort until some part of the
+body  physically  fails (for example, muscles literally can’t contract any more or the heart can’t pump
+enough oxygenated blood). However , Dr . Tim Noakes , a South African exercise physiologist, challenged
+this idea in the late 1990s by proposing the Central Governor Theory . This theory suggests that your
+brain behaves like a “central governor” – a smart regulator that  anticipates  limits and imposes
+fatigue before  your body is in genuine peril .
+In  simpler  terms:  the  brain  continuously  monitors  your  body’s  internal  state  (heart  rate,
+temperature, fuel levels, etc.) and the expected demands of your effort, and it calculates a safe
+intensity level . If you approach levels of exertion that might threaten your body’s equilibrium
+(homeostasis ), the brain proactively steps in to dial down your power output. It does this by reducing
+the neural recruitment of muscle fibers , effectively limiting  how many of your muscle’s motor units
+are activated, which in turn makes you feel fatigue and slow down . Fatigue, in this view, isn’t just
+a physical event happening in the muscles , but a brain-induced sensation or emotion, meant to
+protect you . 12
+3
+34
+5
+15
+62
+1
+
+---PAGE---
+
+Implications for Endurance Performance Limits
+The  Central  Governor  Theory  fundamentally  reframes  what  limits  our  endurance  performance.  If
+fatigue is partially “all in the head” (as the saying goes), then  the true physiological limits – like
+complete muscle failure or organ damage – are rarely reached during normal exercise . Instead, we
+typically quit or slow down before  we hit those absolute limits, because the brain has a built-in safety
+margin. Research supporting this comes from observations in real races: For example, marathoners
+commonly manage a finishing sprint after 26 miles of hard running. Under the old catastrophic model,
+this shouldn’t be possible – if you were truly at the limit, there would be no energy or muscle fibers left
+to summon for a sprint. But the fact that a reserve exists indicates the body was holding something
+back  under brain’s directives . In Tim Noakes’ words, athletes seem to  pace themselves “in
+anticipation” , adjusting their effort based on duration and conditions, so that they  finish a race
+without actually hitting complete physiological failure . Your brain essentially budgets your
+energy and effort across the whole event.
+This  has  huge  implications  for  endurance  performance:  it  means  that  your  mental  state,
+expectations,  and  previous  experience  can  shape  how  your  central  governor  sets  the  ‘safety
+limits’ . Noakes and colleagues noted that the brain’s calculation of safe exertion includes factors
+like: 
+Prior experience  with similar efforts (your brain remembers how bad things got last time),
+The planned duration  or distance of the exercise (your brain paces effort if it “knows” you have
+a long way to go),
+Current physiological signals  (body temperature, level of muscle fuel, oxygen status, etc.), and 
+Motivation or emotional state .
+All  these  inputs  help  the  brain  decide  when  to  produce  that  fatigue  signal.  Essentially,  the  brain
+intentionally leaves a reserve  to make sure you don’t run yourself to death . This is why you
+rarely see healthy athletes literally dropping dead from exertion in a well-paced event – the body usually
+slows down first. (Of course, in extreme environments or with certain stimulants that override signals,
+people can push to dangerous collapse, but those are outliers.) As a coach or athlete, recognizing this
+brain-governed limit means there may be  untapped potential  if you can safely nudge the governor’s
+setting a bit higher . In practical terms: learning to manage your perception of effort and psychological
+responses  during  exercise  could  let  you  access  more  of  the  performance  that  your  muscles  are
+physically capable of. 
+To be clear , the Central Governor Theory doesn’t mean your endurance is unlimited  or that training the
+body is unimportant. Rather , it suggests a  dual ceiling : one set by the body’s mechanical/metabolic
+limits, and a usually lower  one set by the brain to protect the body. The goal of training  is not only to
+raise the physical limits (stronger heart, fitter muscles) but also to  teach the brain that it’s safe to
+push closer to those limits . As we’ll explore, techniques from pacing strategy to mental skills can help
+recalibrate  that  central  governor  so  you  can  sustainably  reach  a  higher  percentage  of  your  true
+capacity.
+Preventing “Catastrophic Failure”: How the Brain Safely Dials
+Back Effort
+One of the central questions we need to address is how the brain actually keeps you from pushing too
+far . What does it mean to “prevent catastrophic homeostatic failure”? Homeostasis is the balance of
+internal conditions (like maintaining a safe core temperature, blood pH, stable blood pressure, etc.).74
+34
+5
+• 
+• 
+• 
+• 
+5
+2
+
+---PAGE---
+
+Catastrophic failure  would be something like your core temperature soaring to heatstroke levels, your
+heart going into arrhythmia from overexertion, or your muscles completely seizing up and breaking
+down from depletion or lack of oxygen. Obviously, those scenarios are life-threatening – and the central
+governor’s job is to make sure normal exercise never quite gets that far .
+Here’s how the brain (the central nervous system) is thought to regulate motor unit recruitment to
+guard against those dangers :
+Continuous Monitoring:  Your brain receives a constant stream of feedback from your body
+during exercise. Sensors throughout your body report on things like blood oxygen level, carbon
+dioxide, muscle temperature, blood glucose, electrolyte levels, and even the strain in your heart
+and muscles. For example, rising muscle temperature or dropping blood glucose will be noted
+by the brain. The brain essentially acts as a command center integrating these signals.
+Integrated “Safe Effort” Calculation:  Using both the feedback signals and feed-forward info
+(like knowing you plan to run 10 miles, not 1), your brain computes whether the current intensity
+is sustainable without crossing a red line. If conditions are worsening (e.g. your muscles are
+starting to get acidic or your heart is near max output), the brain will adjust by creating
+the sensation of fatigue  – a warning symptom – to encourage you to slow down . Think
+of fatigue as the body’s equivalent of the warning light on a car’s dashboard, coming on before
+the engine blows up.
+Selective Muscle Activation:  The brain can directly alter how many muscle fibers it’s asking to
+work. Muscles are made of many motor units (a motor neuron and the muscle fibers it controls).
+You never actually use 100% of your muscle fibers at once during voluntary exercise – there’s
+always some fraction “off-line.” Under extreme effort you recruit more units, but  the central
+governor will hold back a portion  in reserve . As a protective measure, the brain might
+start  derecruiting  some  motor  units  or  reduce  the  firing  rate  of  neurons  as  you  approach
+dangerous intensity. This reduction in motor unit recruitment leads to a drop in force output, i.e.
+you feel weaker and slow down . Subjectively, it feels like heavy legs or inability to make your
+muscles  go,  and  we  interpret  that  as  “muscle  fatigue.”  But  in  CGT,  the  brain  is  actively
+throttling the muscle . One description put it this way: when your quadriceps are “burning” near
+the end of a long run, it may not just be lactic acid –  it could be your brain deliberately
+limiting the drive to those muscles, causing that burning sensation to force you to ease up
+.
+Avoiding  True  Crisis:  By  forcing  a  slow-down  or  an  end  to  exercise  at,  say,  95%  of  your
+theoretical maximum capacity (just as an example), the central governor ensures that you don’t
+hit 100% and have something catastrophic occur . For instance, most marathon runners finish
+tired but physiologically stable – body temperature might be high but not always in heatstroke
+range, the heart is beating fast but not failing. If someone  does  collapse or require medical
+intervention at a finish line, it’s often because conditions (heat, dehydration, etc.) pushed them
+close  to those catastrophic limits, or they overrode signals (sometimes seen in athletes who
+refuse to stop despite dizziness or in those who used stimulants). Those are relatively rare
+compared to the vast number who slow down appropriately.  The fact that most of us  slow
+down  well before we drop dead is thanks to the brain’s preventive regulation .
+A classic piece of evidence for this protective cutoff comes from laboratory tests: when an exhausted
+athlete  says  “I  can’t  do  any  more”  during  a  max  effort  test,  they  often  still  have  some  untapped
+muscular capability. If the experimenter electrically stimulates the athlete’s muscle at that point of
+voluntary exhaustion, the muscle can still produce additional force. In other words, the person quit with• 
+• 
+16
+• 
+74
+2
+• 
+3
+
+---PAGE---
+
+some motor units not firing at full capacity – exactly what we’d expect if the brain had proactively
+limited output. Under a purely peripheral fatigue model, by the time you stopped, all fibers would be
+failing and an external stimulus couldn’t squeeze extra force out. But typically, that’s not what happens.
+There’s a ‘safety reserve’ that the brain never let you use, which can be demonstrated by such
+techniques . 
+From a coaching perspective, understanding this mechanism highlights why pacing and self-regulation
+are so important . Your brain is extraordinarily adept at figuring out how fast to let you go at the start of
+a race so that you don’t burn out. If you fool it (or ignore it) by starting too fast , you will likely trigger
+that shutdown mechanism earlier than desired. We’ve all experienced going out too hard and then
+“hitting the wall” – that’s the central governor slamming the brakes because it perceives a potential
+catastrophe  if  you  continued  at  that  reckless  pace .  Athletes  and  coaches  often  talk  about
+“listening to your body,” and in a way, that means listening to the signals your brain is giving you about
+pacing. However , as we will discuss, these signals can sometimes be too conservative , especially in
+well-trained individuals. With training and mental techniques, you can push the point at which the brain
+starts cutting power a little closer to your true physical limit – effectively raising  the threshold where the
+warning light comes on.
+Peripheral vs Central Fatigue: Two Sides of the Exhaustion Coin
+So far , we’ve focused a lot on the brain’s role. But it’s important to understand that fatigue in endurance
+exercise has  both peripheral and central components . These terms help us differentiate  where  the
+limiting factors are occurring:
+Peripheral Fatigue:  This refers to fatigue originating in the  muscles or peripheral nerves
+themselves (essentially, outside the brain/spinal cord). If you imagine your muscles as an engine,
+peripheral fatigue is anything that interferes with the engine’s ability to produce force. Classic
+causes  include  metabolic  changes  in  muscle  fibers:  accumulation  of  lactic  acid  (and  the
+associated  drop  in  pH),  depletion  of  glycogen  (muscle  energy  stores),  build-up  of  inorganic
+phosphate, imbalances in calcium handling needed for muscle contraction, or simply damage to
+muscle fibers. In a long run, peripheral fatigue is what makes your legs feel like lead – it’s a local
+phenomenon. For example, when your quadriceps burn and refuse to lift your knees high at mile
+20, peripheral mechanisms like metabolite buildup and microtrauma in muscle fibers are heavily
+involved . Peripheral fatigue can be seen as the muscles “themselves” getting tired
+or inefficient . If we measured your muscle fibers directly, we’d see a decline in their force output
+capacity due to these biochemical changes.
+Central  Fatigue:  This  refers  to  fatigue  that  originates  in  the  central  nervous  system  –
+essentially, your brain and the pathway of nerve signals down to the muscles. Central fatigue
+manifests as a reduced ability of the nervous system to voluntarily activate muscles . In
+other words, even if the muscles are capable of more work, the brain isn’t delivering strong
+enough signals to recruit those fibers or fire them rapidly. Central fatigue can be influenced by a
+host of factors like neurotransmitter levels in the brain, the firing patterns of motor neurons, and
+psychological state (motivation, pain tolerance). For instance, central fatigue might present as
+that mental fog or lack of “drive” where you just  can’t  make yourself push harder, even
+though your muscles aren’t yet at absolute failure . Physiologically, scientists define central
+fatigue as a  decrease in voluntary muscle activation  – often measurable as a drop in the
+frequency or synchronization of motor unit firing, or an observed gap between what force you
+could  produce versus what you are producing .89
+• 
+1011
+• 
+12
+12
+4
+
+---PAGE---
+
+To  put  it  succinctly:  peripheral  fatigue  is  like  your  muscles  being  low  on  gas  or  overheating,
+whereas central fatigue is like your brain easing off the gas pedal . Both result in you slowing down,
+but for different reasons (and often both occur together). In any hard endurance effort,  fatigue is
+usually a combination of both central and peripheral factors , intertwined in complex ways. 
+Modern research talks about an “integrative” view of fatigue , meaning our performance limit is not
+solely one or the other , but an interplay. Tim Noakes’ Central Governor Model leans heavily into central
+regulation, but it doesn’t completely ignore peripheral fatigue – rather , it suggests that peripheral
+signals  are  inputs  to  the  brain’s  decision-making  process.  The  Integrative  Governor  theory  (an
+evolution of CGT used by some scientists) holds that central and peripheral fatigue are part of one
+system working to maintain homeostasis . For example, if your muscles start burning (peripheral
+signal), your brain senses that and might increase the fatigue sensation (central response) to make you
+slow down, which in turn helps prevent further peripheral deterioration. 
+Let’s differentiate clearly with an example scenario:
+Peripheral  Fatigue  Example:  You’re  doing  squats  in  the  gym  (a  strength  exercise,  more
+localized). After many reps, your quadriceps and glutes physically cannot contract with the same
+force – even if you  try to push as hard as possible, the output drops. This is largely due to
+peripheral fatigue – the local muscle fibers are depleted of ATP, pH is low from metabolite
+buildup, etc. If someone electrically stimulated your quads at that moment, the force might still
+be low because the muscle fibers themselves are exhausted. In endurance running, peripheral
+fatigue builds up over time (e.g., muscle glycogen gets used up after 90+ minutes, contributing
+to the infamous marathon “wall”).
+Central Fatigue Example:  Now imagine a different scenario: you didn’t sleep well last night, you
+had a stressful day at work, and now you’re trying to do a hard training run in the evening. You
+might notice your mind  gives up early – you just feel like you can’t push, even though your legs
+physically might have some energy. Or consider an ultra-runner late in a 100-mile race: they
+might have plenty of fat fuel left and muscles still capable of moving, but their  central drive
+diminishes – they become drowsy, less motivated, mentally drained. If we electrically stimulated
+their muscles, we might get a surprising amount of force (meaning the muscles themselves
+weren’t completely shot), indicating central fatigue was a big factor . In lab tests, central fatigue is
+often measured by that technique: at exhaustion, give a muscle a jolt. If extra force is produced,
+it  means  the  muscle  had  something  left  (so  the  limitation  was  central  –  the  brain  wasn’t
+activating those fibers fully).
+To further illustrate: Researchers define CNS fatigue as a decline in the ability to activate muscles
+voluntarily , linked to reduced motor cortex drive and motor neuron firing . Peripheral fatigue  is
+defined as reduction in muscle fiber contractile force due to changes at or beyond the neuromuscular
+junction (the point where nerve meets muscle) . This could be due to depleted fuel or accumulation
+of metabolites interfering with the muscle contraction process.
+Why does this matter for you as an athlete? Because the strategies to combat fatigue depend on its
+source . If you’re dealing with peripheral fatigue (say, muscle glycogen depletion), the fix might be
+nutritional (e.g., take in carbohydrates to refuel) or pacing (slow down to use more fat, less glycogen). If
+it’s central fatigue (say, you’re just mentally exhausted), the fix could be psychological (motivational self-
+talk, music, etc.), neurological (caffeine to stimulate the CNS), or rest for your brain. In many cases,
+especially in endurance sports, both types occur together , so you need a combination approach.1312
+• 
+• 
+12
+12
+5
+
+---PAGE---
+
+Consider a marathon: in the later miles, your muscles are low on glycogen (peripheral), and your brain is
+sensing the prolonged stress and perhaps a drop in blood glucose (central). Peripheral fatigue makes
+each  stride  less  powerful,  and  central  fatigue  might  manifest  as  the  desire  to  quit  or  difficulty  in
+maintaining focus. The central governor model posits that the brain will interpret all these signals and
+decide if you can keep pressing on or not. If you “hit the wall”, some of that is your muscles truly being
+low on fuel, but some might be your brain essentially putting on the brakes because it perceives that
+continuing at that intensity is too risky given the fuel status (to prevent, say, dangerously low blood
+sugar or extreme muscle damage).
+In summary, peripheral fatigue is about muscle capability, central fatigue is about neural drive .
+Effective endurance training and performance optimization must address both: you train the body
+(raise  the  peripheral  limits)  and train  the  brain  (raise  or  circumvent  the  central  limits).  Next,  we’ll
+specifically examine how your mental state – such as being fresh versus mentally tired – can tilt this
+balance by primarily affecting the central side of fatigue.
+The Impact of Mental Fatigue: Why a Stressful Day Can Weaken
+Your Run
+Imagine you plan an evening workout. One day, you approach it feeling alert, positive, and mentally
+fresh – the run feels smooth and you hit your splits. Another day, you come into it after hours of intense
+mental work (maybe back-to-back meetings, or studying for exams, or a draining day dealing with life’s
+stresses) and suddenly the same pace feels like a grind. You’re not significantly more physically tired
+(perhaps you sat at a desk all day), yet your performance is worse. What’s going on? This is the effect
+of mental fatigue on physical endurance performance , a real phenomenon that science has begun
+to elucidate in the past decade or two.
+Mental fatigue  is essentially a state of  cognitive tiredness  – your brain’s resources are depleted,
+leading  to  feelings  of  low  energy,  reduced  motivation,  and  impaired  concentration.  It’s  what  you
+experience after concentrating hard for a long time. From a biological standpoint, prolonged mental
+effort changes levels of certain neurotransmitters and metabolites in the brain (for instance, it can
+increase adenosine , a chemical that accumulates with wakefulness and causes sleepiness, which we’ll
+detail shortly) . It also can involve stress hormones if the mental work was stressful (e.g., cortisol
+might be elevated from a tough workday) . The upshot is  your brain in a mentally fatigued
+state is less willing or able to drive your muscles hard .
+A  landmark  study  in  2009  by  Samuele  Marcora  and  colleagues  demonstrated  this  clearly.  In  that
+experiment, a group of people were given a mentally fatiguing task (90 minutes of a demanding
+cognitive computer test) and then asked to cycle to exhaustion at a fixed effort level. The control group
+just watched neutral documentaries (so their brains were relatively fresh) before the same cycling test.
+The results:  the mentally fatigued folks gave up  significantly sooner  – about 15% less time to
+exhaustion on average – despite their muscles and heart showing the same  physiological state as
+the control group . In other words, their endurance was worse purely because their minds  were
+tired, not because their bodies couldn’t do it. Heart rate, lactate, oxygen uptake – all the usual physical
+fatigue markers – were similar between conditions . What differed was perception : those in a state of
+mental fatigue reported a higher Rating of Perceived Exertion (RPE)  during the exercise for the same
+physical work . They  felt like the effort was harder , so they reached their maximal tolerable effort
+sooner and stopped earlier . The conclusion of the study was clear: “mental fatigue limits exercise
+tolerance  in  humans  through  higher  perception  of  effort  rather  than  cardiorespiratory  or
+musculoenergetic mechanisms” .14
+1516
+1718
+18
+19
+19
+20
+6
+
+---PAGE---
+
+Let’s unpack the biology of this a bit more. When you engage in demanding cognitive tasks or even
+prolonged emotional stress, several things happen that can impact your physical performance:
+Neurotransmitter  Changes:  One  hypothesis  is  that  sustained  mental  effort  alters  brain
+neurochemistry in a way that induces fatigue. For instance,  adenosine  (a neurochemical that
+builds up in the brain during wakefulness and mental activity) accumulates. There’s speculation
+and some evidence that mental exertion raises adenosine levels particularly in the anterior
+cingulate cortex (ACC)  – a region of the brain heavily involved in perceiving effort and pain .
+Adenosine, in turn, is known to inhibit neural activity (it’s what caffeine blocks to keep you alert).
+So high adenosine could make your brain feel “tired” and less capable of driving muscles –
+basically increasing the  sense of effort . Indeed, it’s noted that  increased brain adenosine is
+associated  with  reduced  exercise  performance  (since  it  promotes  fatigue/sleepiness) .
+Additionally, mental fatigue may also deplete or reduce the effectiveness of neurotransmitters
+like dopamine or noradrenaline that are linked to motivation and alertness, although the exact
+mechanisms are complex and still being studied.
+Brain Energy and Metabolite Depletion:  Your brain consumes a lot of energy (glucose) when
+you’re doing hard cognitive work. Some studies have shown that intense mental effort can
+actually use up some of the brain’s own energy stores (like a form of brain glycogen, and high-
+energy phosphates) . When the brain’s energy status is low, it could trigger fatigue signals
+just as exercising muscle does when it’s low on fuel. Think of it as your mental muscle getting
+tired , which then drags down the physical performance through central fatigue pathways.
+Shared Neural Circuits for Effort:  The act of pushing yourself in exercise and the act of intense
+concentration share some neural circuitry – particularly the ACC and prefrontal cortex, which are
+involved in decision-making, attention, and effort allocation. If those circuits are already worn
+out from a day of cognitive strain, they may register physical effort as more taxing than usual.
+Essentially, your “effort meter” is already partly in the red before you even start your run .
+Functional brain imaging has shown that mental fatigue is accompanied by increased activation
+of regions like the ACC during subsequent physical tasks – suggesting the brain is having to work
+harder to keep you going, and you feel that as increased effort for the same output .
+Psychological Factors:  Mental fatigue often comes with mood changes – you might feel more
+irritable or demotivated. A stressed brain can reduce your motivation  to endure discomfort. Even
+if  physiologically  you  could  push,  you  might  not  care  enough  at  that  moment  due  to  the
+depleted  willpower .  There’s  a  psychological  theory  of  fatigue  by  Marcora  called  the
+“psychobiological  model”  which  posits  that  continuing  exercise  is  a  decision  weighed  by
+perceived effort versus motivation. After mental fatigue, your perceived effort is higher and
+sometimes your motivation is lower , tipping the scales towards quitting sooner . Interestingly
+though, in the 2009 study, they measured motivation and found it wasn’t significantly lower in
+the mental-fatigue condition , so the effect was really on the perception of effort primarily.
+So, how much can a stressful day impact your run? Empirically, quite a bit. The cited study saw ~15%
+drop in endurance performance after heavy mental work . Other studies have confirmed that mental
+fatigue can slow your running pace, lower power output, and generally make exercise feel harder than
+usual. If you’re preparing for a key training session or race, it’s worth considering your mental freshness
+as part of your readiness. This is why coaches will sometimes advise athletes to minimize stressful
+mental activities or get good rest before competitions  – it’s not just about resting muscles, but also
+resting the mind.• 
+14
+14
+• 
+21
+• 
+2223
+• 
+24
+17
+7
+
+---PAGE---
+
+Biologically, we can say:  mental fatigue increases  central fatigue , not by damaging your muscles,
+but by altering brain function . It raises the central governor’s sensitivity – the brain becomes more
+protective and screams “stop” sooner than it would if fresh. It’s akin to running with your brain’s “safety
+thermostat” set a bit lower; the alarm goes off at a lower body temperature or lesser degree of strain
+than normal.
+To put a real-world coaching spin on this: if you had a long, cognitively exhausting workday and you
+plan a high-intensity run in the evening, be aware that it might feel tougher than it normally would. You
+might not hit your desired splits,  not because you’re suddenly less fit, but because your central
+governor is hitting the brakes earlier . Strategies like using some caffeine (if appropriate for you) or
+doing  an  engaging  warm-up  to  “wake  up”  the  mind  can  mitigate  this  (more  on  caffeine  soon).
+Alternatively, schedule intense workouts for times when you’re mentally fresh (morning or after a
+relaxing day off, for example). On days where mental fatigue is unavoidable, don’t beat yourself up if
+the workout is a struggle – recognize what’s happening and consider it a form of brain endurance
+training in itself.
+Interestingly, mental fatigue research has inspired new training approaches: Some athletes purposely
+include cognitive tasks in their training (for instance, doing math problems or reactive video games
+while cycling on a trainer) to train the brain to perform under mental strain. The idea is to build
+tolerance to mental fatigue so that on race day, the mind can handle the distance without giving up
+early. This segues nicely into our next section: how can we  hack or train  the central governor to get
+more out of our performance?
+Hacking the Central Governor: Strategies to Unlock Your Reserve
+Capacity
+If the central governor is holding you back, the million-dollar question is: Can we influence it to allow
+a bit more output?  In other words, can you train your brain  or use performance tricks to access that
+extra reserve your body has in the tank? The exciting answer from both science and practice is yes – to
+some extent, you can “hack” the system . Keep in mind, the goal isn’t to eliminate  the governor (that
+could be dangerous; we don’t actually want to push to true physical catastrophe), but to calibrate it so
+it’s not needlessly conservative . Here are several evidence-based strategies to do that, presented as a
+coaching guide you can apply:
+1. Proper Pacing and Experience: Don’t Trigger the Alarm Too Early
+One of the simplest ways to get more from your central governor is actually quite intuitive:  pace
+yourself wisely . As the Marathon Handbook coaches put it, “Don’t go off too fast, too early” . If you
+sprint out of the gate in a long race, you will spike all those feedback signals (heart rate, lactate, etc.)
+quickly and essentially scare your central governor into action. The brain will perceive a looming threat
+to homeostasis and clamp down hard – resulting in an abrupt crash or severe slowdown. Instead,
+experienced endurance athletes learn to start at a controlled pace, gradually increasing effort. This way,
+the brain’s alarm systems stay calmer for longer , allowing you to maintain higher output overall. It
+sounds paradoxical but holding back a little initially can result in a faster total time, because you avoid
+prematurely fatiguing the brain. With experience, your central governor also becomes “smarter” – it
+learns from past races that you can handle a given pace for a certain distance, so it allows it. This is why
+veteran marathoners often pace more evenly and finish stronger than novices who go out too hard.
+Each time you successfully complete a hard effort without mishap, you’re teaching your brain
+that maybe it can raise the limit a notch next time .8
+5
+8
+
+---PAGE---
+
+Coaching tip:  During training, practice negative splits (finishing faster than you start) or progressive long
+runs. This not only trains your muscles but also trains your brain to tolerate pushing at the end. You’ll
+get used to the feeling of finishing hard without fear , which reassures that central governor that a
+finish-line sprint won’t kill you . Over time, it may allow you to access that late-race reserve more readily
+rather than locking you down.
+2. Mental Training – Improve Your Brain’s Fatigue Resistance
+Just as you do physical training to strengthen your body, you can do  brain endurance training  to
+strengthen your mind’s resistance to fatigue. Researchers have been developing protocols often termed
+“Brain Endurance Training (BET)”  or cognitive training for athletes. This usually involves combining
+mental tasks with physical training. For example, after a long run, you might do 20 minutes of a
+mentally challenging computer task, or vice versa, or intersperse puzzles during a bike ride. The idea is
+to  repeatedly  expose  the  brain  to  fatigue  and  teach  it  to  continue  to  function.  Early  evidence  is
+promising: Regularly training under mentally fatiguing conditions can increase your tolerance to
+mental fatigue and reduce its impact on performance . It appears such training can actually
+change how your brain networks operate – potentially making them more efficient and less prone to
+the  performance  drop-offs  when  tired .  Some  studies  note  improvements  in  endurance
+performance  (time-to-exhaustion  and  time-trial  results)  after  athletes  underwent  a  program  of
+combined cognitive + physical training, compared to those who only did physical training.
+Practical ways to implement mental training:  You don’t necessarily need fancy software. You could do
+something as simple as memorizing number sequences, doing math problems in your head, or using a
+brain-training app on your phone while  you’re on a stationary bike or running easy laps. Alternatively,
+occasionally finish a workout, then immediately engage in a focus-intensive activity (reading dense
+material, or a strategy video game, etc.) to simulate performing while mentally tired. Another accessible
+method: do some key workouts when you’re already a bit mentally fatigued  (e.g., after work). This
+shouldn’t  be  all  the  time  –  but  strategically  doing  so  can  teach  you  to  cope.  Just  be  cautious  to
+distinguish between good  training stress and overdoing it. The goal is controlled exposure, not chronic
+exhaustion.
+Mental training also includes classic sports psychology techniques : visualization, goal-setting, and
+self-talk . Visualization deserves a special mention. Rather than visualizing an “easy race” (which can
+backfire when reality hits),  visualize yourself struggling in a race and overcoming it . Envision
+that moment in the marathon at mile 20 when you are dead tired – and practice in your mind how you
+will respond (engaging your posture, rhythm, positive thoughts). This kind of visualization prepares
+your brain for the discomfort, almost like a mental rehearsal  of beating the central governor’s signals.
+It can reduce the shock of fatigue when it actually arrives, increasing the likelihood that you’ll push
+through. 
+Another mental skill is developing a healthy relationship with the discomfort . If you treat the pain and
+fatigue signals as information rather than suffering, you can learn to tolerate them better . Some elite
+athletes are known for having a high pain tolerance – studies even show that trained athletes can
+tolerate  more  pain  than  non-athletes,  likely  because  they’ve  adapted  neurologically .  You  can
+cultivate this by gradually exposing yourself to hard efforts (e.g., hard interval sessions, tempo runs)
+and consciously noting that you survived and perhaps even mastered the pain. The next time, it will feel
+a little less intimidating.2526
+2728
+29
+30
+9
+
+---PAGE---
+
+3. Motivational Self-Talk and Cognitive Reframing
+One  of  the  simplest  yet  most  effective  “brain  hacks”  for  performance  is  motivational  self-talk  –
+deliberately using your inner voice to encourage rather than discourage. When you’re deep in a race
+and your brain starts sending fatigue messages, what you tell yourself  about those messages can alter
+how you feel. Instead of “I’m dying, I can’t keep this up,” if you train yourself to think “I’m okay, this is
+just the effort speaking, I’ve got this,” it can actually push back the point of quitting. This isn’t just feel-
+good theory; it’s backed by research. In a study where one group of endurance athletes was trained in
+self-talk strategies for two weeks, that group  improved their time-to-exhaustion by a significant
+margin (~18%) and reported lower RPE (effort) at sub-max times compared to a control group
+. The self-talk literally made the exercise feel easier at a given intensity, which is exactly what you
+want if trying to extend endurance. The researchers concluded that self-talk reduced perceived effort
+and thereby allowed athletes to keep going longer . 
+To apply this: come up with a few short, powerful phrases that resonate with you and that you can
+remember even when very tired. Examples might be, “I am strong,” “Keep pushing forward,” “Stay
+relaxed and fast,” or process-focused ones like “Powerful strides, one at a time.” The key is they should
+be positive and task-relevant (not just “I feel great” when you don’t – you have to believe what you’re
+saying). Practice these in training so that in races they come automatically. When that moment of doubt
+and pain hits,  override it  with your prepared script. This helps divert your attention from the raw
+sensations  and  reframes  them  as  manageable.  By  shifting  your  mindset,  you  alter  the  brain’s
+calculation of effort vs. motivation in your favor  – the governor senses “Alright, we’re motivated to
+continue, and things aren’t as dire as the pain signals alone would indicate.”
+Additionally, reframe fatigue as a sign of success  rather than failure. For example, if you start hurting,
+think “good, I’m reaching the productive zone, this is where the work happens” instead of panicking that
+you’re slowing. This kind of cognitive reframing can improve your emotional response to fatigue and
+thereby let you dig deeper .
+4. Caffeine – The Chemical Override
+If there’s a pharmacological secret weapon  against the central governor , it’s caffeine. Caffeine is one
+of the most proven ergogenic aids (performance enhancers) in endurance sports, and much of its
+power comes from central effects. How does caffeine help you push farther?  Primarily by blocking
+adenosine receptors in your brain . Recall how we discussed adenosine builds up and causes
+fatigue. Caffeine’s molecular structure is similar to adenosine, so it latches onto those brain receptors
+and  prevents  adenosine from activating them. The result: your brain doesn’t get the “fatigue/sleepy”
+signal  as  strongly,  and  it  tends  to  release  more  stimulatory  neurotransmitters  like  dopamine  and
+noradrenaline. For an athlete, this means after taking caffeine, exercise feels easier – the Rating of
+Perceived Exertion goes down for the same workload . You also often experience improved focus
+and a mood lift, which increases motivation.
+Research has consistently shown that a moderate dose of caffeine (e.g., 3–6 mg per kg body weight,
+roughly 200 mg for a 70 kg person which is like a strong cup or two of coffee) can improve endurance
+performance – athletes go longer or produce more power largely because the central governor’s threshold
+is pushed upward . Essentially, caffeine tells the governor “we’re fine, let’s keep it going.” It  increases
+central drive  (meaning your brain sends stronger signals to muscles) and reduces perceived pain and
+effort . One physiological study put it succinctly: caffeine delays fatigue through CNS mechanisms,
+at least in part by blocking adenosine receptors . There may be some peripheral benefits too (like
+better muscle contractility or sparing glycogen by burning more fat), but the central effect is a big
+contributor .31
+32
+32
+33
+34
+3533
+36
+10
+
+---PAGE---
+
+Using caffeine as a hack should be done intelligently: you need to know your tolerance and avoid side
+effects (too much can cause jitters, GI issues, or a spike-crash in energy). Generally, small amounts
+taken before or during endurance exercise are beneficial for most people. Even caffeine mouth rinses
+(swishing caffeine in your mouth and spitting it out) have shown some performance benefit in studies,
+suggesting just the detection of caffeine by oral receptors might signal the brain and produce some
+effect (though that’s less pronounced than actual ingestion) . 
+Coaching note:  If you’re not caffeine-habituated (regular user), its effects will be stronger . If you are, you
+might need a slightly higher dose or to cycle off occasionally. Always test in training first; don’t try a new
+caffeine strategy for the first time on race day (everyone’s sensitivity is a bit different). And remember ,
+while caffeine can make you feel less tired, it doesn’t make you invincible – you still must respect pacing
+and hydration, as caffeine is a diuretic and stimulant that can raise heart rate. It simply gives you a
+nudge to override some of the brain’s fatigue signals.
+5. Carbohydrate Mouth Rinse – Trick the Brain’s Fuel Sensors
+Here’s a neat trick that shows how clever  and central some performance hacks are: rinsing your mouth
+with a carbohydrate solution  (like a sports drink) then spitting it out. Common sense would say if you
+don’t swallow it, it shouldn’t help performance, right? Yet, studies have found that in events around an
+hour in length, athletes who rinse their mouths with a carb solution can perform better (run or cycle
+longer/faster) even without ingesting it. How? It appears that  receptors in the mouth detect the
+presence of carbohydrates and send a signal to the brain’s reward and motor-control centers ,
+basically telling your brain “energy is on the way!” . The brain, upon sensing this, often reduces the
+sensation of effort and permits a higher intensity for a time. It’s like giving your central governor
+reassurance that fuel is coming, so it can loosen the reins a bit. Imaging studies have shown activation
+in reward-related brain areas during carb rinsing . 
+For athletes who, for example, are doing a fasted morning run or a short time trial where they don’t
+want a full stomach, this hack can give a boost without actual caloric intake. It essentially exploits the
+central governor’s responsiveness to nutritional status signals  – fooling it into thinking “we’ve got
+glucose available, keep firing those muscles!” 
+Of course, in longer events, you will need to actually ingest carbs to avoid genuine peripheral fuel
+depletion. But even then, the sooner the brain knows fuel is coming, the better . This is partly why taking
+a sports drink or gel early in a marathon (even before you need  it) can help – not just for the fuel later ,
+but immediately to the brain. 
+6. Training in Adverse Conditions (Safely) – Expanding Your Governor’s Comfort
+Zone
+Another way to raise the ceiling on your central governor is to train occasionally in tougher-than-normal
+conditions so the “normal” feels easier by comparison. This includes things like heat training, altitude
+training, or deconditioned-state training . For example, training in high heat acclimatizes you – not
+only do your muscles adapt (like increased plasma volume, etc.), but your brain also adapts to working
+with higher core temperatures. It raises the threshold at which it will say “too hot, slow down.” Indeed,
+after heat acclimation, athletes can perform better in both hot and cool conditions because their central
+tolerance  for  heat  stress  is  improved  (and  peripheral  adaptations  help  cooling).  Similarly,  altitude
+training  might  improve  how  your  brain  deals  with  low  oxygen  signals.  These  are  more  advanced
+techniques and need to be done carefully to avoid heat stroke or altitude sickness. But the principle is:
+controlled exposure to environmental stressors in training can push the central governor to
+recalibrate . 35
+37
+38
+11
+
+---PAGE---
+
+Even something as simple as occasionally finishing a long run dehydrated  (within safe limits) can train
+your brain and body to handle low fluid, so in a race if you’re slightly dehydrated it doesn’t trigger as
+strong a slowdown. Again, caution is key – always prioritize safety and gradual adaptation with any such
+stress.
+7. Building Pain Tolerance with High-Intensity Training
+We touched on this under mental training, but let’s emphasize physical high-intensity interval training
+(HIIT) or very hard workouts as a central governor hack. When you do repeated sprints, hill repeats, or
+hard intervals, you are deliberately pushing to the point of severe discomfort. Besides all the great
+physiological benefits (VO₂ max improvements, lactate clearance, muscle recruitment, etc.), you are
+teaching your central nervous system that you can survive bursts of near-max effort . Athletes
+who incorporate these “painful” sessions often develop a higher tolerance – the central governor learns
+that what used to be “emergency high pain” is now tolerable. One suggestion from coaches is: when you
+think you truly can’t do another rep, try to do it anyway (safely) . That extra rep when you’re at your
+limit is pure gold for mental toughness  – it’s basically you proving to your brain “see, we had a bit
+more!” Come race day, that memory might allow you to push through a rough patch instead of giving
+up.
+A study in Frontiers in Psychology  (2020) even noted differences in pain processing between elite athletes
+and non-athletes, indicating that training can alter how the brain perceives and responds to pain signals
+. If pain is perceived as less threatening, the central governor will not intervene as quickly.
+Of  course,  incorporate  adequate  recovery.  The  goal  is  to  flirt  with  your  limits,  not  to  chronically
+overreach which can actually lower your fatigue resistance if you’re always exhausted. 
+8. External Motivators and Competition
+Ever  noticed  how  you  can  dig  deeper  when  you’re  racing  someone  or  have  a  cheering  crowd ,
+compared to training alone? Social and environmental factors can also “hack” the central governor .
+Competition boosts adrenaline and motivation, which can partly suppress fatigue signals. The presence
+of a rival can distract you from internal sensations (a form of dissociation) or push you to endure more
+to not let them beat you. The brain essentially raises its allowable output when stakes or social factors
+are high – an evolutionary trait perhaps (think of running for survival; you’d find another gear). 
+As a self-hack, you can simulate this by occasionally training with a partner who is slightly faster , or by
+joining  a  group/club  where  friendly  competition  drives  you  on.  Likewise,  even  music  is  a  known
+performance enhancer: the right upbeat music can reduce perceived exertion and improve endurance,
+likely by improving mood and diverting attention from fatigue. It’s not exactly central governor “off
+switch,” but it can extend the time before the fatigue signals dominate your mind. Many athletes have a
+power song or playlist for tough parts of workouts – use that tool if it works for you.
+9. Mindfulness and Focus Techniques
+This  might  seem  contradictory  to  using  dissociation  (music,  distraction),  but  another  approach  is
+mindfulness – training yourself to accept and observe fatigue sensations without panic . This is
+more of an advanced mental strategy: instead of ignoring the pain, you face it calmly. Runners who use
+mindful approach might do a body scan while running, relaxing areas of tension, focusing on breath,
+and not attaching fear or frustration to the feeling of fatigue. By doing so, they prevent the mental
+anguish that often accompanies pain (“Oh no, I’m dying, I hate this”) which actually intensifies the
+perception of effort. Mindfulness can reduce anxiety and keep your prefrontal cortex (the rational part)39
+40
+12
+
+---PAGE---
+
+engaged, which can modulate the alarm signals from deeper brain regions. Some studies suggest
+mindfulness training can improve pain tolerance and endurance by changing your relationship to the
+discomfort – essentially making the central governor’s warnings less threatening.
+10. Ensure Physical Needs Are Met  (So the Brain Doesn’t Panic)
+Lastly, a very practical way to keep your central governor lenient is to  manage the physical factors
+that feed into it . This isn’t hacking the brain directly , but by optimizing things like nutrition, hydration,
+and cooling, you give the central governor less reason to clamp down. For example:
+Stay hydrated and cool in hot conditions:  If your brain senses skyrocketing body temperature
+or dehydration (which thickens the blood and strains the heart), it will intervene. Wearing cooling
+vests before a race, pouring water on your head, drinking cold fluids, or simply acclimating to
+heat will raise the threshold at which heat signals become limiting. Your brain then allows more
+work before calling it quits.
+Fuel properly for long events:  Low blood sugar is a major trigger for the brain to shut you
+down (to preserve glucose for the brain itself, ironically). Taking in carbohydrates during races
+ensures your brain sees a stable fuel supply and doesn’t hit the brakes to save itself. Even when
+your muscles might still have glycogen, a dip in blood glucose can make you  feel exhausted
+(central fatigue via the brain). So maintaining nutrition is partly a central governor hack – it keeps
+the brain in a fed, happier state.
+Taper and rest:  A well-rested brain (and body) will always perform better . If you go into a race
+already somewhat fatigued, your governor is already on alert. Proper tapering (reducing training
+load before a big race) isn’t just muscle recovery – it’s letting your whole central nervous system
+recharge.  Fresh  neurotransmitters,  full  glycogen  stores  in  the  brain  and  muscles,  balanced
+hormones – these set you up to have a high “safety limit” on race day.
+By taking care of these basics, you prevent prematurely activating your body’s defense mechanisms.
+The central governor is like an overprotective parent – the less it sees to worry about, the more freedom
+it will give you.
+In summary, hacking the central governor comes down to two broad approaches: (a) changing
+your perception  of effort and (b) increasing your motivation  or willingness to endure.  Most of the
+strategies  above  attack  one  or  both  of  those  angles.  If  perceived  effort  is  lower  (due  to  self-talk,
+caffeine, music, etc.), you can sustain a higher intensity for longer before the alarm bells ring . If
+your motivation or emotional drive is higher (due to competition, goal-setting, etc.), you can also push
+further despite the discomfort. Ideally, you combine both – feel the effort slightly less  and care a lot
+about pushing through what you do feel.
+It’s important to hack the central governor responsibly . Remember , it exists for a reason – to stop you
+from truly harming yourself. The goal of extending your limits isn’t to run yourself into medical trouble;
+it’s to explore the gap between what is comfortable and what is physiologically dangerous, and shrink
+the margin of error (the “governor’s buffer”) safely as your training progresses. By understanding and
+applying these techniques, you can often find that you are capable of more than you once thought. That
+extra 1% or 5% might be the difference between a new personal record and a plateau.• 
+• 
+• 
+3233
+13
+
+---PAGE---
+
+Conclusion: Mind and Body – The Dual Frontier of Endurance
+Endurance performance isn’t just a test of muscle and heart – it’s equally a test of the mind.  Tim
+Noakes’ Central Governor Theory reminds us that our brains  play a pivotal role in deciding where
+our limits lie , acting out of an ancient biological wisdom to protect us from ourselves . We’ve
+learned that the brain can indeed be a limiting factor – imposing fatigue to safeguard homeostasis –
+but also that it can be influenced and trained. The distinction between peripheral and central fatigue
+underscores that while we must train our bodies (through miles, intervals, and strength work), we must
+also train our brains and leverage our psychology. A well-conditioned athlete with a poorly managed
+mental game might underperform compared to a slightly less fit athlete with fierce mental resilience.
+Practically, this means incorporating mental strategies into your training routine just as routinely as you
+do  physical  workouts.  It  means  recognizing  when  your  perceived  limitations  are  more  negotiable
+(“central”) versus non-negotiable (“peripheral”). If you feel like you absolutely  cannot go on, it might just
+be your brain’s first line of defense – and perhaps you actually can go further with the right approach.
+As the examples and studies showed, you likely have a reserve: many marathoners can surge at the
+end, mentally fresh athletes outperform tired ones even with the same muscles, and a bit of self-belief
+can literally extend your endurance by measurable margins .
+For  runners  and  coaches,  embracing  the  central  governor  concept  opens  up  new  avenues  for
+performance  gains.  It  shifts  some  focus  to  recovery  for  the  brain  (sleep,  mental  breaks) , 
+psychological preparation , and  creative workout design  that challenges your mental fortitude. It
+validates the use of sport psychology techniques – these are not just pep talks; they are tools to
+modulate your brain’s control over your body. And when you toe the start line, it might help to know
+that the pain you’ll feel is not a direct indicator that you’re at your limit – it’s a suggestion from your
+brain that you could  be approaching a limit. How you interpret and react to that suggestion determines
+what happens next. 
+Always remember , though: the central governor is on your  side  in the grand scheme – it wants to keep
+you safe so you can race another day. The goal is to form a partnership with it. Through training, you
+reassure your brain that you are safe to perform at a high level. Through experience, you negotiate with
+the governor for a little more leeway. Through strategy, you distract it or convince it to hold off a bit
+longer . And through care, you ensure it’s well-rested and fueled so it stays calm. 
+In closing, the interplay of brain and body defines the art of endurance training. By applying the science
+– from Noakes’ pioneering ideas to the latest findings on mental fatigue – you can become a more
+resilient athlete. You’ll know why you sometimes falter and, more importantly, how to overcome it. Next
+time you feel like you can’t possibly continue, you’ll have an array of tools to tap into: a mantra to recite,
+a sip of sports drink to swish, a memory of all the times you pushed through in practice, maybe a dose
+of caffeine in your system, and the knowledge that yes, there is likely more in the tank. Bit by bit, you’ll
+stretch the boundaries of your endurance. As the famous quote by Roger Bannister goes, “The great
+barrier is the mental hurdle.” Overcoming that hurdle is an ongoing process, but with each step forward
+in mental strength, you’ll find new personal bests on the roads and trails . Good luck, and train both
+smart  and strong  – with your brain and body working in harmony to achieve your goals.
+References:  (Selected key sources for further reading and verification of concepts discussed) 
+Noakes, T.D. (2007). The central governor model of exercise regulation : Evidence from pacing and
+fatigue in marathon runners . 13
+1932
+41
+• 
+34
+14
+
+---PAGE---
+
+Noakes, T.D. et al. (2005). Central neural regulation of effort and fatigue  – concept of an
+anticipatory governor ensuring a reserve is always present . 
+Wikipedia – Central Governor  (summary of theory and history) . 
+Blanchfield, A.W. et al. (2014). Motivational self-talk improves endurance performance  by reducing
+perceived effort . 
+Marcora, S. et al. (2009). Mental fatigue impairs physical performance in humans  via higher
+perceived exertion, not cardiorespiratory limits . 
+Pageaux, B. (2014). Mental fatigue  in sports – role of brain metabolites like adenosine in
+increasing effort perception . 
+MDPI Sports (2022). Central and Peripheral Fatigue in Exercise : Definitions of central vs peripheral
+fatigue and integrative model . 
+GSSI Sports Science Exchange (2019). Caffeine and Exercise Performance : Caffeine’s effect on
+central drive and effort perception . 
+Marathon Handbook (2025). The Central Governor: Does Your Brain Manage Your Running Speed?  –
+A coaching perspective on applying CGT (pacing, visualization, training) . 
+ “The  central  governor …  controls  physical  activity  so  intensity  cannot  threaten  the  body's
+homeostasis… It limits exercise by reducing neural recruitment of muscle fibers, causing the sensation
+of fatigue .”
+ “The peripheral fatigue model predicts exercise terminates only after catastrophic failure… and
+all motor units recruited. Marathoners, however , pace themselves anticipating conditions (heat, course
+difficulty) and can even increase pace near the finish. They finish races without evidence of catastrophic
+homeostasis failure or absolute fatigue (not all motor units recruited). These findings are best explained
+by a central (brain) control that regulates performance in anticipation to prevent harm .”
+ “According to the Central Governor Model… if the brain senses exercise is reaching a dangerous
+level (too far , too fast, too little fuel), it acts to decrease intensity. In the peripheral model, burning
+quads are due to local factors (acid buildup). In the CG model, that ‘burn’ is a result of the brain
+reducing muscle fiber recruitment  in the quads .”
+ “CNS  fatigue  can  be  defined  as  a  decrease  in  voluntary  activation  of  muscles  –  a  drop  in
+motoneuron firing frequency & sync, and reduced motor cortex drive. Peripheral fatigue is a decrease in
+muscle fibers’ contractile strength with changes in muscle action potential transmission mechanisms
+.”
+ “After a 90-min cognitive task, subjects were mentally fatigued and their time to exhaustion in
+cycling at 80% peak power was significantly reduced (~640s vs 754s control, p=0.003). This negative
+effect was  not due to cardiorespiratory or muscle metabolic factors – those were largely unchanged.
+However ,  mentally  fatigued  subjects  rated  their  perception  of  effort  higher  during  exercise  and
+reached maximal perceived exertion sooner , leading them to disengage earlier . Conclusion:
+mental  fatigue  limits  exercise  tolerance  through  higher  perceived  effort,  rather  than  physiological
+impairment.”
+ “It is speculated that engaging in a cognitive task induces accumulation of  adenosine in the
+anterior cingulate cortex , generating a greater sense of effort in subsequent tasks. This is based on
+studies showing sustained attention tasks strongly activate the anterior cingulate (involved in effort
+perception) and that increased neural activation elevates extracellular adenosine, which is associated
+with decreased performance .”• 
+5
+• 15
+• 
+32
+• 
+1819
+• 
+14
+• 
+12
+• 
+33
+• 
+1139
+1
+1
+34
+34
+2
+2
+12
+12
+1819
+1819
+14
+14
+15
+
+---PAGE---
+
+ “Conclusions:  This  study  is  the  first  to  demonstrate  that  motivational  self-talk  significantly
+reduces  RPE  and  enhances  endurance  performance .  Findings  support  that  psychobiological
+interventions targeting perception of effort are beneficial to endurance performance .”
+ “The  ergogenic  mechanisms  of  caffeine  are  related  to  antagonism  of  adenosine  receptors  by
+caffeine, resulting in  increased central drive in the CNS and decreased perception of effort and
+pain , both contributing to improved performance .” 
+Central governor - Wikipedia
+https://en.wikipedia.org/wiki/Central_governor
+The Central Governor: Does Your Brain Manage Your Running
+Speed?
+https://marathonhandbook.com/the-central-governor/
+The central governor model of exercise regulation applied to the marathon - PubMed
+https://pubmed.ncbi.nlm.nih.gov/17465612/
+Central and Peripheral Fatigue in Physical Exercise Explained: A Narrative Review - PMC
+https://pmc.ncbi.nlm.nih.gov/articles/PMC8997532/
+Prior Acute Mental Exertion in Exercise and Sport
+https://clinical-practice-and-epidemiology-in-mental-health.com/VOLUME/12/PAGE/94/FULLTEXT/
+Mental fatigue impairs physical performance in humans - PubMed
+https://pubmed.ncbi.nlm.nih.gov/19131473/
+Frontiers | Brain endurance training as a strategy for reducing mental fatigue
+https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2025.1616171/full
+Talking yourself out of exhaustion: the effects of self-talk on endurance performance - PubMed
+https://pubmed.ncbi.nlm.nih.gov/24121242/
+CAFFEINE AND EXERCISE PERFORMANCE: AN UPDATE - Gatorade Sports Science Institute
+https://www.gssiweb.org/sports-science-exchange/article/caffeine-and-exercise-performance-an-update
+Central nervous system effects of caffeine and adenosine on fatigue
+https://journals.physiology.org/doi/abs/10.1152/ajpregu.00386.2002
+Carbohydrate mouth rinse improves performance of mentally ...
+https://www.sciencedirect.com/science/article/pii/S003193842300353032
+32
+33
+33
+1 5
+2 6 8 910 11 29 30 39 40 41
+3 4 7
+12 13
+14 15 16 21
+17 18 19 20 24
+22 23 25 26 27 28
+31 32
+33 34 35
+36
+37 38
+16
+
+---PAGE---
+

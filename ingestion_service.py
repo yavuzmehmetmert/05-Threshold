@@ -14,6 +14,8 @@ from config import MOCK_MODE, MOCK_BIOMETRICS
 from sqlalchemy.orm import Session
 from database import get_db
 import crud
+import models
+import training_load
 
 # Logger
 logging.basicConfig(level=logging.INFO)
@@ -28,7 +30,9 @@ def process_fit_file(fit_path: str):
     try:
         fitfile = fitparse.FitFile(fit_path)
         data_points = []
+        laps_data = []
         
+        # 1. Parse Records
         for record in fitfile.get_messages("record"):
             point = {}
             for record_data in record:
@@ -36,30 +40,88 @@ def process_fit_file(fit_path: str):
                     'timestamp', 'heart_rate', 'power', 'cadence', 
                     'speed', 'enhanced_speed', 'distance',
                     'position_lat', 'position_long', 
-                    'altitude', 'enhanced_altitude',
-                    'vertical_oscillation', 'vertical_ratio', 'step_length', 'stance_time', 'stance_time_balance'
+                    'altitude', 'enhanced_altitude', 'grade',
+                    'vertical_oscillation', 'vertical_ratio', 'step_length', 'stance_time', 'stance_time_balance', 'left_right_balance'
                 ]:
-                    # Map enhanced fields to standard names
+                    # 1. Handle Special Transformations
                     if record_data.name == 'enhanced_speed':
                         point['speed'] = record_data.value
                     elif record_data.name == 'enhanced_altitude':
                         point['altitude'] = record_data.value
-                    elif record_data.name not in point: 
+                    elif record_data.name == 'position_lat':
+                        if record_data.value is not None:
+                             point['latitude'] = record_data.value * (180 / 2**31)
+                    elif record_data.name == 'position_long':
+                        if record_data.value is not None:
+                             point['longitude'] = record_data.value * (180 / 2**31)
+                    
+                    # 2. Save Standard Fields
+                    if record_data.name not in point and record_data.name not in ['enhanced_speed', 'enhanced_altitude', 'position_lat', 'position_long']:
                          point[record_data.name] = record_data.value
             
             if 'timestamp' in point:
                 data_points.append(point)
-                
+        
+        # 2. Parse Session (for RPE)
+        for session in fitfile.get_messages("session"):
+            logger.info(f"SESSION FIELDS: {[f.name for f in session]}")
+            
+        # 3. Parse Laps
+        for lap in fitfile.get_messages("lap"):
+            lap_obj = {}
+            for lap_data in lap:
+                 if lap_data.value is not None:
+                     val = lap_data.value
+                     if isinstance(val, (datetime, date)):
+                         val = val.isoformat()
+                     lap_obj[lap_data.name] = val
+            laps_data.append(lap_obj)
+
         df = pd.DataFrame(data_points)
         
-        if not df.empty and 'speed' in df.columns:
-            # Duraklama anlarını (Speed=0) temizle
-            df = df[df['speed'] > 0]
+        if not df.empty:
+            # 3. Calculate Grade if missing
+            # Grade = (dAlt / dDist) * 100
+            if 'grade' not in df.columns or df['grade'].isnull().all():
+                if 'altitude' in df.columns and 'distance' in df.columns:
+                     df['d_alt'] = df['altitude'].diff()
+                     df['d_dist'] = df['distance'].diff()
+                     # Filter noise: d_dist must be > 0.5m
+                     # Grade = d_alt / d_dist * 100
+                     df['grade'] = df.apply(
+                         lambda row: (row['d_alt'] / row['d_dist'] * 100) 
+                         if (row['d_dist'] and row['d_dist'] > 0.5 and abs(row['d_alt']) < 50) 
+                         else 0.0, axis=1
+                     )
+                     # Smooth Grade? Optional but recommended. Rolling mean 5s
+                     df['grade'] = df['grade'].rolling(window=5, center=True).mean().fillna(0.0)
+
+        if 'speed' in df.columns:
+                df = df[df['speed'] > 0]
+
+        # 4. Extract Session Level Metrics (RPE)
+        session_rpe = None
+        for session in fitfile.get_messages("session"):
             
-        return df
+            # Check for unknown fields that might be RPE
+            # Field 193 is commonly "Level" or RPE * 10
+            # Field 192 is "Feeling" (0-100)
+            
+            val_193 = None
+            for field in session:
+                if field.def_num == 193:
+                    val_193 = field.value
+            
+            if val_193 is not None:
+                # Garmin stores RPE * 10 (e.g., 10 = RPE 1, 80 = RPE 8)
+                session_rpe = int(val_193 / 10)
+            elif session.get_value('perceived_effort'):
+                 session_rpe = session.get_value('perceived_effort')
+        
+        return df, laps_data, session_rpe
     except Exception as e:
         logger.error(f"FIT Parse Hatası: {e}")
-        return None
+        return None, [], None
 
 # --- Weather Service ---
 
@@ -156,7 +218,7 @@ async def sync_garmin_stats_background():
         logger.error(f"Biyo-Sync Hatası: {e}")
 
 @router.post("/sync")
-async def sync_all(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+def sync_all(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """
     Tüm verileri senkronize eder:
     1. User Profile -> DB
@@ -194,22 +256,9 @@ async def sync_all(background_tasks: BackgroundTasks, db: Session = Depends(get_
             logger.info(f"Fetched {len(activities)} activities.")
         
         for act in activities:
-            # RPE Fallback Logic
-            current_rpe = act.get('userEvaluation', {}).get('perceivedEffort')
-            if current_rpe is None:
-                # Check top level
-                current_rpe = act.get('perceivedEffort')
-            
-            if current_rpe is None:     
-                hr = act.get('averageHR') or act.get('averageHeartRate')
-                if hr:
-                    calc_rpe = 3 if hr < 140 else 5 if hr < 155 else 8
-                    calc_rpe += random.randint(-1, 1)
-                    final_rpe = max(1, min(10, calc_rpe))
-                    
-                    if not act.get('userEvaluation'): act['userEvaluation'] = {}
-                    act['userEvaluation']['perceivedEffort'] = final_rpe
-                    act['userEvaluation']['feeling'] = random.randint(1, 5)
+            # RPE: Use existing userEvaluation from Garmin API directly
+            # DO NOT generate synthetic values - they overwrite real user input!
+            # The userEvaluation object from Garmin API already contains the real data
 
             # --- WEATHER ENRICHMENT ---
             # Do this before Upsert so columns are populated
@@ -232,6 +281,19 @@ async def sync_all(background_tasks: BackgroundTasks, db: Session = Depends(get_
                  logger.info(f"Target Activity Keys: {list(act.keys())}")
                  logger.info(f"Has avgStrideLength: {'avgStrideLength' in act}")
                  logger.info(f"Has averageStrideLength: {'averageStrideLength' in act}")
+
+            # --- ENRICH WITH DETAILS (Polyline, Splits, Metrics) ---
+            if not MOCK_MODE:
+                try:
+                    logger.info(f"Fetching Details JSON for {act.get('activityId')}...")
+                    details_json = client.connectapi(f"/activity-service/activity/{act.get('activityId')}/details")
+                    if details_json:
+                        # Merge details into activity dict (so it goes into raw_json)
+                        act.update(details_json)
+                        # Also merge summaryDTO if useful? Usually redundancy is fine.
+                        logger.info("Details merged (Polyline/Splits obtained).")
+                except Exception as e:
+                    logger.warning(f"Failed to fetch detailed JSON: {e}")
 
             # Upsert Activity
             db_act = crud.upsert_activity(db, act, user_id)
@@ -317,8 +379,20 @@ async def sync_all(background_tasks: BackgroundTasks, db: Session = Depends(get_
                         zip_ref.extract(fit_filename, path=tempfile.gettempdir())
                         fit_path = os.path.join(tempfile.gettempdir(), fit_filename)
                         
-                    df = process_fit_file(fit_path) # Returns DataFrame
+                    df, laps_data, session_rpe = process_fit_file(fit_path) # Returns DataFrame AND Laps AND RPE
                     
+                    if session_rpe is not None:
+                        db_act.rpe = int(session_rpe)
+                    
+                    if laps_data:
+                        # Store Native Laps in raw_json
+                        if not db_act.raw_json: db_act.raw_json = {}
+                        db_act.raw_json['native_laps'] = laps_data
+                        # Trigger update for this new field
+                        from sqlalchemy.orm.attributes import flag_modified
+                        flag_modified(db_act, "raw_json")
+                        db.commit()
+
                     if os.path.exists(tmp_zip_path): os.remove(tmp_zip_path)
                     if os.path.exists(fit_path): os.remove(fit_path)
                     
@@ -328,7 +402,7 @@ async def sync_all(background_tasks: BackgroundTasks, db: Session = Depends(get_
                         df = df.where(pd.notnull(df), None)
                         
                         records = df.to_dict('records')
-                        for rec in records:
+                        for i, rec in enumerate(records):
                              # Helper function to safe int cast
                              def safe_int(val):
                                  if val is None: return None
@@ -337,6 +411,24 @@ async def sync_all(background_tasks: BackgroundTasks, db: Session = Depends(get_
                                  except:
                                      return None
 
+                             # GCT Balance Normalization
+                             # If values are raw (>128 or huge), normalize them.
+                             # Fitparse *usually* converts to float % if profile is known.
+                             # If we get e.g. 51.2, it's % Left.
+                             stb = rec.get('stance_time_balance') or rec.get('left_right_balance')
+                             
+                             if stb is not None:
+                                 # Heuristic: If > 100, might be encoded
+                                 if stb > 1000: # e.g. 5123 = 51.23%
+                                     stb = stb / 100.0
+                                 elif stb > 128: # e.g. 128 + 50 = 178 (50% Right?)
+                                     # Bit 0x80 usually means Right? Or 128 offset.
+                                     # Garmin Connect displays "Left 49.8% / Right 50.2%"
+                                     # If raw is 0x8000 masked...
+                                     # Let's assume fitparse handles it OR it's just raw float.
+                                     # For safety, if > 100, try to reduce.
+                                     stb = stb - 128 if stb < 256 else stb
+                             
                              streams_data.append({
                                  "activity_id": db_act.activity_id,
                                  "timestamp": rec.get('timestamp'),
@@ -345,7 +437,13 @@ async def sync_all(background_tasks: BackgroundTasks, db: Session = Depends(get_
                                  "cadence": safe_int(rec.get('cadence')),
                                  "altitude": rec.get('altitude'),
                                  "power": safe_int(rec.get('power')),
-                                 "grade": None
+                                 "grade": rec.get('grade'),
+                                 "latitude": rec.get('latitude'),
+                                 "longitude": rec.get('longitude'),
+                                 "vertical_oscillation": rec.get('vertical_oscillation'),
+                                 "stance_time": rec.get('stance_time'),
+                                 "stance_time_balance": stb, 
+                                 "step_length": rec.get('step_length')
                              })
                 except Exception as e:
                     logger.error(f"Error processing FIT for {db_act.activity_id}: {e}")
@@ -402,7 +500,8 @@ async def get_user_profile():
         return {}
 
 @router.get("/sleep/{date_str}")
-async def get_sleep_by_date(date_str: str):
+async def get_sleep_by_date(date_str: str, db: Session = Depends(get_db)):
+    # 1. Try Mock in Biometrics Mode
     if MOCK_BIOMETRICS:
         import random
         seed = sum(ord(c) for c in date_str)
@@ -413,7 +512,6 @@ async def get_sleep_by_date(date_str: str):
         awake = random.randint(300, 1800)
         light = sleep_time - deep - rem - awake
         score = random.randint(45, 98)
-        
         return {
             "dailySleepDTO": {
                 "id": seed * 100,
@@ -425,14 +523,31 @@ async def get_sleep_by_date(date_str: str):
                 "awakeSleepSeconds": awake
             }
         }
+    
+    # 2. Try DB Persistence
     try:
+        user_id = 1 # Single user for now, or fetch from context
+        # Handle ISO string (e.g. 2025-12-09T17:54:23)
+        clean_date_str = date_str.split('T')[0]
+        date_obj = datetime.strptime(clean_date_str, "%Y-%m-%d").date()
+        
+        log = crud.get_sleep_log(db, user_id, date_obj)
+        if log and log.raw_json:
+            return {"dailySleepDTO": log.raw_json} 
+    except Exception as e:
+        logger.warning(f"DB Sleep Read Error: {e}")
+
+    # 3. Fallback to API (and upsert?)
+    try:
+        clean_date_str = date_str.split('T')[0]
         client = get_garmin_client()
-        return client.get_sleep_data(date_str)
+        data = client.get_sleep_data(clean_date_str)
+        return data
     except:
         return {}
 
 @router.get("/hrv/{date_str}")
-async def get_hrv_by_date(date_str: str):
+async def get_hrv_by_date(date_str: str, db: Session = Depends(get_db)):
     if MOCK_BIOMETRICS:
         import random
         seed = sum(ord(c) for c in date_str) + 50
@@ -441,9 +556,21 @@ async def get_hrv_by_date(date_str: str):
         status = "Balanced" if hrv_val > 50 else "Unbalanced"
         return {"hrvSummary": {"weeklyAvg": hrv_val, "lastNightAvg": hrv_val, "status": status}}
 
+    # Try DB
     try:
+        user_id = 1
+        clean_date_str = date_str.split('T')[0]
+        date_obj = datetime.strptime(clean_date_str, "%Y-%m-%d").date()
+        log = crud.get_hrv_log(db, user_id, date_obj)
+        if log and log.raw_json:
+            return {"hrvSummary": log.raw_json}
+    except Exception as e:
+         logger.warning(f"DB HRV Read Error: {e}")
+
+    try:
+        clean_date_str = date_str.split('T')[0]
         client = get_garmin_client()
-        return client.get_hrv_data(date_str)
+        return client.get_hrv_data(clean_date_str)
     except:
         return {}
 
@@ -476,6 +603,7 @@ async def get_recent_activities(limit: int = 50, db: Session = Depends(get_db)):
             "activityType": db_act.activity_type,
             "distance": db_act.distance,
             "duration": db_act.duration,
+            "elapsedDuration": db_act.elapsed_duration,
             "averageHeartRate": db_act.average_hr,
             "calories": db_act.calories,
             "elevationGain": db_act.elevation_gain,
@@ -499,19 +627,39 @@ async def get_activity_details(activity_id: int, db: Session = Depends(get_db)):
     # 1. Fetch Streams from DB
     streams = db.query(models.ActivityStream).filter(models.ActivityStream.activity_id == activity_id).order_by(models.ActivityStream.timestamp.asc()).all()
     
+    # Helper to prevent JSON NaN errors
+    def safe_float(val):
+        if val is None: return None
+        try:
+            f = float(val)
+            if math.isnan(f) or math.isinf(f): return None
+            return f
+        except:
+            return None
+
     stream_data = []
     for s in streams:
+        # Calculate ratio safely
+        v_ratio = None
+        if s.vertical_oscillation and s.step_length and s.step_length > 0:
+             v_ratio = (s.vertical_oscillation / s.step_length * 100)
+             
         stream_data.append({
             "timestamp": s.timestamp.isoformat() if s.timestamp else None,
             "heart_rate": s.heart_rate,
-            "speed": s.speed,
+            "speed": safe_float(s.speed),
             "cadence": s.cadence,
-            "altitude": s.altitude,
+            "altitude": safe_float(s.altitude),
             "power": s.power,
-            "grade": s.grade,
-            # Add lat/long if we had them in DB, currently model missing them? 
-            # Check models.py previously: I saw models.py didn't include lat/long in ActivityStream! 
-            # I must fix that next. For now, serve what we have.
+            "grade": safe_float(s.grade),
+            "latitude": safe_float(s.latitude),
+            "longitude": safe_float(s.longitude),
+            # Running Dynamics
+            "vertical_oscillation": safe_float(s.vertical_oscillation),
+            "stance_time": safe_float(s.stance_time),
+            "stance_time_balance": safe_float(s.stance_time_balance), # New
+            "step_length": safe_float(s.step_length),
+            "vertical_ratio": safe_float(v_ratio)
         })
     
     # Construct Response
@@ -519,13 +667,21 @@ async def get_activity_details(activity_id: int, db: Session = Depends(get_db)):
         "activityId": act.activity_id,
         "data": stream_data,
         "metadata": act.metadata_blob,
-        # Merge key summary fields for convenience if needed
+        "geoPolylineDTO": (act.raw_json or {}).get('geoPolylineDTO'),
+        "nativeLaps": (act.raw_json or {}).get('native_laps'),
         "summary": {
             "name": act.activity_name,
             "avgHr": act.average_hr,
             "maxHr": act.max_hr,
             "distance": act.distance,
-            "duration": act.duration
+            "duration": act.duration,
+            "averageHeartRate": act.average_hr,
+            "calories": act.calories,
+            "elevationGain": act.elevation_gain,
+            "avgSpeed": act.avg_speed,
+            "rpe": (act.raw_json or {}).get('userEvaluation', {}).get('perceivedEffort') or act.rpe, # Prioritize Cloud User Eval (e.g. 7) over FIT (e.g. 10/193)
+            "vo2Max": act.vo2_max,
+            "recoveryTime": act.recovery_time
         }
     }
     
@@ -548,3 +704,207 @@ async def get_activity_metadata(activity_id: int, db: Session = Depends(get_db))
     if not act:
          raise HTTPException(status_code=404, detail="Activity not found")
     return act.metadata_blob or {}
+
+
+# --- Shoe Management Endpoints ---
+
+@router.get("/shoes")
+async def get_shoes(db: Session = Depends(get_db)):
+    """Get all active shoes for user"""
+    user_id = 1  # TODO: Get from auth
+    shoes = crud.get_shoes(db, user_id)
+    return [
+        {
+            "id": s.id,
+            "name": s.name,
+            "brand": s.brand,
+            "initialDistance": s.initial_distance,
+            "totalDistance": crud.get_shoe_total_distance(db, s.id),
+            "isActive": s.is_active == 1,
+            "createdAt": s.created_at.isoformat() if s.created_at else None
+        }
+        for s in shoes
+    ]
+
+
+@router.post("/shoes")
+async def create_shoe(shoe_data: dict, db: Session = Depends(get_db)):
+    """Create a new shoe"""
+    user_id = 1  # TODO: Get from auth
+    shoe = crud.create_shoe(
+        db, 
+        user_id,
+        name=shoe_data.get("name"),
+        brand=shoe_data.get("brand"),
+        initial_distance=shoe_data.get("initialDistance", 0.0)
+    )
+    return {
+        "id": shoe.id,
+        "name": shoe.name,
+        "brand": shoe.brand,
+        "initialDistance": shoe.initial_distance,
+        "totalDistance": shoe.initial_distance,
+        "isActive": True
+    }
+
+
+@router.put("/shoes/{shoe_id}")
+async def update_shoe(shoe_id: int, data: dict, db: Session = Depends(get_db)):
+    """Update shoe details"""
+    shoe = crud.update_shoe(
+        db, shoe_id,
+        name=data.get("name"),
+        brand=data.get("brand"),
+        initial_distance=data.get("initialDistance"),
+        is_active=1 if data.get("isActive", True) else 0
+    )
+    if not shoe:
+        raise HTTPException(status_code=404, detail="Shoe not found")
+    return {"status": "success", "id": shoe_id}
+
+
+@router.delete("/shoes/{shoe_id}")
+async def delete_shoe(shoe_id: int, db: Session = Depends(get_db)):
+    """Retire a shoe (soft delete)"""
+    shoe = crud.delete_shoe(db, shoe_id)
+    if not shoe:
+        raise HTTPException(status_code=404, detail="Shoe not found")
+    return {"status": "retired", "id": shoe_id}
+
+
+@router.post("/activity/{activity_id}/shoe")
+async def set_activity_shoe(activity_id: int, data: dict, db: Session = Depends(get_db)):
+    """Assign a shoe to an activity"""
+    shoe_id = data.get("shoeId")
+    if shoe_id is None:
+        raise HTTPException(status_code=400, detail="shoeId required")
+    
+    activity = crud.set_activity_shoe(db, activity_id, shoe_id)
+    if not activity:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    
+    return {"status": "success", "activityId": activity_id, "shoeId": shoe_id}
+
+
+@router.get("/activity/{activity_id}/shoe")
+async def get_activity_shoe(activity_id: int, db: Session = Depends(get_db)):
+    """Get the shoe assigned to an activity"""
+    act = crud.get_activity(db, activity_id)
+    if not act:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    
+    if act.shoe_id:
+        shoe = crud.get_shoe(db, act.shoe_id)
+        if shoe:
+            return {
+                "id": shoe.id,
+                "name": shoe.name,
+                "brand": shoe.brand,
+                "totalDistance": crud.get_shoe_total_distance(db, shoe.id)
+            }
+    return None
+
+
+# --- Training Load Endpoints ---
+
+@router.get("/training-load")
+async def get_training_load(db: Session = Depends(get_db)):
+    """Get current PMC data (CTL/ATL/TSB) and history"""
+    user_id = 1  # TODO: Get from auth
+    
+    # Get user's LTHR from profile
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    lthr = 165  # Default
+    resting_hr = 45  # Default
+    
+    # Get all activities for PMC calculation
+    activities = db.query(models.Activity).filter(
+        models.Activity.user_id == user_id
+    ).order_by(models.Activity.start_time_local.asc()).all()
+    
+    # Convert to dict list
+    act_list = [
+        {
+            'local_start_date': a.local_start_date,
+            'start_time_local': a.start_time_local,
+            'duration': a.duration,
+            'average_hr': a.average_hr,
+            'distance': a.distance
+        }
+        for a in activities
+    ]
+    
+    # Calculate PMC
+    pmc = training_load.calculate_pmc(act_list, days=90, lthr=lthr, resting_hr=resting_hr)
+    
+    return pmc
+
+
+@router.get("/training-load/context/{activity_id}")
+async def get_activity_load_context(activity_id: int, db: Session = Depends(get_db)):
+    """Get training load context for a specific activity (CTL/ATL/TSB at that time)"""
+    user_id = 1
+    
+    # Get the target activity
+    target_act = crud.get_activity(db, activity_id)
+    if not target_act:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    
+    activity_date = target_act.start_time_local
+    lthr = 165
+    resting_hr = 45
+    
+    # Get all activities
+    activities = db.query(models.Activity).filter(
+        models.Activity.user_id == user_id
+    ).order_by(models.Activity.start_time_local.asc()).all()
+    
+    act_list = [
+        {
+            'local_start_date': a.local_start_date,
+            'start_time_local': a.start_time_local,
+            'duration': a.duration,
+            'average_hr': a.average_hr,
+            'distance': a.distance
+        }
+        for a in activities
+    ]
+    
+    # Calculate context
+    context = training_load.get_recent_load_context(act_list, activity_date, lthr, resting_hr)
+    
+    # Also add this activity's TSS
+    this_tss = training_load.get_activity_tss(
+        {'duration': target_act.duration, 'average_hr': target_act.average_hr},
+        lthr, resting_hr
+    )
+    context['activity_tss'] = round(this_tss, 1)
+    
+    return context
+
+
+@router.get("/training-load/weekly")
+async def get_weekly_training_load(db: Session = Depends(get_db)):
+    """Get weekly TSS breakdown by calendar weeks (Mon-Sun) with historical trend"""
+    user_id = 1
+    lthr = 165
+    resting_hr = 45
+    
+    # Get all activities
+    activities = db.query(models.Activity).filter(
+        models.Activity.user_id == user_id
+    ).order_by(models.Activity.start_time_local.asc()).all()
+    
+    act_list = [
+        {
+            'local_start_date': a.local_start_date,
+            'start_time_local': a.start_time_local,
+            'duration': a.duration,
+            'average_hr': a.average_hr,
+            'distance': a.distance,
+            'elevation_gain': a.elevation_gain
+        }
+        for a in activities
+    ]
+    
+    return training_load.get_weekly_breakdown(act_list, weeks=12, lthr=lthr, resting_hr=resting_hr)

@@ -1,0 +1,45 @@
+INFO:     Started server process [50319]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:58175 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58176 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58183 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58305 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58306 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58471 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58472 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59149 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59150 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59206 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59207 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59282 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59283 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60703 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60704 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60707 - "GET /ingestion/shoes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60707 - "GET /ingestion/activities?limit=50 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61719 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61720 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61791 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61793 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62052 - "GET /ingestion/activity/21230575987/metadata HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62054 - "GET /ingestion/shoes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62056 - "GET /ingestion/activity/21230575987 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62058 - "GET /ingestion/sleep/2025-12-11T18%3A17%3A09 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62060 - "GET /ingestion/hrv/2025-12-11T18%3A17%3A09 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62061 - "GET /ingestion/training-load/context/21230575987 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62052 - "GET /ingestion/activity/21230575987/shoe HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62347 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62349 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62842 - "GET /ingestion/activities?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62843 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64327 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64364 - "GET /ingestion/activities?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64393 - "GET /ingestion/activities?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64428 - "GET /ingestion/activities?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64460 - "GET /ingestion/activities?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64493 - "GET /ingestion/activities?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64766 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64937 - "GET /ingestion/training-load HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65370 - "GET /ingestion/training-load/weekly HTTP/1.1" 200 OK

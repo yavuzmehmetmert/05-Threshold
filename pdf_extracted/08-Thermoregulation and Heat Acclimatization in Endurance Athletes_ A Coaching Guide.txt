@@ -1,0 +1,807 @@
+Thermoregulation and Heat Acclimatization in
+Endurance Athletes: A Coaching Guide
+Introduction
+Training and racing in hot weather present unique challenges for endurance athletes of all levels, from
+amateur  to  professional.  Heat  stress  can  significantly  impair  performance  in  both  long-duration
+endurance events and high-intensity efforts . When body temperature rises during exercise, athletes
+experience  quicker  muscle  fatigue,  cardiovascular  strain,  and  even  central  nervous  system
+impairment , all of which degrade performance . For example, muscle glycogen is depleted faster
+and lactate accumulates more in the heat, hastening fatigue, while the brain’s drive to exercise can
+diminish as core temperature rises . In practical terms, a run or ride that feels easy on a cool day
+can feel immensely difficult in high heat and humidity. 
+Thermoregulation  is the body’s ability to maintain a stable internal temperature. During exercise,
+especially in the heat, the body must shed the excess heat produced by working muscles to keep core
+temperature in a safe range (~37°C). If heat gain outpaces heat loss, core temperature will rise, leading
+to  performance  decline  and  potential  heat  illness .  Endurance  athletes  and  coaches  need  to
+understand how the body responds to heat and how to adapt training strategies accordingly. This guide
+will cover: 
+Cardiovascular responses to heat stress:  how hot conditions affect heart rate, stroke volume,
+and cardiac output due to blood flow redistribution to the skin. 
+Physiological adaptations from heat acclimatization:  the beneficial changes from heat
+training, including plasma volume expansion, increased sweat rate, and electrolyte (salt)
+conservation. 
+Practical heat training strategies:  how to safely acclimatize athletes of varying experience
+(amateur , semi-pro, pro) to heat through training or other methods, while avoiding heat-related
+illnesses. 
+Pacing and performance adjustments in heat:  algorithms and correction factors (with
+pseudocode-style guidance) to adjust training paces and race targets based on temperature and
+humidity (dew point), helping athletes perform optimally without overheating.
+By integrating scientific insights with coaching practice, this guide aims to help coaches and athletes
+mitigate  the  negative  effects  of  heat  and  harness  heat  acclimatization  to  improve  endurance
+performance in hot conditions.
+Thermoregulation Basics: How the Body Manages Heat
+During exercise, about 70-80% of energy expended is released as heat. This raises the body’s core
+temperature,  especially  during  endurance  events.  The  body’s  thermoregulatory  system  works  to
+dissipate this heat through: sweating  (evaporative cooling) and increased skin blood flow  (convective/
+radiative cooling) . The cardiovascular system plays a key role in thermoregulation: blood transports
+heat from the core to the skin where it can be released. When ambient conditions are cooler than the
+skin, heat can radiate or convect away; but in hot environments, evaporation of sweat becomes the1
+1
+23
+4
+• 
+• 
+• 
+• 
+5
+1
+
+---PAGE---
+
+primary cooling mechanism . High humidity impairs this process because sweat cannot evaporate
+effectively into saturated air , which is why muggy conditions feel so oppressive. 
+Sweating:  As core temperature rises, sweat glands produce sweat that carries heat as it evaporates
+from the skin. Evaporation has a powerful cooling effect – but only if the sweat can evaporate. In a dry
+climate, sweat evaporates quickly, cooling the body efficiently. In a humid climate (high dew point),
+evaporation is slowed, so sweat drips off without cooling, and the body gains heat. Coaches should
+teach athletes that  hydration  and proper pacing are critical in heat to maintain sweating without
+dehydration. It’s also important to note that unacclimatized athletes start sweating later and at a higher
+core temperature compared to heat-adapted athletes. With acclimatization, the body begins sweating
+sooner (at a lower temperature) and more profusely, enhancing cooling (more on this in later sections)
+.
+Skin blood flow:  The circulatory system redistributes blood toward the skin to dump heat. During
+exercise in the heat, blood vessels in the skin dilate, and a significant portion of cardiac output is
+redirected from working muscles to the skin surface. This helps release heat via the skin, but it comes at
+a cost – it can reduce venous return to the heart and divert blood that would otherwise supply the
+muscles. We will discuss the implications of this blood flow competition  between skin and muscle in
+the next section on cardiovascular responses. 
+In summary, the human “thermostat” strives to balance heat gain and loss. If heat loss (through sweat
+evaporation and skin blood flow) cannot keep up with heat production,  core temperature rises  and
+performance  declines.  Endurance  coaches  should  be  mindful  that  even  a  well-trained  athlete  can
+overheat if the conditions exceed their body’s cooling capacity. The margin for maintaining thermal
+homeostasis  is  narrow:  core  temperatures  above  ~40°C  (104°F)  can  lead  to  hyperthermia ,  with
+dizziness, central fatigue, or in severe cases heat stroke. Therefore, understanding and respecting
+thermoregulation is the first step to effective training in the heat.
+Cardiovascular Strain in the Heat: Heart Rate vs. Stroke Volume
+One of the most immediate impacts of heat stress on an endurance athlete is cardiovascular drift  – a
+progressive increase in heart rate and decrease in stroke volume during prolonged exercise in the heat.
+Let’s break down why this happens and how it affects cardiac output  (the volume of blood the heart
+pumps per minute). Cardiac output (CO) is the product of heart rate (HR) and stroke volume (SV). In
+cooler conditions, an athlete maintains CO by a balanced HR and SV. In hot conditions, maintaining CO
+becomes challenging due to thermoregulatory demands:
+Skin Blood Flow and Stroke Volume:  As mentioned, when exercising in the heat, the body
+diverts more blood to the skin to dissipate heat. This skin blood flow “steals” blood from the
+central circulation. With more blood pooling in dilated skin vessels, less blood returns to the
+heart ,  leading  to  a  drop  in  stroke  volume  (the  amount  of  blood  ejected  each  heartbeat).
+Essentially,  the  heart’s  left  ventricle  fills  less  completely  on  each  beat  because  some  blood
+volume is held in the skin circulation. If an athlete becomes dehydrated , this effect is magnified:
+sweating without adequate fluid replacement reduces blood volume, further lowering stroke
+volume. It’s not uncommon to see stroke volume significantly reduced during long workouts on
+hot days.
+Heart Rate Increase:  To compensate for the falling stroke volume, heart rate rises. The body
+attempts to maintain cardiac output by pumping faster since each pump is delivering less blood.
+Coaches will notice athletes’ heart rates creeping upward over time even if pace or power output6
+7
+8
+• 
+• 
+2
+
+---PAGE---
+
+remains constant – classic  cardiovascular drift . For example, an athlete might hold a steady
+8:00/mile pace, but their HR after 30-40 minutes in the heat could be 10-15 beats higher than it
+was early in the run. This is the body’s way of preserving blood flow output despite the thermal
+strain. Exercise physiologists note that exercising in a hot environment produces an increased
+heart rate and decreased stroke volume  compared to cool conditions . This happens even
+without dehydration in moderate exercise; at higher intensities or with dehydration, the effect is
+more pronounced .
+Competition Between Skin and Muscle Blood Flow:  At high exercise intensities in the heat,
+there is a literal tug-of-war for blood supply between the skin and the working muscles. Muscles
+demand oxygen to sustain performance, but skin needs blood for cooling. As intensity rises, if
+skin blood flow remains high, muscle blood flow can actually decline , since the cardiovascular
+system has a limited capacity . Reduced muscle blood flow means less oxygen delivery to
+muscles,  causing  earlier  fatigue .  This  is  one  reason  athletes  struggle  to  hit  high  power
+outputs or fast paces in the heat – their muscles are effectively “starved” of some oxygen and
+fuel  as  the  body  prioritizes  cooling.  Coaches  should  adjust  expectations  for  high-intensity
+workouts in hot weather accordingly.
+Limitations  on  Cardiac  Output  and  VO₂max:  Eventually,  the  heart  rate  compensation  has
+limits. As core temperature climbs and dehydration progresses, an athlete’s  maximal cardiac
+output  may be reduced in the heat. Even if heart rate rises, it can only rise to the athlete’s max
+HR. If stroke volume is greatly reduced and HR is near max, cardiac output plateaus or falls. This
+leads to a drop in maximal aerobic capacity – in fact, exercising in high heat can reduce VO₂max
+because the athlete cannot reach the same maximal cardiac output as in cool conditions . In
+simple  terms,  the  heart  cannot  pump  enough  blood  to  support  both  cooling  and  intense
+exercise simultaneously. Research shows this “ceiling” on cardiac output is a key factor in why
+VO₂max and performance decline in the heat . Coaches might observe that an athlete who
+normally has a VO₂max of X when tested in cool conditions might effectively perform as if their
+VO₂max is lower in hot conditions due to cardiovascular strain.
+Higher Heart Rate for a Given Pace:  As a result of all the above, athletes will experience a
+higher percentage of their max heart rate at any given submaximal pace in hot weather . This
+means  a  pace  that  is  usually  “easy”  may  feel  moderate  or  hard.  The  rating  of  perceived
+exertion (RPE)  also climbs in the heat . It’s important to communicate to athletes that this is
+expected  in heat – they are not losing fitness; it’s a normal physiological response. 
+Coaching Takeaway:  In hot conditions, expect heart rates ~5-15 bpm higher  than normal for a given
+workload, and expect stroke volume and power output to be lower . This is why strict pace or power
+targets must be adjusted in the heat (discussed in detail in the pacing section). Emphasize to athletes
+that listening to their bodies (and perhaps using heart rate or perceived effort as a guide) is crucial.
+Pushing to hold normal intensities in extreme heat can lead to overexertion or even heat illness  if the
+athlete isn’t careful. Indeed, improper pacing in a hot environment can be hazardous . Coaches
+should prioritize safety and cooling, encouraging athletes to slow down, take extra hydration breaks,
+and if possible schedule hard sessions during cooler parts of the day.
+(For a real-world perspective: early in heat exposure, athletes may even experience dizziness or fainting from
+reduced blood pressure – one study noted that on day 1 of marching in desert heat, many participants
+experienced  syncope,  but  after  five  days  of  acclimation,  none  did .  This  dramatic  improvement
+underscores how hard the cardiovascular system works when unacclimatized, and how it adapts over time.)9
+9
+• 
+10
+11
+• 
+12
+12
+• 
+13
+14
+15
+3
+
+---PAGE---
+
+Heat Acclimatization: Physiological Adaptations to Heat Training
+The good news is that with proper  heat acclimatization , an athlete’s body undergoes a series of
+adaptations that mitigate the negative effects of heat. Heat acclimatization refers to the process of
+training or exposure that leads to these adaptations, making the athlete more heat-tolerant and able
+to  perform  better  in  hot  conditions .  Many  of  these  adaptations  directly  counter  the  issues  we
+described  above,  improving  the  athlete’s  thermoregulation  and  cardiovascular  response.  Heat
+acclimatization can occur in as little as 7–14 days of consistent heat exposure , with highly
+trained athletes sometimes adapting more quickly (they may achieve adaptations ~50% faster than less
+fit individuals) . Below, we detail the key physiological changes from heat training and  how they
+benefit endurance performance :
+1. Plasma Volume Expansion and Cardiovascular Stability
+One of the earliest and most significant adaptations is an increase in blood plasma volume. Repeated
+exercise-heat exposure triggers the kidneys to retain fluid (via hormonal signals like aldosterone and
+vasopressin), leading to a larger blood volume. Studies show a  plasma volume increase of roughly
+10%  (on the order of 10–12% in many individuals) after acclimation . This expansion can occur
+rapidly – within the first 3–6 days of heat training . In practical terms, if an athlete had 5 liters of
+blood, they might gain an extra 0.5 liter of plasma after a week of heat acclimation. 
+How expanded plasma volume helps:  More blood volume means  more available fluid for sweat
+production  (delaying dehydration) and  better maintenance of stroke volume and blood pressure
+during exercise. With a higher circulating volume, when blood pools in the skin, enough remains to fill
+the heart and supply muscles. Essentially, plasma expansion “fills the tank” so the cardiovascular system
+can handle heat stress. Indeed, this adaptation helps maintain central blood volume and stroke volume,
+allowing the body to store more heat before core temperature rises excessively . Athletes often
+notice that after acclimation their heart rate is lower at a given pace  because stroke volume is higher
+– the heart doesn’t need to beat as fast to pump the same cardiac output. A classic sign of heat
+acclimatization is a lower exercising heart rate  in the heat compared to before . Research confirms
+that heart rate reduction is one of the fastest adaptations , often improving within 4-5 days of heat
+exposure (mostly complete by ~7 days) .
+To illustrate the impact: In one study of trained cyclists, just 10 days of heat training (e.g. repeated
+sessions in ~40°C conditions) increased plasma volume by ~6.5% and boosted stroke volume by ~5%,
+which in turn even raised VO₂max by ~5% . This demonstrates that heat acclimation not only makes
+hot-weather exercise easier but can also produce small performance gains in cooler conditions due to
+enhanced cardiovascular function (though the primary aim of heat acclimation is to handle heat, some
+coaches use it as a training stimulus for broader adaptation).
+From  a  coaching  perspective,  plasma  volume  expansion  means  after  acclimation  your  athlete  can
+sustain higher cardiac output in the heat with less strain. They will start to feel “stronger” on hot runs –
+less drift in heart rate, less dizziness upon standing, etc. Note that this gain is  fluid-dependent : the
+athlete must maintain hydration to capitalize on the larger blood volume. Dehydration can negate this
+benefit, so continued emphasis on drinking to thirst (or a bit beyond, as needed) in hot conditions is
+key.1617
+18
+19
+20
+19
+21
+2223
+24
+4
+
+---PAGE---
+
+2. Improved Sweat Response (Higher Sweat Rate & Earlier Onset)
+Another hallmark adaptation is a more powerful and efficient sweating mechanism:
+Earlier  Onset  of  Sweating:  After  heat  training,  athletes  begin  to  sweat  at  a  lower  core
+temperature  and  often  sooner  in  exercise.  The  body  “learns”  to  activate  cooling  sooner ,
+preventing the big spikes in core temperature. An acclimated athlete may start dripping sweat in
+the  warm-up,  whereas  a  non-acclimated  person  might  not  sweat  much  until  well  into  the
+session. This earlier onset means less heat storage at the start of exercise  and a lower core
+temperature throughout the workout .
+Higher Sweat Rate:  Heat-acclimated athletes can achieve and sustain a higher sweat output.
+The sweat glands increase their capacity. In fact, sweat volume after full acclimation can be
+nearly  double or even triple  what it was before . For example, if an unacclimated athlete
+could maximally sweat ~1 liter per hour , an acclimated athlete might sweat 2–3 liters/hour when
+needed  (with  adequate  hydration).  This  dramatically  boosts  the  body’s  cooling  potential  via
+evaporation. Additionally, sweat distribution over the body surface becomes more uniform and
+coverage improves , which means more skin area is effectively cooling. Acclimated sweat
+glands also become more fatigue-resistant, so they keep producing high sweat rates even in
+prolonged exercise or in humid conditions .
+Greater Evaporative Cooling and Lower Skin Temperature:  With more sweat evaporating, the
+skin  is  cooled  more  effectively.  Over  time,  acclimation  even  leads  to  a  slight  drop  in  skin
+temperature  during exercise, because the enhanced sweating keeps the skin cooler . A
+cooler skin temperature increases the temperature gradient between the body core and skin,
+promoting heat transfer . It also means the body doesn’t need to send as much blood to the skin
+for cooling. After acclimation, because sweating does more of the cooling work, skin blood flow
+requirements can be reduced for the same heat load . By needing to divert less blood to
+the skin, the athlete preserves more blood for the muscles and for maintaining stroke volume –
+reducing cardiovascular strain. This interplay is critical: earlier and heavier sweating reduces
+heat storage, which lowers skin (and core) temperature, which then lessens the reliance on
+extreme skin vasodilation. Ultimately, this leads to improved thermoregulatory efficiency  and
+better performance in the heat .
+For coaches, these sweat adaptations mean your athlete will handle heat better: they’ll cool themselves
+more aggressively (sweat more) and sooner , preventing the early overheating that can derail a workout
+or race. However , a higher sweat rate also means  increased fluid needs  – acclimated athletes must
+drink more to match their greater sweat losses. Ensure that during heat training blocks, athletes stay on
+top  of  hydration  (and  possibly  electrolyte  intake,  discussed  next)  to  leverage  their  new  sweating
+capacity effectively. It’s also wise to schedule frequent drink breaks during training until the athlete is
+accustomed to the fluid intake required for their higher sweat rates.
+3. Electrolyte Conservation (Reduced Salt Loss)
+When people first start exercising in the heat, they often lose a lot of salt (sodium and chloride) in their
+sweat – you might notice white salt stains on clothing. As part of heat acclimatization, the body adjusts
+sweat  gland  function  to  conserve  sodium ,  an  essential  electrolyte.  The  hormone  aldosterone
+increases in response to heat, which makes sweat glands and kidneys retain more sodium. As a result,
+acclimatized athletes have sweat that is more dilute (less salty). • 
+25
+• 
+26
+2728
+8
+• 
+829
+29
+29
+5
+
+---PAGE---
+
+How much does it change? An unacclimated person’s sweat might contain about 60 mmol of sodium
+per liter (or more) ; after acclimation, it could drop to as low as ~10 mmol/L . In practical terms, this
+can be a reduction of well over 50–70% in the salt concentration of sweat. So even though an acclimated
+athlete may sweat more volume, each liter of sweat carries far less sodium, protecting the body’s
+electrolyte balance. This adaptation helps maintain  circulating blood sodium levels  and  total body
+water . In fact, conserving sodium helps expand plasma volume further , because water follows sodium –
+this is likely one contributor to the increased blood volume we discussed .
+For coaches and athletes: reduced salt loss means lower risk of heat-induced cramping or hyponatremia
+(low  blood  sodium ),  and  it  helps  athletes  sustain  performance  longer  before  electrolyte  depletion
+becomes an issue. However , do not neglect sodium intake entirely  – athletes still need to replace salt
+during long exercise, especially once they start acclimating and sweating more. The key is that their
+sweat per liter  is less salty, but because total sweat output is higher , they will still be losing a substantial
+total amount of salt over a long session. The practical advice is to include electrolyte-rich fluids or foods
+during prolonged training/racing in heat, and particularly in the first week of heat acclimation when the
+body is still adjusting . By the end of an acclimation period, the risk of sodium depletion drops
+because  of  this  adaptive  reabsorption,  but  a  good  coach  will  ensure  the  athlete’s  hydration  plan
+includes  some  electrolytes  to  match  their  sweat  losses.  (Individual  differences  are  large,  so  sweat
+testing or at least trial-and-error can hone in on an athlete’s specific needs.)
+4. Lower Core Temperature and Improved Thermal Comfort
+With  all  the  above  changes  –  more  blood,  more  sweat,  less  salt  loss  –  the  net  effect  is  that  an
+acclimatized athlete’s  core body temperature during exercise is lower  than it would be otherwise.
+They can dissipate heat faster , so their internal temperature rises more slowly and stabilizes at a lower
+level for a given workload. They also begin sweating at a lower core temperature threshold , which
+helps keep the core cooler from the outset. This leads to improved  thermal comfort  – the athlete
+simply feels less heat stress. Objectively, after a full acclimation, an athlete might see a reduction of 0.3–
+0.5°C in their steady-state exercise core temperature and a several beats-per-minute lower heart rate,
+compared to before acclimation (when exercising in the same heat conditions) . Subjectively,
+what felt like a very hot, hard effort before might feel “manageable” after adaptation. This translates to
+lower perceived exertion  at the same pace in heat , a huge psychological and physical benefit.
+Heat-acclimatized individuals also incur  less disruption to their central nervous system  from heat.
+While this area is still being studied, the fact that core temperatures are lower and cardiovascular strain
+is reduced means the brain is under less thermal stress. The athlete can better maintain mental focus
+and  drive  in  hot  conditions,  reducing  the  early  performance  decrement  that  comes  from  feeling
+overheated and exhausted.
+5. Heat Shock Proteins and Cellular Adaptations
+On a cellular level, repeated heat exposure induces the production of  heat shock proteins (HSPs)  –
+molecular “chaperones” that help protect cells from thermal damage. These proteins repair misfolded
+proteins and stabilize cellular structures that might be stressed by heat. Heat acclimation training
+increases HSP levels in many tissues (muscles, heart, etc.), enhancing what’s called Acquired Thermal
+Tolerance . Essentially, the cells get better at surviving and functioning under heat stress. While
+coaches don’t directly observe this in day-to-day training, it underlies the improved resilience of the
+athlete. HSPs can reduce the risk of heat injury at the cellular level and may contribute to the endurance
+performance  gains  by  preserving  muscle  function  during  heat  stress.  It’s  another  way  the  body
+“hardens” itself through heat training.30
+30
+31
+8
+3233
+2033
+3435
+6
+
+---PAGE---
+
+6. Timeline of Adaptations and Retention
+Heat acclimatization is a relatively fast process, but different adaptations occur on slightly different
+timelines. As a coach, it’s useful to know approximately when each benefit “kicks in” during a heat
+training program:
+Heart rate reduction:  Begins within 3-4 days, and substantial improvement by ~7 days .
+Athletes often notice after a week that their easy run HR is not spiking as much in the heat.
+Plasma volume expansion:  Starts in 3-6 days . The bulk of plasma gain is typically in the first
+week.
+Perceived exertion decreases:  Around 5-9 days , athletes report feeling a bit more
+comfortable for the same heat exposure.
+Sweat rate increase:  Takes slightly longer , on the order of 8-14 days . By the second week,
+sweat rate and sweat onset improvements become very pronounced.
+Full cardiovascular and thermoregulatory adaptation:  ~10-14 days of daily heat exposure is
+generally enough to maximize the major adaptations for a given climate . Some small
+additional gains can occur with more days, but two weeks is a good benchmark for “mostly
+acclimated.” Highly fit athletes might reach this in 7-10 days, whereas less fit might need the full
+14 days or a bit more.
+It’s important to note that these adaptations are quickly lost if not maintained . The principle “use it
+or lose it” applies: after acclimating, if the athlete goes back to cool conditions and stops any heat
+exposure, their heat tolerance will decay. Research indicates a significant loss of heat adaptation after
+about 1 week of no heat  (perhaps ~50% lost), and near complete loss after about 3-4 weeks  of no heat
+exposure . For example, an athlete who acclimated over 2 weeks in July will start to lose those gains
+by late July if they train only in cool weather or air-conditioning; by mid-August, they could be largely
+back to their pre-acclimation state. However , the body “remembers” to some extent – if you reintroduce
+heat, re-acclimatization is faster than the initial process . 
+Coaching strategy:  If you are preparing an athlete for a key race in the heat, plan the acclimation to
+finish as close to the event as practical (within ~7-10 days prior) so they carry the adaptations into
+competition. If there’s a gap, consider “top-up” heat sessions (like easy runs in the heat or sauna/hot
+bath post-workout) every few days to maintain adaptation. Even a couple of heat exposures per week
+can help retain many of the adaptations once they are established . For athletes who live in cooler
+climates, creative measures (indoor trainers in a heated room, extra layers, sauna use, etc.) might be
+needed to achieve and maintain heat acclimation before traveling to a hot race.
+7. Differences for Amateur vs. Elite Athletes
+All athletes – recreational or elite – undergo the same  types  of heat adaptations, but there are some
+differences in magnitude and management:
+Fitness level effect:  As noted, well-trained (elite) athletes tend to acclimate faster and retain
+adaptation longer . Their highly tuned cardiovascular systems respond quickly to the heat
+stimulus. However , because they can also produce more metabolic heat (from higher absolute
+intensities), they still need significant acclimation to handle racing at their level in the heat. Less
+trained or amateur athletes might have more room for improvement (since their starting point is
+lower , the relative gains from acclimation can feel big), but they may suffer more in initial heat
+exposures and need the full recommended acclimation period. Coaches should not assume a
+novice will adapt in just a few days – give them the full two weeks if possible, and progress
+intensity modestly.• 2320
+• 20
+• 20
+• 20
+• 
+1617
+36
+37
+37
+• 
+18
+7
+
+---PAGE---
+
+Heat acclimation protocols might be adjusted:  Elite athletes often integrate sophisticated
+heat training protocols – for example, controlled hyperthermia (maintaining a target core temp
+or heart rate in each session) or layering clothing to induce sweating. Amateurs can follow
+simpler guidelines like doing their daily run in the heat of the day at easy pace to start. The end
+goals are the same, but elite programs might use more monitoring (core temp pills, HR targets)
+to optimize adaptation without overexertion. Section “Heat Acclimatization Strategies”  below
+will outline practical approaches for different levels.
+Sex differences:  Coaches should be aware that some evidence suggests female athletes may
+require a slightly longer or more frequent heat exposure to achieve the same level of adaptation
+as males . The overall benefits are similar for men and women, but if you coach female
+athletes, consider giving a bit more time for heat acclimation or ensure the exposures are
+sufficiently  intense.  Additionally,  menstrual  cycle  phases  can  influence  tolerance  to  heat
+somewhat; communication and individualization are key.
+With a clear understanding of these adaptations, one can appreciate that heat training is almost like a
+natural “training boost”  for the body’s cooling and circulatory systems. Next, we’ll discuss how to
+practically  achieve  these  adaptations  and  then  how  to  adjust  training  and  racing  plans  to  the
+environment.
+Implementing Heat Acclimatization in Training (Coaching
+Strategies)
+Now that we know what  adaptations we want, the question is how to get them . Heat acclimatization
+can be achieved through regular training in hot conditions  or through artificial heat exposure (or a
+combination of both). Here are coaching guidelines to safely and effectively acclimatize athletes to heat:
+Gradual Exposure:  If possible, don’t jump straight into peak heat on day one. Gradually increase
+the duration and intensity of heat exposure over several days. For example, an initial session
+might be a 30-40 minute easy run in the heat, or a moderate run when it’s warm but not the
+absolute hottest time of day. Over the next days, progress to longer runs or hotter times of day
+as the athlete tolerates it. Research suggests that 90 minutes per day of heat exposure  (which
+can be split into two sessions) is a solid target during acclimation . Athletes could do, say,
+a morning run and then a shorter afternoon run in the heat, or a single longer session. Highly fit
+athletes might handle closer to 2 hours per day. The key is consistency: aim for heat exposure
+on consecutive days  for about 1-2 weeks .
+Exercise Intensity:  Performing exercise (endurance training) in the heat is more effective for
+acclimation  than  passive  heat  exposure  alone,  because  it  elevates  both  core  and  skin
+temperature  and  induces  profuse  sweating .  Ensure  the  athlete  is  actually  sweating  and
+getting hot in each session. That said, during the first few days, keep intensity mostly  low to
+moderate  (≤50-60%  VO₂max)  for  longer  durations,  so  the  athlete  can  accumulate  heat
+exposure without extreme strain . Alternatively, slightly higher intensity (~75% VO₂max) can
+be used for shorter sessions (30-40 min) to induce heat stress . In practice, for runners this
+might  mean  easy  to  steady  runs  initially,  or  a  tempo  run  in  heat  but  shorter  duration.  As
+acclimation develops, athletes can incorporate some higher intensity intervals in the heat to
+ensure specificity if they will compete at high intensities in heat (for example, doing strides or
+short intervals at race-pace in the heat once they can handle easier runs). Elite athletes often use
+a controlled hyperthermia  approach – e.g. they might keep exercising until reaching a target
+core temp (like 38.5°C) each day, or maintain a certain heart rate that corresponds to heat strain• 
+• 
+38
+• 
+3940
+41
+• 
+42
+43
+43
+8
+
+---PAGE---
+
+. For most, simply training by feel (and not stopping the session too early when it feels
+uncomfortable, unless unsafe) will naturally induce acclimation – remember , the athlete needs to
+be hot enough and long enough to stimulate adaptation each day.
+Hydration During Acclimation:  Advise athletes to stay well-hydrated , but there’s a balance to
+strike.  Mild  dehydration  can  actually  augment  some  of  the  plasma  volume  adaptations  by
+stimulating fluid retention mechanisms more strongly, but performance and safety should not
+be compromised. A good approach: encourage drinking to replace a significant portion of sweat
+loss, but it’s not necessary to hyper-hydrate. Avoid losing more than ~2-3% body weight in any
+session to keep things safe. Starting each session well-hydrated is important. As acclimation
+progresses,  thirst  sensitivity  improves  and  the  athlete  will  naturally  regulate  better ,  but
+coaches should still monitor for signs of dehydration or heat illness (dizziness, cessation of
+sweating, etc.).
+Cooling After Training:  During the acclimation phase,  do not cool down too quickly after
+workouts  (unless the athlete shows signs of heat illness). Let the body stay warm for a bit post-
+exercise to prolong the heat stimulus – this could mean finishing the workout and sitting in a
+warm  environment  for  another  15-20  minutes  before  showering  or  getting  into  AC.  Some
+athletes take a passive heat soak  (e.g. a hot tub or sauna) after a training session to extend the
+time their core temperature is elevated, thus boosting adaptation. For example, 30 minutes in a
+sauna  post-exercise,  3-4  times  a  week,  has  been  shown  to  increase  plasma  volume  and
+performance in the heat after a couple of weeks (this is a strategy often used if an athlete can’t
+train in heat every day) . Always ensure the athlete rehydrates and cools down eventually – do
+not let  them  become  severely  overheated  or  ill,  but  a  brief  additional  heat  exposure  after
+exercise can be beneficial.
+Environmental Specificity:  If the goal competition is in a very humid environment (tropical), try
+to acclimate in humidity; if it’s in dry desert heat, acclimate in dry heat. There is some cross-over
+benefit (any heat exposure helps), but the adaptations are somewhat specific to the climate
+. For instance, sweating adaptations and cardiovascular changes occur in both, but the
+feel of humid vs dry heat differs and the body may respond differently to evaporative vs radiative
+demands. If you acclimate in Arizona desert heat and then race in Florida swamp humidity, you’ll
+still be much better off than no acclimation, but Florida’s humidity might feel a bit tougher until
+you adjust. In practice, do the best you can with what you have – even training in dry heat will
+largely prepare an athlete for humid heat, with perhaps a small additional caution that humidity
+might tax them a bit more.
+Monitoring the Athlete:  Coaches should monitor heart rate, body mass (for dehydration), and
+subjective well-being daily. It’s normal for heart rates to be high the first few sessions and
+gradually come down with each subsequent day (a sign acclimation is happening). If an athlete
+shows signs of heat exhaustion (pale, headache, confusion, chills, stop sweating, etc.), stop the
+session, cool them down, and resume acclimation the next day at a lower intensity. Acclimation
+should be uncomfortable (some strain) but  not dangerous . A rule of thumb: If the athlete
+cannot keep their pace or power above a minimal level or feels they are nearing collapse, it’s
+beyond safe acclimation stress – time to stop and recover . Each day, the strain should lessen for
+the same heat exposure  – use that trend as a guide.
+Duration of Program:  Aim for 10-14 consecutive days  of heat training for a robust acclimation
+. If consecutive days aren’t possible, try not to have big gaps; a day off or an easy day is
+okay, but remember that adaptations start to decay quickly with time off. Some protocols use
+slightly longer periods with days off interspersed (e.g. 5 days on, 1 off, 5 on). What’s critical is44
+• 
+45
+• 
+46
+• 
+4748
+• 
+49
+• 
+4117
+9
+
+---PAGE---
+
+accumulating enough heat exposure. After 2 weeks, you can switch to a maintenance mode
+(heat exposures 2-3 times per week) if needed, or just keep training in the heat if that’s practical.
+Just be cautious about overall fatigue: heat training can add to an athlete’s fatigue levels, so
+integrate it with their training load intelligently (possibly substitute some hard workouts with
+heat workouts, because heat itself is a form of stress).
+Advanced  Methods:  For  professional  or  highly  competitive  athletes,  consider  advanced
+techniques like  “heat camps”  (intensive heat acclimation blocks, similar to altitude camps) or
+combining  heat  with  altitude  (some  athletes  do  altitude  training  then  heat  acclimation
+sequentially). Recent studies suggest heat acclimation can even provide some of the aerobic
+benefits of altitude training without needing to travel to altitude , but combining the two
+at the same time isn’t generally recommended due to excessive stress. Also, remember that
+training in heat might necessitate reducing volume or intensity slightly to manage stress –
+quality sessions could be done in cooler conditions while easy sessions are done in heat during a
+preparation  phase,  to  avoid  loss  of  fitness.  Another  method  is  sleeping  in  a  hot  room  or
+wearing extra clothes during easy runs to simulate heat stress when actual heat isn’t available –
+though be careful with these to avoid heat illness; always prioritize safety over squeezing in
+adaptation.
+In summary, heat acclimation training should be approached like any other training component :
+with a clear plan, progressive overload, and monitoring. When done correctly, your athlete will finish
+the acclimation block feeling sweaty but strong – able to handle a hot environment with confidence.
+They’ll have lower heart rate, cooler core temperature, and feel “in control” in conditions that used to
+feel brutal. This sets the stage for adjusting race strategy and pacing, which we’ll cover next.
+Adjusting Pacing and Performance Targets for Heat and
+Humidity
+Even with full acclimatization, athletes will not perform at the same absolute pace in 35°C weather as
+they would at 15°C. Heat places limits on the body that must be respected. A crucial coaching skill is
+adjusting  training  paces  and  race  targets  for  environmental  conditions .  Pacing  adjustments
+prevent  athletes  from  pushing  too  hard  relative  to  what  their  heat-limited  physiology  can  handle,
+thereby avoiding burnout or heat illness. Below we provide guidelines and algorithms to estimate how
+much to adjust paces based on temperature and humidity (with a focus on dew point , a measure that
+combines  temperature  and  humidity  effect).  We  also  include  a  pseudocode-style  breakdown  for
+implementing these adjustments. 
+Why Adjust for Heat and Humidity?
+In simple terms, every extra degree of heat or % of humidity slows you down. The higher the air
+temperature, the harder it is to shed heat; the higher the humidity (or dew point), the harder it is to cool
+via sweating. Runners and other endurance athletes will have a  higher heart rate and perceived
+effort at the same pace  when it’s hot and humid, meaning they can’t sustain their normal pace for as
+long. Thus, training or racing at goal pace in extreme heat can be unrealistic and dangerous. Adjusting
+pace targets keeps the effort in the correct zone. For instance, a marathoner who could run a 3:30
+marathon (8:00/mile pace) in cool conditions might only manage ~3:45 or 4:00 in very hot conditions –
+and that’s with smart adjustments and acclimation.
+Dew  Point  as  a  Guide:  Dew  point  is  the  temperature  at  which  air  becomes  fully  saturated  with
+moisture. It’s a single number that reflects humidity’s effect. Many coaches use dew point because it• 
+5051
+10
+
+---PAGE---
+
+directly correlates with how “sticky” or oppressively humid it feels and how much sweat evaporation will
+be hindered. A dew point under 55°F (13°C) is comfortable; 60-65°F is noticeable; 70°F (21°C) or above is
+extremely humid and greatly stresses cooling. Generally, a combination of high air temperature  and
+high dew point is the worst-case scenario for performance.
+Algorithm 1: Temperature + Dew Point Adjustment (Hadley’s Method)
+Coach Mark Hadley developed a handy rule-of-thumb formula that many runners use . The
+method: add the air temperature (°F) and dew point (°F) , and use the sum to determine how much to
+slow down your pace. We’ll call this sum H (for “heat index,” though it’s not the official Heat Index, it’s a
+simplified tool). For example, if it’s 80°F with a dew point of 65°F, then H = 80 + 65 = 145 . Using H, you
+adjust your target pace by a certain percentage: 
+If H ≤ 100:  No significant adjustment needed (cool enough). 
+H 101–110:  ~0% to 0.5% slower than goal pace (virtually no change to very slight). 
+H 111–120:  ~0.5% to 1.0% slowdown. 
+H 121–130:  ~1% to 2% slowdown. 
+H 131–140:  ~2% to 3% slowdown. 
+H 141–150:  ~3% to 4.5% slowdown. 
+H 151–160:  ~4.5% to 6% slowdown. 
+H 161–170:  ~6% to 8% slowdown. 
+H 171–180:  ~8% to 10% slowdown. 
+H > 180:  Hard running not recommended  (conditions too dangerous) .
+This is a guideline range; the higher end of each range would be for the upper part of that H interval or
+for athletes who are very sensitive to heat, and the lower end for those who are well acclimated or more
+heat-tolerant .  For  instance,  if  H  =  145  (like  the  80°F/65°F  example),  the  table  says  3.0%–4.5%
+slowdown. A well-acclimated athlete might choose ~3% while an average person might use ~4.5%. Let’s
+apply it in practice:
+Example:  It’s 85°F with a dew point of 68°F. Then H = 85 + 68 = 153. According to the chart, H in the
+151–160 range suggests about 4.5% to 6.0%  pace adjustment. If the athlete’s goal tempo run pace is
+9:00 per mile in cool conditions, 5% slower would be 9:27 per mile . In fact, an example from
+Hadley’s guide: 85°F/68°F yielded an adjusted tempo pace of ~9:27 instead of 9:00 for an acclimated
+runner who chose a 5% (middle of range) adjustment . This kind of adjustment ensures the runner is
+training at the right effort level – hitting the intended physiological intensity without overheating or
+overtraining. On race day, similar adjustments help set realistic targets (or decide if finishing might be
+wiser than pushing for a PR). 
+In pseudocode form , one could implement Hadley’s rule like: 
+INPUT: AirTemp_F, DewPoint_F, NormalPace (min/mile)
+H = AirTemp_F + DewPoint_F
+if H <= 100: pace_factor = 1.00  (no slowdown)
+else if H <= 110: pace_factor = 1.005  (up to 0.5% slower)
+else if H <= 120: pace_factor = 1.01   (1% slower)
+else if H <= 130: pace_factor = 1.02   (2% slower)
+else if H <= 140: pace_factor = 1.03   (3% slower)
+else if H <= 150: pace_factor = 1.045  (4.5% slower)
+else if H <= 160: pace_factor = 1.06   (6% slower)5253
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 54
+55
+56
+56
+11
+
+---PAGE---
+
+else if H <= 170: pace_factor = 1.08   (8% slower)
+else if H <= 180: pace_factor = 1.10   (10% slower)
+else:  # H > 180
+    print("Warning: Extreme heat! Avoid hard running.")
+    pace_factor = 1.10+   (at least 10% slower, or consider not running)
+Then  AdjustedPace = NormalPace * pace_factor . (The ranges can be interpolated; the above is a
+simplified assignment at range mid-points.)
+This algorithm gives a ballpark. Always remember this is an estimate  – individual variations are large.
+Acclimation status, body size, age, etc., all influence how much heat slows someone down . Use the
+lower percentage if your athlete is heat-adapted, small in body size, or particularly efficient in heat; use
+the higher end if they are not acclimated or struggle in heat.
+Algorithm 2: Temperature and Humidity Percent Slows (Combined Formula)
+Another approach some coaches use is a linear formula that separately accounts for how far the
+temperature is above a certain baseline and how far humidity is above a baseline. One example (as
+used in a heat adjustment calculator) is: 
+Baseline : 60°F air temperature and 60% relative humidity. (Many runners find performance
+starts to noticeably decline above these levels.) 
+Adjustment factors : For every 1°F above 60°F, slow pace by ~0.4%. For every 1% RH above 60%,
+slow an additional ~0.2% . (This particular model assumes dew point and humidity effects
+are additive.)
+In formula form: 
+pace_increase_percent = 0.4 * (AirTemp_F - 60) + 0.2 * (Humidity% - 60)
+If either term is negative (meaning temp or humidity below 60), you’d take it as zero (no need to speed
+up beyond normal pace just because it’s cool; 60°F and 60% is considered ideal baseline here).
+For example, suppose it’s 75°F and 70% humidity during a training run. Relative to 60°F/60%, that’s 15°F
+higher and 10% higher . The formula gives: pace increase % = 0.4 15 + 0.2 10 = 6 + 2 = 8% slowdown . So if
+the athlete’s normal easy pace is 8:00/mile, an 8% slowdown suggests about 8:38/mile would achieve
+the same effort level. If it were 80°F and 80% (20°F and 20% above baseline), that’s 0.4 20 + 0.2 20 = 8 + 4
+=  12% slower  needed – a very significant adjustment (8:00 pace -> ~8:58 pace). This illustrates how
+quickly the needed adjustment grows in very muggy conditions. Every degree and every percentage
+of humidity counts , as the calculator site says – and it’s true, the cumulative effect can be large.
+This algorithm yields results in the same ballpark as the dew point method. For instance, our earlier
+case 85°F/68°F (which was dew point method H=153) gave ~5% from Hadley’s table; using this formula,
+humidity can be derived (68°F dew point at 85°F is ~65% RH, give or take). Plugging roughly: AirTemp 85
+(25 above 60 = 25 0.4=10%), RH ~65 (5 above 60 = 5 0.2=1%), total ~11% slowdown. That seems a bit
+higher;  perhaps  that  formula  was  conservative  (or  the  dew  point  method  spread  the  adjustment
+differently). In any case, both methods agree that  extreme humidity and heat can easily require
+double-digit percentage pace slowdowns .57
+• 
+• 
+5859
+60
+12
+
+---PAGE---
+
+Note on Using These Algorithms
+These adjustments are intended to keep the  physiological stress  equivalent. In training, that
+means if the schedule calls for a tempo run at threshold effort, the athlete should adjust pace so
+that  they  are  at  threshold  heart  rate/RPE ,  not  necessarily  the  usual  threshold  speed.  The
+algorithms help predict that adjusted pace. In a race, the adjustments can predict how much
+slower a finish time might be compared to ideal conditions, which can guide strategy (e.g.
+aiming for a place instead of a time, or scheduling extra cooling measures).
+Always encourage athletes to listen to their bodies first . No formula knows how you feel on a
+given day. Heat can affect athletes differently on different days (hydration status, sleep, recent
+illness, etc., play roles). If the formula says 5% slower but the athlete still feels it’s hard, they
+should slow more. If they feel surprisingly good (perhaps due to a cloud cover or a breeze that
+formulas don’t account for), they can go a bit faster . Remind them that effort and heart rate  are
+good anchors in heat training. In fact, some coaches simply use heart rate zones or power (for
+cyclists) to auto-adjust – the athlete maintains their normal heart rate zone, and if pace is slower ,
+so be it.
+Example scenario for a coach:  It’s a brutally hot day with a wet-bulb globe temperature (WBGT)
+reading in the high risk zone. You have 6 x 1-mile repeats on the schedule at 10K race pace for
+your advanced group. Using these adjustments, you calculate that 10K pace (say 6:30/mile for
+one athlete normally) should be adjusted by ~5-6% because it’s 90°F with 70°F dew point in the
+evening. That suggests targeting ~6:50-7:00 per mile for those repeats instead of 6:30. You’d
+convey this to the athletes and also suggest extra rest between reps, and a focus on hydration
+and cooling (e.g. pouring water on head). The result: athletes complete the workout at the
+appropriate effort without overheating. Without adjustment, had they tried 6:30s, they likely
+would have blown up mid-workout or put themselves at risk.
+Avoiding the hottest times:  Sometimes the best “adjustment” is to change the plan. If an
+athlete has the flexibility, you might move a hard workout to early morning or late evening when
+it’s cooler , or even use an indoor treadmill with AC for key sessions, and save heat exposure for
+easier runs. This is especially true for amateur athletes who may not tolerate heat as well or
+don’t need every small adaptation. Know when to train in heat and when to escape it. During a
+heatwave, it might be wise to convert an interval session to a steady run and postpone the hard
+effort until conditions ease or the athlete is better adapted.  Safety first.  Running in a 180+
+(temp+dew point) situation should be done with extreme caution or not at all  – it’s a day for
+cross-training indoors or very easy efforts with monitoring.
+Summary of Pacing Adjustments
+To wrap up, here are key takeaways on adjusting pacing for heat:
+Use objective measures (dew point, heat index)  to quantify how extreme the conditions are,
+and adjust training paces accordingly (see algorithms above). This removes some guesswork and
+helps athletes accept slower paces as appropriate , not as a sign of personal failure.
+Use subjective and internal cues : Monitor heart rate and RPE. If the athlete’s HR is sky-high for
+a given pace, that pace is too fast for that day. Encourage using heart rate monitors especially
+during heat acclimation phases – they can alert you to cardiac drift and impending dehydration.
+Adjust race expectations : If your athlete has a race in heat, set a realistic goal. Perhaps target a
+finish time 5-10% slower than their cool-weather potential, depending on conditions. Plan extra
+cooling (wearing a cap and sunglasses, dumping water on head, drinking at every aid, even ice in• 
+• 
+• 
+• 
+61
+• 
+• 
+• 
+13
+
+---PAGE---
+
+clothing if available). Often, racing in heat becomes more about competition (placing) than time,
+since everyone slows down. Make sure the athlete paces conservatively in the first half, as
+overheating early can be disastrous. Negative splitting in heat is rare; more common is a big
+slowdown if paced too ambitiously at the start.
+Acclimatization helps but doesn’t eliminate all effects : An acclimated athlete might handle a
+given hot condition with, say, only a 3% slowdown needed where a non-acclimated might need
+7%. Adaptation narrows the gap, but physics and physiology still impose limits. Even the best
+heat-adapted marathoner in the world will run slower at 30°C than at 10°C. So use acclimation to
+gain an edge, but still respect the conditions on race day.
+By following these guidelines, coaches can ensure their athletes train smart in the heat, make the
+necessary adjustments, and arrive at competitions prepared to perform optimally given the conditions .
+With the combination of physiological adaptations from heat training and intelligent pacing strategies,
+endurance athletes can thrive even when the thermometer soars.
+Conclusion
+Heat can be a formidable opponent for endurance athletes, but with knowledge and preparation, it’s an
+opponent  that  can  be  managed  and  even  turned  to  one’s  advantage.  We’ve  seen  that
+thermoregulation  during exercise is a balancing act – the body works to shed excess heat through
+sweating  and  blood  redistribution,  but  this  can  strain  the  cardiovascular  system  and  impair
+performance.  However ,  through  heat  acclimatization ,  athletes  undergo  remarkable  adaptations:
+expanded plasma volume for better cardiovascular stability, enhanced sweating capacity for superior
+cooling, and conservation of electrolytes, all leading to improved tolerance and performance in hot
+conditions. These adaptations can be developed in as little as 1-2 weeks of targeted heat training
+ and are beneficial to athletes across the spectrum – whether you’re a recreational marathoner
+aiming to complete a humid race comfortably, or an elite triathlete seeking a competitive edge in Kona’s
+broiling conditions.
+For coaches, the dual approach is clear:  get your athletes heat-adapted  when needed, and  adjust
+their race/train plans  to the weather . We’ve provided concrete algorithms and examples to guide pace
+adjustments based on temperature and humidity, which can be incorporated into training software or
+calculated on the fly. Remember that these tools are starting points – individualize them as you learn an
+athlete’s responses. Some athletes might be “heavy sweaters” who need more fluid and salt, others
+might  struggle  more  with  humidity  than  dry  heat.  Continuous  education,  monitoring,  and
+communication are key. 
+In the end, successful endurance coaching in the heat comes down to respecting the environment. As
+the saying goes, “It’s not the heat, it’s the humidity”  – and truthfully, it’s both. By applying the science of
+thermoregulation and heat acclimatization in a coach’s practical context, you can help athletes of any
+level transform heat from a fear factor into a well-managed element of competition. They will go into
+their hot races not with dread, but with confidence, knowing their bodies are prepared and their pacing
+plan is sound. And when others fade in the heat, your athletes will be the ones executing a smart race,
+leveraging their heat training to push strong to the finish line.
+Stay cool, train smart, and coach on!
+Sources:
+Powers, S.K. & Howley, E.T. Exercise Physiology: Theory and Application to Fitness and Performance
+(10th Ed.)  – Exercise and the Environment chapter . • 
+16
+17
+• 
+62122036
+14
+
+---PAGE---
+
+Casa, D. et al. Sport and Physical Activity in the Heat – Maximizing Performance and Safety  (2018)
+. 
+Physiopedia: “Heat Acclimation” – summary of heat’s impact on performance and acclimation
+adaptations . 
+Sawka, M.N. et al. Exercise-Heat Acclimatization  (GSSI Sports Science Exchange No. 153, 2019) –
+detailed review of adaptations and strategies . 
+Precision Hydration: “Could heat training enhance your performance in all conditions?” –
+discusses plasma volume and performance gains . 
+RunFit MKE (K. Berenson, 2020): “How to Calculate Pace Adjustment for Hot Weather Running” –
+presents Coach Hadley’s temperature+dew point method . 
+Breno Melo Coaching: “Heat & Humidity Pace Calculator” – outlines 0.4%/°F and 0.2%/% humidity
+adjustment factors . 
+Heat Acclimation -
+Physiopedia
+https://www.physio-pedia.com/Heat_Acclimation
+HOW TO CALCULATE PACE ADJUSTMENT FOR HOT WEATHER RUNNING —
+RunFit MKE
+https://www.runfitmke.com/blog/how-to-calculate-pace-adjustment-for-hot-weather-running
+Heat
+Acclimatization to Improve Athletic Performance in Warm-Hot Environments - Gatorade Sports Science
+Institute
+https://www.gssiweb.org/sports-science-exchange/article/sse-153-heat-acclimatization-to-improve-athletic-performance-in-
+warm-hot-environments
+Heat training: could it enhance your performance? by Precision Fuel & Hydration
+https://www.precisionhydration.com/performance-advice/performance/could-heat-training-enhance-your-performance-in-
+all-conditions/?srsltid=AfmBOor-epTYyvrQVVgaIKKLYf9wb99rR-dD2VtVLl10qoRPoiKG3KZD
+Post-exercise sauna bathing for endurance athletes
+https://www.endureiq.com/blog/post-exercise-sauna-bathing-for-endurance-athletes-when-and-why
+Heat & Humidity Running Calculator | Adjust Race Pace
+https://brenoamelo.com/pages/heat-humidity-calculator?srsltid=AfmBOoqspZJBNp-
+v03l8vdaHNJ2JjTytK6O45h0pUYimQVU4O_86gQOZ• 63
+14
+• 
+10 19 64
+• 
+65 66 30
+• 
+24 27
+• 
+54 56
+• 
+58
+1 2 3 4 5 6 910 11 12 13 14 17 19 20 25 26 32 33 36 43 62 63 64
+752 53 54 55 56 57 61
+815 16 18 21 22 23 29 30 31 34 35 37 39 40 41 42 44 45 47 48 49 65 66
+24 27 28 38 50 51
+46
+58 59 60
+15
+
+---PAGE---
+

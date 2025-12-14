@@ -50,13 +50,10 @@ interface DashboardState {
         calories: number;
         elevationGain: number;
         avgSpeed: number;
-        weather?: {
-            temp: number;      // Celsius
-            humidity: number;  // %
-            windSpeed: number; // km/h
-            aqi: number;       // 0-500
-            condition: string; // 'Sunny', 'Cloudy', 'Rainy'
-        };
+        weather_temp?: number;
+        weather_condition?: string;
+        weather_humidity?: number;
+        weather_wind_speed?: number;
     }>;
 
     // Actions

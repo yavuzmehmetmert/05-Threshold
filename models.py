@@ -17,6 +17,24 @@ class User(Base):
     resting_hr = Column(Integer, nullable=True)
     
     activities = relationship("Activity", back_populates="user")
+    shoes = relationship("Shoe", back_populates="user")
+
+
+class Shoe(Base):
+    __tablename__ = "shoes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    
+    name = Column(String)  # e.g. "Nike Pegasus 40"
+    brand = Column(String, nullable=True)
+    initial_distance = Column(Float, default=0.0)  # Starting km for used shoes
+    is_active = Column(Integer, default=1)  # 1 = active, 0 = retired
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    user = relationship("User", back_populates="shoes")
+    activities = relationship("Activity", back_populates="shoe")
+
 
 class Activity(Base):
     __tablename__ = "activities"
@@ -32,6 +50,7 @@ class Activity(Base):
     activity_type = Column(String)    # Activity Metrics
     distance = Column(Float)
     duration = Column(Float)
+    elapsed_duration = Column(Float, nullable=True)  # Total time including pauses
     average_hr = Column(Integer)
     max_hr = Column(Integer)
     calories = Column(Integer)
@@ -45,6 +64,7 @@ class Activity(Base):
     aerobic_te = Column(Float, nullable=True)
     vo2_max = Column(Integer, nullable=True) # VO2 Max *detected* during this activity
     recovery_time = Column(Integer, nullable=True) # Hours
+    rpe = Column(Integer, nullable=True) # Garmin User Evaluation (0-10 or 0-100)
     
     # Power & Dynamics
     avg_power = Column(Integer, nullable=True)
@@ -63,7 +83,11 @@ class Activity(Base):
     raw_json = Column(JSON)
     metadata_blob = Column(JSON)
     
+    # Shoe Tracking
+    shoe_id = Column(Integer, ForeignKey("shoes.id"), nullable=True)
+    
     user = relationship("User", back_populates="activities")
+    shoe = relationship("Shoe", back_populates="activities")
     # Relations
     streams = relationship("ActivityStream", back_populates="activity", cascade="all, delete-orphan")
 
@@ -83,10 +107,15 @@ class ActivityStream(Base):
     power = Column(Integer, nullable=True)   # watts
     grade = Column(Float, nullable=True)     # % slope
     
+    # Location
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    
     # Running Dynamics Stream (Optional/Sparse)
     vertical_oscillation = Column(Float, nullable=True)
     stance_time = Column(Float, nullable=True)
     step_length = Column(Float, nullable=True)
+    stance_time_balance = Column(Float, nullable=True) # % Left/Right? or 50.1 etc.
 
     activity = relationship("Activity", back_populates="streams")
 

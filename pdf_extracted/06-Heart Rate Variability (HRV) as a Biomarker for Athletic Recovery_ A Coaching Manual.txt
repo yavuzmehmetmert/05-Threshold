@@ -1,0 +1,822 @@
+Heart Rate Variability (HRV) as a Biomarker for
+Athletic Recovery: A Coaching Manual
+Heart Rate Variability (HRV) is a powerful, non-invasive biomarker that can help coaches and athletes
+gauge recovery, readiness, and overall autonomic balance. By analyzing subtle fluctuations in the time
+between heartbeats, HRV provides insight into how well an athlete’s body is coping with training stress
+and recovering on a day-to-day basis. In this coaching manual, we’ll break down the key concepts and
+data evaluation strategies for using HRV in athletic recovery, including the different metrics (time-
+domain  vs.  frequency-domain),  recognizing  signs  of  parasympathetic  saturation  and  sympathetic
+overdrive (especially in overtraining scenarios), interpreting sudden versus gradual changes in HRV, and
+correlating HRV patterns with sleep stages and hormonal cycles. Throughout, we’ll use a practical, data-
+driven approach – referencing current research and real-world examples (like Garmin’s HRV monitoring
+features) – to help you effectively integrate HRV into your coaching toolkit.
+Why HRV Matters for Athletes:  During training and recovery, the autonomic nervous system (ANS)
+constantly balances the  “fight-or-flight”  responses of the sympathetic branch with the  “rest-and-digest”
+functions of the parasympathetic branch . HRV reflects this balance. Generally, a  higher HRV
+indicates a predominance of parasympathetic activity and a well-recovered, adaptable state, whereas a
+lower HRV  suggests sympathetic dominance and can signal fatigue, stress, or insufficient recovery .
+This makes HRV extremely sensitive to how an athlete’s body responds to training loads and recovery
+interventions. Modern wearable technologies (such as Garmin, Whoop, and others) have embraced HRV
+as a core metric – for example, Garmin’s devices continuously measure overnight HRV and provide an
+HRV Status  indicator to help athletes maintain a balance between training and recovery. The goal of this
+manual is to help you interpret these HRV readings in context, much like a coach’s “dashboard” for an
+athlete’s internal stress and recovery state.
+Example of Garmin’s HRV Status display, summarizing an athlete’s overnight HRV and 7-day trends. The device
+compares the 7-day average HRV (in milliseconds) to the athlete’s established baseline range and classifies12
+2
+1
+
+---PAGE---
+
+status as Balanced, Unbalanced (high or low), Low, or Poor. This visual provides coaches a quick indication of
+whether an athlete’s autonomic recovery is within normal bounds or showing signs of strain.
+Understanding HRV Metrics: Time-Domain vs. Frequency-Domain
+When evaluating HRV data, it’s important to understand the different types of metrics available. HRV
+can be quantified in multiple ways, but they broadly fall into two categories: time-domain metrics  and
+frequency-domain metrics . Each provides unique insights into the athlete’s autonomic nervous system
+status:
+Time-Domain Metrics:  These metrics are derived from the direct measurements of intervals
+between heartbeats (often called RR intervals or NN intervals). They capture how much
+variability is present in the timing of successive heart beats over a given period. Two of the most
+widely used time-domain metrics are: 
+RMSSD (Root Mean Square of Successive Differences):  This is the statistical root mean square
+of the differences between consecutive normal heartbeats. RMSSD reflects short-term beat-to-
+beat variance in heart rate and is highly sensitive to parasympathetic (vagal) activity .
+In practical terms, a higher RMSSD means more variability between beats (greater vagal
+influence), while a lower RMSSD means less variability (suggesting stress or fatigue). Because of
+its strong correlation with high-frequency HRV and vagal tone , RMSSD (often using its
+logarithm, LnRMSSD) has become the go-to daily HRV metric for many sports scientists and apps
+– it is reliable even in short recordings and less influenced by breathing rate than some other
+measures . Coaches like it because it’s easy to interpret: for example, a drop in an athlete’s
+morning RMSSD compared to their baseline may indicate they haven’t fully recovered from
+yesterday’s workout. 
+SDNN (Standard Deviation of NN intervals):  This is the standard deviation of all normal RR
+intervals  in  the  recording  period.  SDNN  captures  overall  variability  and  reflects  combined
+sympathetic and parasympathetic influences  over longer periods . In a 24-hour Holter
+ECG, SDNN is a gold-standard metric for overall HRV; higher SDNN over 24 hours indicates a
+healthy, responsive cardiovascular system. However , in the context of short-term readings (like a
+1–5 minute measurement or an overnight period), SDNN is often interpreted with caution since
+it can be influenced by factors like trends or slower oscillations. For athletic recovery, SDNN is
+sometimes considered less sensitive than RMSSD to rapid autonomic changes. That said, a very
+low  SDNN  (compared  to  population  norms  or  the  athlete’s  history)  can  indicate  an  overall
+blunting of variability – potentially a red flag if seen chronically, as it might correlate with fatigue
+or overtraining.
+Frequency-Domain Metrics:  These metrics arise from analyzing the HRV signal in the frequency
+spectrum (via algorithms like Fast Fourier Transform). Essentially, HRV fluctuations are broken
+down  into  frequency  bands,  each  associated  with  certain  physiological  rhythms.  The  main
+frequency-domain metrics include: 
+HF (High-Frequency) Power:  This represents power in the ~0.15–0.4 Hz band, corresponding to
+fast oscillations in heart rate. HF power is also known as the respiratory band  because it
+encompasses respiratory sinus arrhythmia – the natural rise and fall in heart rate with breathing.
+HF power is almost entirely due to parasympathetic (vagal) modulation . A high HF power
+indicates strong vagal activity (often seen at rest or during recovery). For example, during deep
+relaxation or during sleep, an athlete’s HF power tends to be elevated, reflecting restorative
+parasympathetic dominance. Lower HF power , on the other hand, is correlated with stress,34
+• 
+• 
+56
+57
+7
+• 
+8
+• 
+• 
+9
+2
+
+---PAGE---
+
+anxiety, or reduced vagal tone  – coaches may notice that an athlete’s HF HRV drops during
+periods of intense mental or physical stress. 
+LF (Low-Frequency) Power:  This corresponds to the 0.04–0.15 Hz band, which captures slower
+fluctuations in heart rate. LF power is a bit more complex – it is influenced by both sympathetic
+and parasympathetic activity (partly mediated by baroreflexes) . Historically, LF was
+sometimes taken as an index of sympathetic activity, but it’s now understood as a mixture. For
+instance, an increase in LF power might occur due to sympathetic activation or due to
+parasympathetic rhythms like baroreflex oscillations; context is key. What’s important for
+coaches to know is that the ratio of LF to HF  is often used as a rough indicator of autonomic
+balance: 
+LF/HF Ratio:  A higher LF/HF ratio has been associated with a tilt toward sympathetic
+dominance (or reduced vagal tone), whereas a lower ratio suggests parasympathetic
+dominance . Under controlled conditions, this ratio can hint at the body’s stress
+state – for example, during exercise or competition, an athlete’s LF/HF might rise as
+sympathetic drive increases. Conversely, during meditation or deep recovery, LF/HF might
+fall. However, note:  The LF/HF ratio should be interpreted carefully; it’s not a perfect
+measure of SNS/PNS balance in all situations . The human ANS is not a simple
+seesaw – both branches can co-activate or have non-linear effects . As a coach,
+you should use LF/HF as one piece of the puzzle, ideally in tandem with time-domain
+measures and contextual clues (e.g., the athlete’s condition). 
+(Other frequency bands: VLF for very-low-frequency and ULF for ultra-low-frequency exist, but
+these require long recordings (hours to 24h) and are more relevant in clinical or research
+settings for circadian trends, inflammation, etc. We won’t focus on them for daily athletic
+monitoring, except to note that very long-term HRV (like 24h SDNN or ULF power) can relate to
+overall health and recovery capacity .)*
+Choosing the Right Metrics:  For practical athletic recovery monitoring, RMSSD (time-domain)  is often
+the favored metric because it directly reflects vagal activity, is easy to compute with short readings, and
+correlates well with how recovered an athlete is . Many wearables and apps therefore report an
+“HRV score” based on RMSSD (sometimes a log-transformed value).  SDNN  might be looked at over
+longer periods or by devices that give a single overnight HRV number (which is often akin to SDNN over
+the night or the average of 5-minute SDNNs).  HF and LF  are valuable if you have access to them,
+especially to understand why HRV might be changing (for example, is it a drop in HF vagal tone or a
+spike in LF due to stress?). But even if you don’t see the full spectral data, remember that time-domain
+and frequency-domain measures are interrelated : a high RMSSD usually coincides with high HF power
+(good recovery), and a low RMSSD often coincides with a high LF/HF ratio (stress-dominant) .
+Key Point:
+Higher HRV (especially via metrics like RMSSD or HF power) generally means the athlete is
+in a more relaxed, parasympathetically driven state – a “green light”  for readiness. Lower
+HRV (e.g., low RMSSD or high LF/HF ratio) suggests the body is under stress or not fully
+recovered – a potential “yellow or red light”  indicating caution . Always compare these
+values to the athlete’s own baseline or normal range; individual differences are huge, so
+each athlete’s trends matter more than any one absolute number .10
+• 
+9
+◦ 
+1112
+1314
+1315
+• 
+1617
+518
+512
+2
+3
+
+---PAGE---
+
+Parasympathetic Saturation vs. Sympathetic Overdrive:
+Recognizing Overtraining Patterns
+When monitoring HRV for athletes, you’ll encounter patterns that reflect how the nervous system
+responds to heavy training loads. In acute fatigue and early stages of overtraining, the  sympathetic
+branch often dominates (driving HRV down), a state we’ll refer to here as sympathetic overdrive . In
+some cases, especially with highly trained endurance athletes, you might observe an unusual scenario
+of  parasympathetic  “saturation”  or  dominance  that  blunts  HRV  responsiveness.  Let’s  define  and
+differentiate these:
+Sympathetic Overdrive:  This term describes a state where an athlete’s sympathetic nervous
+system is chronically ramped up – essentially stuck in “fight-or-flight” mode. It often manifests as
+persistently low HRV readings (and often elevated resting heart rate) over a period of days or
+weeks.  Sympathetic  overdrive  can  be  caused  by  cumulative  training  stress,  life  stress,  or
+inadequate recovery, and is frequently seen in  early overtraining or overreaching . Coaches
+might notice that an athlete’s morning HRV is consistently depressed well below their baseline,
+even after supposed rest days, coupled with reports of poor sleep or elevated morning heart
+rate – these are hallmark signs of sympathetic overdrive due to fatigue. In the physiology of
+overtraining, it’s noted that initially  “the autonomic nervous system tilts, with sympathetic
+overdrive early on”  in the fatigue continuum . In practical terms, an athlete in this state
+might feel wired but tired  – restless, easily agitated, with reduced performance and poor recovery
+markers. Chronically low HRV here is a warning sign: the athlete’s body is under excessive strain
+and not getting back to homeostasis. Research consistently shows that low HRV correlates with
+high cortisol and stress  – the body is stuck in a catabolic, high-alert state . If you see this
+pattern, it’s a cue to dial back training load and prioritize recovery (both physical and mental).
+We’ll discuss algorithmic responses to this in the next section, but as a coach, sympathetic
+dominance indicated by low HRV is your early alarm for potential overtraining syndrome if
+unaddressed.
+Parasympathetic  Saturation:  On  the  flip  side,  there  is  a  fascinating  phenomenon  where
+extremely fit athletes under heavy training loads exhibit what appears to be a paradox: very low
+resting heart rates, but also suppressed HRV  – which is counterintuitive, since we normally
+expect low HR (a sign of fitness) to pair with high HRV. This scenario is termed parasympathetic
+saturation . It refers to a situation where parasympathetic activity is indeed very high (the vagus
+nerve is strongly slowing the heart), but beyond a certain point, adding more vagal input doesn’t
+increase HRV and may even reduce the observed variability . In essence, the heart’s response
+to acetylcholine (the vagal neurotransmitter) can reach a saturating dose – once the vagal effect
+is maximal in slowing the heart, the beat-to-beat variability might actually diminish with further
+vagal tone . Renowned physiologist Daniel Plews describes it as “a heightened vagal tone [that]
+may give rise to sustained parasympathetic control of the sinus node, which may eliminate respiratory
+heart modulation and reduce HRV” . This is critical for coaches to understand: a drop in HRV isn’t
+always bad , if it occurs in the context of parasympathetic saturation in an elite athlete. In such
+cases, a lower HRV during a high training load phase can be linked to positive  adaptations and
+performance improvements . It sounds odd, but think of it as the athlete’s nervous system
+being “too good” at applying the brake (parasympathetic) – the HRV measurement loses its
+sensitivity because the heart is near its lower rate limit. When and whom does this happen to?
+Parasympathetic saturation is rare and usually limited to elite endurance athletes  in periods of
+very high training volume, who have very low resting HR (often in the 30s-40s) . If an athlete
+meets this profile and you observe a period of suppressed HRV concurrent with low resting HR
+and high performance, you might be seeing this phenomenon. One research paper noted that• 
+19
+20
+• 
+21
+21
+22
+23
+24
+4
+
+---PAGE---
+
+“in some circumstances, such as vagal saturation, decreases in cardiac parasympathetic indices
+of HRV… can be related to positive performance outcomes and consequently reductions in HRV
+should not be viewed negatively” . In practice, an athlete might feel fine and be hitting
+training targets, yet their HRV is lower than normal – rather than immediately assuming they are
+under stress, consider their training context.  Identifying parasympathetic saturation  often
+involves looking at the relationship between HR and HRV: normally, HRV is higher when heart
+rate is lower; if you see an athlete with a very low heart rate but unexpectedly low HRV (and it’s
+during a big training block), this uncoupling (little or negative correlation between HR and HRV)
+suggests parasympathetic saturation . Tools like HRV4Training Pro even include a feature
+to check for this by plotting HRV vs. RR-interval length .
+Why These Concepts Matter:  Most coaches are familiar with the straightforward case – fatigue = low
+HRV (sympathetic overdrive). And indeed, the most common HRV response to overload training is a
+progressive decrease in HRV, driven by sympathetic activation and insufficient recovery . But
+as we’ve discussed,  “high isn’t always good and low isn’t always bad.”  An unusually high HRV can
+sometimes  indicate  maladaptation  (we’ll  talk  about  this  in  a  moment  regarding  trends),  and  an
+unusually low HRV in an elite endurance athlete might not always mean they are under-recovered (it
+could be vagal saturation). The Garmin HRV Status feature even accounts for this: it will flag your status
+as “Unbalanced – High” if your 7-day HRV average goes above  your normal range, cautioning that an
+abnormally high HRV could be a sign of functional overreaching . That is essentially Garmin’s nod to
+the  parasympathetic  overreaching  concept  –  a  hyper-recovery  mode  that  often  follows  heavy  low-
+intensity volume. In contrast, Garmin flags “Unbalanced – Low” or “Low HRV” if the 7-day drops too low,
+indicating strain .
+Parasympathetic  Overtraining  vs.  Sympathetic  Overtraining:  In  sports  science  literature,
+overtraining  syndrome  has  sometimes  been  classified  into  a  sympathetic  form  (more  common  in
+power/speed athletes, marked by insomnia, agitation, high resting HR, low HRV) and a parasympathetic
+form (more common in endurance athletes, marked by apathy, low resting HR,  relative  high HRV or
+blunted HRV responsiveness). Parasympathetic saturation  as discussed is a specific case and should not
+be confused as wholly benign; it’s more about recognizing that the  context matters . If an athlete is
+performing well and all signs are good except HRV is oddly low with a very low HR – you might suspect
+parasympathetic saturation rather than pathological overtraining. On the other hand, if performance is
+declining and HRV is trending high relative to baseline (especially with lots of low-intensity training),
+that could also indicate an overreaching state where the body is desperately trying to compensate by
+ramping  up  parasympathetic  activity  at  rest .  In  any  case,  use  multiple  data  points:  mood,
+performance,  sleep,  and  other  biomarkers  (like  morning  cortisol  if  available)  alongside  HRV  to
+differentiate true overtraining from these nuances. Often, “sympathetic overdrive early on and a ‘flat’
+parasympathetic pattern when depletion sets in”  is observed across the overtraining spectrum  –
+meaning initially HRV falls (sympathetic dominance), and in prolonged burnout, the autonomic system
+can become “flat” (little variability or responsiveness at all).
+Coaching Tip:  If you suspect parasympathetic saturation  (in an elite athlete during heavy training),
+one recommendation from HRV experts is to modify how you measure HRV: try a morning reading
+when seated or standing instead of supine. Adding a little orthostatic stress can prevent saturating the
+vagal input and yield a more sensitive HRV reading . However , if your athlete isn’t an elite or the
+scenario doesn’t match, don’t jump to this conclusion – most likely a big drop in HRV is indeed due to
+fatigue. Conversely, if you see signs of sympathetic overdrive  (chronically low HRV, high resting heart
+rate, poor sleep), intervene with recovery strategies immediately – before it evolves into full overtraining
+syndrome.23
+2526
+26
+27
+3
+428
+3
+19
+29
+5
+
+---PAGE---
+
+Interpreting HRV Trends: Sudden Drop vs. Gradual Decline
+HRV is a dynamic metric – it fluctuates day-to-day due to myriad factors. Not every dip or spike requires
+action; what matters most are  trends  and the context of changes. A critical skill in using HRV for
+coaching is distinguishing between a sudden acute change  and a gradual chronic trend , as they often
+imply different things about the athlete’s condition:
+Sudden Drop in HRV:  If you observe a sharp decline in an athlete’s HRV from one day to the next
+(for example, a drop of >20% in their morning RMSSD or overnight HRV score compared to their
+recent average), this often signals an acute stressor or fatigue . Common causes for a sudden HRV
+drop include a very intense or long training session (acute training fatigue), a poor night’s sleep,
+dehydration, emotional stress, or even the onset of an illness. Think of it as the body’s immediate
+reaction – the sympathetic nervous system has jumped into high gear temporarily. For instance:
+An athlete’s HRV might be cruising around 70 ms RMSSD, and the morning after a hard interval
+session it’s 50 ms – this acute drop is the classic fatigue response and typically correlates with
+muscle soreness, higher perceived fatigue, etc. Another example: an athlete is about to get sick
+(viral infection); often HRV will plummet a day or two before noticeable symptoms, as the body
+mounts a stress response. In fact, one study noted that “a sudden drop in HRV of more than 20%
+from the individual norm preceded the appearance of symptoms of infection by an average of 3.8
+days.” .  The  key  with  sudden  drops  is  that  they  are  usually  short-lived  if  the  stressor  is
+removed. What should an algorithm or coach do?  Generally, acknowledge the drop but avoid
+overreaction if it’s just one day – instead, adjust the day’s plan to be cautious. Many adaptive
+training programs will recommend a lighter recovery workout or rest day after a big HRV drop.
+This aligns with the idea of HRV-guided training: one skips or scales back high-intensity workouts
+if HRV is significantly down, to allow the body to rebound. It’s worth noting that a single-night
+poor HRV can happen randomly too, so context is king (was there a clear cause?). The athlete
+should  focus  on  recovery  that  day  (good  nutrition,  hydration,  relaxation  techniques,  sleep).
+Often, acute HRV drops rebound in a day or two if managed well . Indeed, an acute  drop
+that returns to normal or above within a few days is generally considered part of the normal
+training process – the so-called “fatigue then compensation” supercompensation model .
+If performance isn’t suffering and the athlete feels okay, a one-off drop can simply be logged as
+a sign of hard work that should be balanced with rest.  However , if an acute drop doesn’t
+rebound (see next scenario), it may be the start of a trend.
+Gradual Decline in HRV:  A slow, continuous downward trend in HRV over a series of days or
+weeks is more concerning for cumulative fatigue or under-recovery. This is when each day HRV is
+a bit lower than the last, or it remains depressed and keeps trending down relative to the
+athlete’s baseline. A  persistently low HRV trend  is one of the earliest objective indicators of
+overtraining or non-functional overreaching . For example, say an athlete’s 7-day average
+HRV has been 70 ms, but over the last 10 days it has drifted down to 60, then 55, then 50 ms
+despite no single huge drop – this kind of gradual decline suggests the athlete is not fully
+recovering  between  sessions  and  stress  is  accumulating.  Research  and  practical  coaching
+reports  indicate  that  “a  sustained  drop  over  several  days  may  indicate  that  the  stress  load  is
+outweighing  recovery” .  In  other  words,  the  athlete  is  on  a  slow  march  toward  burnout.
+Chronic sympathetic dominance  is often at play here – cortisol might be chronically elevated,
+anabolic  hormones  suppressed,  and  the  athlete  might  start  to  report  persistent  fatigue,
+monotony, poor mood, or plateauing performance. One guide succinctly states: “A sudden drop in
+HRV may indicate acute fatigue, while consistently low HRV over weeks could signal chronic fatigue
+due to prolonged stress or overtraining.” . From an algorithm perspective, seeing a downward
+trend lasting 3+ days is usually time to adjust the training plan: reduce volume/intensity, add rest
+days, focus on recovery modalities. Many HRV platforms use rolling weekly averages and will flag• 
+30
+31
+3233
+• 
+34
+31
+35
+6
+
+---PAGE---
+
+if the weekly (or monthly) average HRV is significantly below the baseline. For instance, Garmin’s
+HRV Status will classify as “Low” if your 7-day average falls well below your historical baseline
+. Coaches should not ignore these trends – it’s far better to proactively deload for a few days
+than to push into a major overtraining episode that could require weeks off. It’s also important
+to communicate with the athlete – often they might not feel terrible initially during a decline, as
+adrenaline can mask fatigue. HRV can thus serve as an early warning system: A progressive
+decrease of HRV with each passing day tells you that the athlete’s autonomic resources are being
+drained and not replenished .
+To visualize this concept, consider two scenarios in a chart of daily HRV: 1. Acute dip and recovery:  HRV
+is stable, one day it plunges, then within two days it’s back to normal or even higher (perhaps after a
+rest day). This is often a healthy response to a hard training stimulus – a short-term fatigue that leads to
+adaptation. 2. Chronic downward trend:  HRV is stable, then over a 2-week heavy training block it ticks
+down each day. The athlete’s subjective fatigue also keeps mounting. This is a red flag – it’s the pattern
+Pichot et al. observed in runners during a 3-week overload, where HRV dropped up to 43% by week 3;
+when  they  deloaded  in  week  4,  HRV  recovered  and  even  overshot  baseline  as  the  athletes
+supercompensated . Use such trends to time deloads and tapers effectively.
+Sudden Increase in HRV:  As a brief aside, what about a sudden rise in HRV? If an athlete’s HRV
+jumps much higher than normal on a given day, that can be a sign of excellent recovery or a
+boost from restorative practices – but it can also sometimes be a sign of an atypical condition.
+Some athletes observe an HRV spike right before they get sick (sometimes the body’s initial anti-
+inflammatory response), or after an extended rest period (parasympathetic rebound). Generally,
+a high HRV day isn’t problematic; just ensure it matches the context (e.g., after a recovery day, it’s
+expected to see HRV higher). Exceptionally high HRV relative to baseline could, as mentioned
+earlier , indicate a state of overreaching where the body is overcompensating  with
+parasympathetic activity . Garmin’s classification of “Unbalanced – high HRV” is essentially
+warning about this scenario. So if you see an unexplained big HRV spike coupled with the athlete
+feeling fatigued or flat in performance, don’t immediately assume it’s great – it could be the
+other side of the overtraining spectrum (sometimes called parasympathetic overtraining). 
+Actionable Guidelines for Coaches/Algorithms:
+When evaluating HRV changes, consider these steps:
+Compare to Baseline:  Determine if the change (drop or rise) is outside the athlete’s normal day-
+to-day variability. Many systems use a rolling baseline (e.g., last 3-4 week average). If today’s
+value is more than, say, 1 standard deviation outside that range, take note. Minor fluctuations
+within the normal range can be ignored or logged without action.
+Identify Recent Stressors:  Correlate the HRV change with training logs and life events. A
+sudden drop after a known hard training day or poor sleep night has an obvious cause – likely
+acute fatigue. A gradual decline over 10 days of heavy training points to cumulative overload. If
+HRV dropped without an obvious cause, probe for hidden stress (mental stress, emerging illness,
+etc.).
+Check Subjective and Objective markers:  Talk to the athlete or check their wellness self-
+reports. Are they feeling sore, unusually tired, moody, or noticing any signs like elevated resting
+heart rate or poor sleep quality? Often HRV will be reflected in these other indicators. If HRV is
+low but the athlete feels amazing and is hitting personal bests, think of the parasympathetic
+saturation case or a temporary anomaly; if HRV is low and they feel terrible, it’s clearly
+sympathetic overdrive/fatigue.
+Adjust Training Load Accordingly:28
+3627
+3738
+• 
+3
+1. 
+2. 
+3. 
+4. 
+7
+
+---PAGE---
+
+For a sudden HRV drop , consider pivoting that day’s session to low intensity or active recovery.
+Communicate to the athlete why (e.g., “Your HRV dropped big time, indicating you’re still
+stressed from something – let’s do a light flush run instead of intervals and see if you rebound
+tomorrow”). One or two easy days after an acute HRV drop can prevent pushing the athlete into
+a deeper hole.
+For a gradual decline trend , it’s time to institute a more systematic deload. You might cut back
+training volume by 30-50% for a week, focus on sleep/nutrition, maybe incorporate techniques
+like massage, meditation, or other recovery modalities. Use the HRV to monitor if/when it starts
+to rise back toward baseline, which would indicate recovery is occurring. A rule of thumb: Don’t
+schedule any new high-intensity sessions until the trend at least stabilizes or turns upward.  An athlete
+in a downward HRV spiral needs a break, not another hard stimulus.
+Beware of Chronic Low Plateau:  If HRV stays depressed for weeks and doesn’t improve even
+after rest, this could indicate a deeper issue (illness, overtraining syndrome, or other
+physiological imbalance). This might warrant medical evaluation or a very extended rest period.
+In overtraining syndrome, sometimes HRV can actually normalize or even increase but with the
+athlete still in a poor state (due to changes in autonomic regulation); that’s why it’s crucial to look
+at performance and overall health, not just chase HRV numbers.
+By interpreting sudden vs. gradual HRV changes in this way, you can use HRV as a real-time feedback
+tool to periodize training intelligently. Athletes often want to push through fatigue, but the HRV trend
+empowers coaches to say with confidence, “You may feel like you can keep pushing, but your nervous
+system is telling a different story – let’s prioritize recovery now so you don’t crash later .” Conversely,
+when HRV is trending up or consistently strong, it can green-light more intensive training blocks, since
+the athlete is coping well. This adaptive approach has been shown to improve outcomes: HRV-guided
+training groups often achieve better fitness gains with fewer injuries than fixed training plans .
+HRV, Sleep Stages, and Hormonal Connections (Cortisol & Growth
+Hormone)
+Recovery isn’t just about training load – it’s heavily influenced by sleep quality  and the body’s hormonal
+environment.  HRV  provides  a  window  into  how  sleep  and  key  recovery  hormones  interact.  In  this
+section, we’ll explore how HRV varies across sleep stages (REM vs NREM) and what that means for
+recovery, and how HRV relates to the rhythms of cortisol and growth hormone – two hormones critical
+to stress and recovery.
+HRV During Sleep:  Sleep is a prime time for recovery, and HRV tends to be higher at night than during
+the day (assuming restful sleep). However , not all sleep is equal – there are stages: Non-REM (which
+includes light sleep stages N1, N2 and deep slow-wave sleep N3) and REM (Rapid Eye Movement, dream
+sleep). The autonomic nervous system behaves differently in these stages: - During  deep Non-REM
+sleep (slow-wave sleep, N3) , the body is in a very relaxed, restorative state. The parasympathetic
+nervous system dominates strongly. Heart rate is at its lowest and very regular , blood pressure drops,
+and breathing is slow and steady. In terms of HRV:  High-frequency (HF) power increases in deep
+NREM, and the overall sympatho-vagal balance shifts toward parasympathetic . In fact, deep
+sleep has some of the highest vagal tone of the 24-hour cycle. Coaches will often see that an athlete’s
+highest HRV readings at night coincide with periods of deep sleep. However , interestingly, because
+heart rate is so stable in deep sleep, some measures of total variability might appear lower than in
+lighter sleep – but beat-to-beat (short-term) variability is higher . Studies have shown that compared to
+wakefulness, NREM sleep (especially N3) is associated with lower overall variability but higher beat-to-beat
+vagal modulation . In simpler terms, there may be fewer drastic swings in heart rate in deep
+sleep, but the influence of each breath in modulating the heart (RSA) is heightened. Most wearables5. 
+6. 
+7. 
+3940
+11
+4142
+8
+
+---PAGE---
+
+that track HRV will show an upward trend during periods of deep sleep on the nightly HRV graph. This is
+a good sign – it means the athlete’s body is spending time in recovery mode at night. - During  REM
+sleep , the scenario changes. REM is sometimes called “paradoxical sleep” because while the body is
+immobile (muscle atonia), the brain is quite active (similar to awake), and there can be surges of
+autonomic activity.  REM sleep tends to shift balance toward sympathetic activity . Heart rate and
+blood pressure can fluctuate more in REM, and breathing becomes irregular . The HRV spectral profile in
+REM shows higher low-frequency (LF) power and often a higher LF/HF ratio, indicating relatively
+more sympathetic influence or reduced vagal influence . In fact, researchers often find that
+parasympathetic activity decreases during REM compared to NREM , and markers of sympathetic
+activity (like LF or certain stress hormones) rise . What does this mean in practice? It’s normal for
+HRV (especially the RMSSD or HF component) to drop during REM-heavy periods of the night. If you look
+at a continuous HRV plot overnight (as some advanced apps or devices allow), you’ll see HRV not as a
+flat line but ebbing and flowing – those drops usually correspond to REM episodes or brief arousals. For
+example, an athlete might average 80 ms HRV overnight, but closer inspection shows it ranged from 50
+ms (during REM or awake moments) to 110 ms (during deep sleep).  Both are important  – REM is a
+necessary stage of sleep for cognitive recovery, even if it’s less parasympathetically driven. But if an
+athlete has very disturbed sleep (excessive awakenings, less deep sleep), often we see overall lower
+overnight HRV and more of the sympathetic signature at night than desirable . - Light sleep (N1,
+N2):  These intermediate stages typically also favor parasympathetic, but not as profoundly as N3. HRV
+in N2 is still generally higher than in REM, but lower than in N3. It’s in flux and can be influenced by
+minor awakenings.
+To summarize sleep stages and HRV:  NREM (especially deep N3) = high vagal, high HRV; REM =
+relatively lower HRV, more sympathetic bursts . A healthy night’s sleep cycles through NREM
+and REM in roughly 90-minute cycles, and typically the first third of the night has more deep NREM
+(thus often higher HRV early night), and the last third has more REM (often slightly suppressed HRV
+towards morning). Coaches using devices like the Oura Ring or Garmin might note the lowest resting
+heart rate and highest HRV occur in the early night when slow-wave sleep is prevalent – a sign of good
+recovery. By early morning, as REM and the natural cortisol awakening response  kick in, heart rate
+rises a bit and HRV may taper .
+Hormonal Release: Cortisol vs. Growth Hormone (GH) and HRV:  The autonomic patterns at night tie
+closely to two major hormones: -  Growth Hormone (GH):  This is the body’s primary anabolic and
+recovery hormone, stimulating muscle repair , tissue growth, and regeneration. GH is predominantly
+secreted during deep slow-wave sleep, especially in the first sleep cycle of the night. When an athlete
+goes into deep NREM sleep, not only does vagal activity peak, but  growth hormone surges  – the
+pituitary  gland  releases  a  large  pulse  of  GH  shortly  after  sleep  onset  (usually  ~30-70  minutes  in,
+coinciding with the first deep sleep episode). Research has long established the  “temporal association
+between SWS and GH secretion during nocturnal sleep” . This is one reason why  good sleep (and
+plenty  of  deep  sleep)  is  irreplaceable  for  athletic  recovery :  you  literally  need  that
+parasympathetically dominated time for GH-mediated repair processes. What does HRV tell us here? If
+an athlete has a lot of high-HRV deep sleep, we can infer they likely got robust GH release. In fact,
+interventions that enhance deep sleep (like certain forms of hypnosis or acoustic stimulation) have been
+shown to both increase GH and tilt the ANS towards more parasympathetic activity (higher HF HRV)
+during sleep . One study found that boosting SWS led to a fourfold increase in GH levels and
+concomitant reduction in sympathetic markers, demonstrating the linkage between high-quality deep
+sleep, high HRV, and anabolic recovery hormones .  Key point:  If your athlete’s overnight HRV
+data shows strong parasympathetic activity at night, it likely means their body had the ideal conditions
+to  release  hormones  like  GH  that  promote  recovery.  On  the  contrary,  if  their  sleep  is  shallow  or
+frequently disrupted (hence lower HRV and higher heart rate at night), they may be missing out on
+some of the GH benefits – something to address via better sleep hygiene or reduced late-day stress. -1112
+4312
+4445
+1112
+46
+4748
+4748
+9
+
+---PAGE---
+
+Cortisol:  Cortisol is often dubbed the “stress hormone.” It is catabolic and elevates blood sugar , and
+while it has normal diurnal patterns, it also rises under any kind of stress (physical or psychological).
+Cortisol and HRV generally move in opposite directions: high cortisol states usually coincide with low
+HRV . During a normal circadian cycle, cortisol is low at night (allowing deep sleep), then starts to
+rise in the early morning hours, peaking around the time you wake up – this is called the Cortisol
+Awakening Response (CAR). That morning spike in cortisol is like nature’s caffeine, mobilizing energy to
+start the day, but it also is associated with a shift out of the parasympathetic recovery state. This helps
+explain why in the last few hours of sleep (when REM is more frequent and cortisol is rising toward its
+peak) we see HRV trending lower and sympathetic tone increasing . In other words, as morning
+nears,  your  body  is  preparing  for  wakefulness  by  upping  sympathetic  activity  and  cortisol,  which
+suppresses HRV . Now, in a balanced scenario, this is fine and natural. However , problems arise when
+cortisol is chronically elevated at the wrong times – e.g., due to overtraining or stress, an athlete might
+have elevated evening cortisol (impairing sleep and keeping HRV low at night), or a blunted morning
+cortisol (indicating burnout). Overtraining research shows that in early overreaching, morning cortisol
+can run high; with deeper fatigue, it may flatten  (meaning the adrenal system gets exhausted) .
+Since HRV is a reflection of autonomic nervous system status, it can provide indirect clues to these
+hormonal states. For instance, if an athlete’s HRV is not rising at night as it should, one possibility is that
+cortisol (or other stress mediators) are too elevated when they should be low. Additionally, coaches
+sometimes measure morning HRV in tandem with hormone tests; while day-to-day correlation of HRV
+and cortisol can be complex, overall  there’s a negative correlation: higher baseline cortisol levels
+tend  to  accompany  lower  HRV .  Some  practitioners  have  noted  that  “cortisol  levels  can  signal
+impending  overtraining  long  before  physical  symptoms,”  and  one  might  catch  this  by  noticing  HRV
+trending down while maybe the athlete’s subjective effort feels harder . In summary, if you see
+unexplained HRV suppression, consider hormonal stress – high cortisol could be a culprit (and that
+could be due to lifestyle stress, too much caffeine, illness, etc., not just training).
+Integrating Sleep and Hormone Insights:  The best recovery scenario for an athlete is:  Long, high-
+quality sleep with ample deep NREM  (high HRV, GH release) and normal REM (some sympathetic
+activity, but not excessive awakenings). This yields a big nighttime parasympathetic surge and GH spike,
+then a healthy morning cortisol peak to wake up. This athlete will likely show up in your logs with strong
+overnight HRV, a well-rested morning subjective feeling, and good training readiness. On the flip side,
+consider an athlete who is overreaching: they train late into the evening, have poor sleep (low deep
+sleep percentage, perhaps due to high cortisol or sympathetic activation), and thus lower overnight
+HRV. They might also have elevated resting heart rates at night. Their recovery hormones like GH might
+be suboptimal due to reduced SWS, and their cortisol might be abnormally high at night (reducing HRV)
+and then either too high or eventually flat in the morning. Over time, this pattern wreaks havoc on
+recovery and performance.
+As a coach, you can actually use HRV and sleep data to have very concrete discussions with athletes
+about lifestyle: “I see your HRV was low most of the night and didn’t follow the normal pattern – did you have
+trouble sleeping? Were you on your phone late or stressed?”  Often, fixing those issues (darkening the room,
+cutting  off  screens,  relaxing  routines)  will  improve  sleep  stages  and  hence  overnight  HRV.  Some
+wearables now even correlate HRV with sleep phases and give coaches a report. For example, the
+athlete who has an Oura Ring might share that their deep sleep was only 30 minutes and their HRV
+stayed low; that’s a flag to work on sleep habits. Another athlete might show 2 hours of deep sleep and
+high HRV – a sign their body is primed for recovery (and indeed, such nights often result in better
+performance the next day).
+Growth Hormone and HRV in Training:  Another angle – training itself can influence GH and HRV.
+Heavy resistance training or high-intensity intervals can transiently raise anabolic hormones and later
+on boost deep sleep. If an athlete is recovering well, you might see their nighttime HRV actually go up20
+49
+50
+20
+51
+10
+
+---PAGE---
+
+on  days  after  heavy  training,  which  sounds  counterintuitive  but  could  be  due  to  a  rebound  in
+parasympathetic activity and deeper sleep to compensate (some moderate aerobic work also stimulates
+parasympathetic rebound ). If you see the opposite – heavy training leads to progressively lower
+nighttime HRV and poor sleep – that athlete might be under too much strain hormonally. Monitoring
+HRV thus helps ensure the hormonal milieu  is conducive to adaptation, not maladaptation.
+Cortisol:HRV Practical Example:  Suppose an athlete has a stressful job and you notice that even on
+rest days their HRV is suppressed in the evenings (perhaps their wearable shows “Body Battery” not
+recharging well, a Garmin metric influenced by HRV). This could be due to evening cortisol remaining
+high from work stress, which will reduce their nighttime HRV and recovery. The coach might introduce
+relaxation techniques (like guided breathing, which directly can increase HF HRV by engaging vagal
+activity ) to lower sympathetic tone before bed. Over a few weeks, you might see their overnight
+HRV baseline rise as those interventions pay off, indicating a healthier recovery state. They might even
+subjectively report feeling more refreshed and notice performance improvements.
+In summary,  HRV is interconnected with sleep physiology and endocrine function: - High HRV at the
+right times (night/deep sleep) correlates with growth and recovery processes. - Low HRV at the wrong
+times (night) or chronically correlates with stress hormones like cortisol being out of balance. - Use HRV
+trends alongside sleep tracking to optimize an athlete’s recovery schedule. Encourage behaviors that
+maximize that high-HRV deep sleep window (consistent sleep schedule, cool dark environment, etc.). -
+Be mindful that  if HRV readings seem out of whack, hormones might be the hidden factor  –
+consider if the athlete’s lifestyle or training is affecting their cortisol/GH rhythms. In cases of severe
+overtraining, endocrine tests (cortisol, testosterone, etc.) plus HRV can provide a fuller picture: often
+you’ll  see  low  HRV  and  elevated  cortisol,  or  in  burnout,  paradoxically  low  cortisol  (adrenal  fatigue
+concept) with flat HRV.
+Practical Coaching Strategies for Evaluating HRV Data
+Finally, let’s compile some practical guidelines – a step-by-step coaching manual on how to evaluate and
+apply HRV data for your athletes:
+1. Establish Individual Baselines and Normal Ranges
+Every athlete is unique. HRV norms are highly individual – what’s “high” for one person might be
+“average” for another . So, first ensure each athlete has a baseline. Have them record HRV regularly
+(many coaches use a consistent morning measurement, or rely on nightly wearable data). After about
+2-3 weeks, you’ll have a sense of their typical range . For example, Athlete A might usually be
+around 30–50 ms RMSSD, Athlete B around 70–90 ms. Document these along with subjective notes.
+Many devices automatically compute this personal baseline (Garmin requires ~3 weeks of nightly data
+to establish HRV Status baselines ). When interpreting data, always frame it as “relative to  their
+norm.” A raw HRV of 40 ms could mean fine for one athlete, but for another it could be alarmingly low.
+Also  track  their  variation  –  some  people  are  naturally  more  variable  day-to-day,  others  are  very
+consistent. Knowing this helps distinguish meaningful changes from noise .
+2. Use Both Acute Readings and Trends
+Check the daily HRV readings (or the overnight average) for acute signals, and review weekly trends: -
+Daily Check:  Look at this morning’s HRV (or last night’s). Is it outside the athlete’s normal band? Use a
+simple color-coding or notation: green for within/above baseline, yellow for slightly below, red for
+significantly below. Many apps do this automatically. Daily checks tell you if something immediate is up52
+5354
+5556
+57
+5859
+11
+
+---PAGE---
+
+(e.g., a big drop). -  Trend Check:  Look at the rolling 7-day or chronic trend. Is there a monotonic
+decline? Or perhaps an improving trend? For example, you might notice “This week is trending lower
+than last week on average.” Trends are often more reliable indicators of whether the training load is
+sustainable.  A  one-day  low  HRV  can  happen  randomly,  but  a  week-long  low  is  likely  real  fatigue.
+Garmin’s HRV widget, for instance, shows the 7-day trend against baseline and flags “Balanced” vs
+“Unbalanced” . Aim for balanced most of the time – if it’s unbalanced high or low for too long,
+adjust training. -  Coefficient of Variation (CV):  An advanced concept some coaches use is the CV of
+weekly HRV – basically how much HRV bounces around day-to-day. An elevated CV (very erratic HRV)
+along with a drop in average can indicate accumulating fatigue . A stable or reducing CV with a
+steady high HRV is a good sign. In team sports, monitoring the whole squad’s HRV trends can even
+predict who might be at risk of injury or illness, as those with downward trends are the ones to perhaps
+pull back on.
+3. Correlate with Training Phases and Performance
+Contextualize HRV with what’s going on: - In a high load training block , expect HRV to drop somewhat
+– that’s normal as long as performance is maintained. But you want it to rebound after deload weeks. If
+HRV keeps dropping week after week through what should have been a recovery week, the athlete
+might be not absorbing the training. - In a taper or rest phase , HRV should climb (or return to baseline
+from any suppressed state). Many athletes see their highest HRV on rest days or toward end of a taper –
+indicating freshness. If HRV isn’t coming up with rest, suspect lingering stress or incomplete recovery. -
+Before competition:  Some athletes get pre-competition anxiety that lowers HRV acute (fight-or-flight
+response) . This doesn’t necessarily harm performance if it’s just excitement – e.g., an Olympic lifter
+might hit a PR even with low HRV that day due to adrenaline. So don’t overreact to a single low number
+on race day if the athlete feels ready. It might be normal psych-up. On the other hand, if an athlete is
+over-trained, HRV might be chronically low and performance is down. - Performance outcomes:  Use
+HRV alongside metrics like times, power outputs, and subjective ratings. Over time, you might see
+patterns: “Whenever HRV is below X, you struggle in the workout.” or “When HRV is high, your intervals
+go great.” This individualizes the meaning. Some studies even found improved performance in groups
+that only did intense training when HRV was above baseline . You can experiment with HRV-
+guided session planning for willing athletes.
+4. Identify Patterns Unique to the Athlete
+Some athletes might have consistently low morning HRV but still do fine – perhaps their HRV rises more
+at night. Others might be very sensitive to travel or dehydration (which tank HRV). For example, you
+might notice every time an athlete takes a transatlantic flight, their HRV drops 15% for two days – so
+next time, you proactively plan recovery days after travel. Or an athlete’s HRV might dip specifically after
+heavy strength sessions more than after long runs – indicating what type of stress hits their system
+hardest. Over months, these insights allow truly personalized coaching. 
+Also note any parasympathetic saturation candidates : if you coach elite endurance athletes, keep an
+eye out for the low HR + low HRV combo during mega mileage weeks. If you confirm it’s not illness or
+true overtraining (i.e., they feel good and perform well), you might adjust their HRV measurement
+routine (e.g., measure upon standing) for better sensitivity as discussed earlier . This is an exception, but
+valuable to remember .
+5. Educate and Involve the Athlete
+Make sure the athlete understands why you’re using HRV and what it means. This helps compliance (like
+wearing the device regularly, or doing the morning measurement properly). It also prevents them from6061
+6263
+64
+6566
+12
+
+---PAGE---
+
+freaking out at normal fluctuations. Emphasize that HRV is not a “grade” but a feedback tool. For
+instance, if they see a red low HRV, it’s not “bad” in a moral sense – it’s information that they should
+respond to. Many athletes become motivated when they see HRV improvements with better recovery
+practices. You can set up friendly challenges, e.g., “Let’s see if more hydration and an extra hour of sleep
+this week bumps your HRV back into green.” When athletes take ownership, you get better data and
+better outcomes.
+6. Integrate HRV with Other Recovery Indices
+HRV shouldn’t be used in isolation. Always consider it alongside: -  Resting Heart Rate (RHR):  Often,
+high RHR + low HRV is a stronger flag for fatigue than either alone. A normal HR with low HRV might be
+more parasympathetic saturation or measurement nuance. Many systems combine these (e.g., some
+readiness scores use both). -  Sleep metrics:  As detailed, poor sleep will show up in HRV. Use the
+qualitative (hours, sleep stages) with HRV to fully assess recovery. If HRV is off, check if the athlete only
+slept 4 hours, etc. - Subjective scores:  Don’t ignore how the athlete says they feel. HRV is great but not
+infallible. If an athlete’s HRV is low but they swear they feel amazing and their performance is peaking,
+you must interpret the data in context (maybe it’s taper anxiety or that rare parasympathetic blunting).
+Conversely,  if  HRV  is  normal  but  they  feel  terrible,  investigate  –  the  HRV  might  be  temporarily
+maintained but other systems are lagging (e.g., psychological stress can sometimes not immediately
+reflect in morning HRV). -  Other Biomarkers:  If available, things like blood markers (e.g., cortisol,
+testosterone:cortisol ratio, CK for muscle damage, etc.) can corroborate HRV findings. For example,
+consistently low HRV and consistently high cortisol would strongly indicate overtraining risk .
+Use HRV as the accessible daily marker , and periodic blood tests as needed for confirmation in high-
+level cases.
+7. Avoid Common Pitfalls
+Panicking Over One Low Value:  Don’t scratch a key workout just because one morning HRV
+was low – look for confirmation in how the athlete feels and tomorrow’s reading. It’s the
+sustained low trend that is more important. One low value could even be a sensor error or an
+artifact of a late dinner or some acute stress that might resolve.
+Forgetting the Big Picture:  HRV is one aspect of training feedback. If an athlete’s HRV is slightly
+down but everything else says they’re fine (great mood, great performance, normal RHR), you
+might simply monitor a bit more rather than change course. Conversely, if HRV is fine but other
+signs of fatigue are present, don’t let a good HRV lull you into overtraining someone. There are
+times HRV can stay artificially high – e.g., some overtrained states or if someone is tapering and
+starting to detrain, HRV might rise but performance can drop. So, context!
+Not Standardizing Measurements:  If you do morning readings, ensure the athlete does it the
+same way each time (same time of day, same posture, ideally after waking and voiding but
+before coffee or exercise). Changes in routine (one day they measure standing rushing to work,
+another day lying in bed) can cause variability unrelated to recovery. If using wearables, ensure
+they wear it consistently and the device has a good signal. The more consistent the data source,
+the more trust you can place in trends.
+8. Leverage Technology but Maintain Coach’s Intuition
+Devices like Garmin, Whoop, Polar , etc., now provide readiness scores that crunch HRV, sleep, and other
+metrics into simple labels (e.g., “Recovery: 32% – pay attention!” or “Training Readiness: High”). These
+are useful summaries, especially for athletes who may not dive into the raw data. As a coach, use those
+as a starting point, but always apply your judgment. Sometimes you will deliberately override a metric –
+for example, an athlete has a big competition and the system says “recovery low”; you’re not going to1951
+• 
+• 
+• 
+13
+
+---PAGE---
+
+tell them to skip the competition! Instead, you’d adjust strategy (longer warm-up, mental focus, etc.,
+acknowledging  they’re  not  100%).  In  many  cases,  though,  these  systems  help  reinforce  your
+recommendations: if you tell an athlete to rest and their watch also flashes a low readiness score, they’ll
+be more likely to comply.
+9. Use HRV Biofeedback for Recovery
+Not only can HRV measure recovery, it can be a training tool  for recovery. Practices such as deep
+breathing exercises, meditation, or HRV biofeedback sessions can increase HRV acutely and help an
+athlete shift into a parasympathetic state. Some athletes use guided breathing apps that show in real
+time their HRV (often using a chest strap) and try to maximize it via slow, diaphragmatic breathing. This
+is like training the recovery system. It can be especially useful for athletes who struggle to unwind
+(those with high sympathetic drive). Even 5-10 minutes of slow (6 breaths per minute) breathing can
+raise HF HRV and potentially improve subsequent sleep or recovery . Encourage these habits as
+part of the overall recovery plan.
+10. Monitor Long-Term Progress
+Over the course of a season or year , hopefully you see the athlete’s baseline HRV either hold or even
+improve slightly as their fitness and resilience increase. Many times, effective training will raise resting
+vagal tone – some studies show athletes who improved VO₂max also saw progressive increases in HRV
+. If you see a long-term downward drift in baseline HRV over months, that could indicate the
+training program is too stressful without enough rest (or other lifestyle factors are degrading their
+recovery capacity). Intervene accordingly. On the flip side, if an athlete’s baseline HRV climbs too much
+above their norm and stays there, check if they are detraining (sometimes reduced training load or
+illness can paradoxically raise HRV short-term). The optimal zone is a stable or slowly improving HRV
+baseline  that  correlates  with  performance  improvements.  Remember ,  the  ultimate  goal  is
+performance , not maxing out HRV – HRV is a means to ensure the athlete is adapting well. As one
+paper pointed out, athletes who personalized their training based on HRV got better results with less
+risk  – a win-win.
+Conclusion:  By differentiating between time- and frequency-domain HRV metrics, you gain a full picture
+of  an  athlete’s  autonomic  function;  by  understanding  phenomena  like  sympathetic  overdrive  and
+parasympathetic saturation, you can correctly interpret HRV changes in the context of overtraining; by
+distinguishing sudden drops from gradual trends, you can take timely action to prevent minor fatigue
+from becoming major burnout; and by linking HRV with sleep and hormonal patterns, you appreciate
+why recovery is a 24-hour process influenced by nighttime restorative phases. 
+In applying this knowledge, you transform HRV from just a number on a screen into a rich decision-
+support tool. It’s like having an ongoing conversation with the athlete’s nervous system: it tells you
+when to push, when to pull back, and when something might be wrong under the hood. Listen to it,
+corroborate it with the athlete’s feedback, and adjust the training plan proactively. The result will be
+athletes who train hard and smart – maximizing adaptation while minimizing the risk of overtraining.
+And  as  a  coach,  there’s  nothing  more  satisfying  than  seeing  your  athletes  thrive,  armed  with  the
+insights that data like HRV provides, backed by the wisdom of careful analysis and responsive training
+adjustments.
+References:  The concepts and guidance above are supported by a breadth of research and expert
+observations. Key sources include scientific reviews of HRV metrics , sports science articles on
+HRV-guided  training  and  fatigue  monitoring ,  as  well  as  practical  insights  from  HRV5354
+6768
+6970
+57
+373836
+14
+
+---PAGE---
+
+practitioners and platforms (e.g., Marco Altini on parasympathetic saturation , and Garmin’s
+official  documentation  on  their  HRV  features ).  By  integrating  these  sources,  this  manual
+provides  an  evidence-based  approach  to  using  HRV  as  a  biomarker  for  athletic  recovery  and
+performance. Keep learning and stay updated, as research in this field is ongoing – but hopefully, this
+guide has equipped you with a firm foundation to make the most of HRV data in your coaching practice.
+Heart Rate Variability (HRV) Training - Bike Magazine
+https://magazinebike.com/2025/05/06/heart-rate-variability-training-hrv/
+Running Science | Garmin Philippines
+https://ph.garmin.com/minisite/garmin-technology/running/
+An Overview of Heart Rate Variability Metrics and Norms - PMC
+https://pmc.ncbi.nlm.nih.gov/articles/PMC5624990/
+Sleep Stage Classification Through HRV, Complexity Measures, and Heart Rate
+Asymmetry Using Generalized Estimating Equations Models
+https://www.mdpi.com/1099-4300/26/12/1100
+Overtraining and Fatigue: Best Biomarkers to Monitor | Learn With Superpower
+https://superpower .com/best-biomarkers/overtraining-fatigue?srsltid=AfmBOoqqrZMiBOMmjFqv061UP-QTa0-
+k6aM9FG94nhdp794Go81iEc9T
+Heart-Rate Variability—More than Heart Beats? - PMC
+https://pmc.ncbi.nlm.nih.gov/articles/PMC5600971/
+Parasympathetic saturation
+https://www.hrv4training.com/blog2/parasympathetic-saturation
+Interpreting HRV Trends in Athletes: High Isn’t Always
+Good and Low Isn’t Always Bad - SimpliFaster
+https://simplifaster .com/articles/interpreting-hrv-trends-athletes/
+HRV and stress explained: Why low heart rate variability could be a ...
+https://blog.ultrahuman.com/blog/hrv-and-stress-explained-how-your-body-signals-overload/
+Managing fatigue with HRV- Acute vs. chronic fatigue - Kubios HRV
+https://www.kubios.com/blog/managing-fatigue-with-hrv/
+Heart Rate Variability During Specific Sleep Stages | Circulation
+https://www.ahajournals.org/doi/10.1161/01.cir .91.7.1918
+Heart rate variability in response to the sleep-related movements in ...
+https://www.sciencedirect.com/science/article/abs/pii/S0378378203000914
+Exercise-mediated modulation of autonomic nervous system and ...
+https://www.sciencedirect.com/science/article/pii/S1566070225000189
+Sleep Deprivation Deteriorates Heart Rate Variability and ... - Frontiers
+https://www.frontiersin.org/journals/neuroscience/articles/10.3389/fnins.2021.642548/full
+Hypnotic enhancement of slow-wave sleep increases sleep-associated hormone secretion
+and reduces sympathetic predominance in healthy humans | Communications Biology
+https://www.nature.com/articles/s42003-022-03643-y?error=cookies_not_supported&code=dbbd0f29-caae-467c-ba21-
+c0d1f43a82c9
+Heartbeat Report: how we interpret your heart rate variability metrics | Welltory Help Center
+https://help.welltory.com/en/articles/4380824-heartbeat-report-how-we-interpret-your-heart-rate-variability-metrics21 23
+71 3
+1 2 6 818 30 34 39 40 51 69 70
+3 428 55 56 57 60 61 71
+5 710 13 14 15 16 17
+911 12 43
+19 50
+20
+21 22 23 24 25 26 29
+27 32 33 36 37 38 52 62 63 64 65 66 67 68
+31
+35
+41
+42
+44
+45
+46 47 48 49
+53 54
+15
+
+---PAGE---
+
+Low HRV Symptoms 
+https://www.whoop.com/us/en/thelocker/low-hrv/?srsltid=AfmBOopBGlPi7YROBQxzB89qJ60tjj9sykKwKMl_VrnhIUGGcAcec_lL58 59
+16
+
+---PAGE---
+

@@ -13,6 +13,7 @@ import { useDashboardStore } from './src/store/useDashboardStore';
 import MainTabNavigator from './src/navigation/MainTabNavigator';
 import ActivityDetailScreen from './src/screens/ActivityDetailScreen';
 import LiveActivityScreen from './src/screens/LiveActivityScreen';
+import WeekDetailScreen from './src/screens/WeekDetailScreen';
 import config from './tamagui.config';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -23,6 +24,7 @@ export type RootStackParamList = {
     MainTab: undefined;
     ActivityDetail: { activity: any };
     LiveActivity: undefined;
+    WeekDetail: { startDate: string; endDate: string; weekLabel: string };
 };
 
 const NavTheme = {
@@ -68,6 +70,7 @@ export default function App() {
                                 <Stack.Screen name="MainTab" component={MainTabNavigator} />
                                 <Stack.Screen name="ActivityDetail" component={ActivityDetailScreen} />
                                 <Stack.Screen name="LiveActivity" component={LiveActivityScreen} />
+                                <Stack.Screen name="WeekDetail" component={WeekDetailScreen} />
                             </>
                         ) : (
                             <Stack.Screen name="Onboarding" component={OnboardingNavigator} />
@@ -75,6 +78,6 @@ export default function App() {
                     </Stack.Navigator>
                 </NavigationContainer>
             </Theme>
-        </TamaguiProvider>
+        </TamaguiProvider >
     );
 }

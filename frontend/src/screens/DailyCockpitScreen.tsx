@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, useWindowDimensions, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, useWindowDimensions, TouchableOpacity, Alert } from 'react-native';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { Battery, Zap, Activity, TrendingUp, AlertTriangle, ChevronRight, Play } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -14,6 +14,383 @@ const MetricCard = ({ title, value, subtext, icon: Icon, color, style }: any) =>
         <Text style={styles.cardSubtext}>{subtext}</Text>
     </View>
 );
+
+// Training Analytics Carousel Component
+const TrainingAnalyticsCarousel = ({ weeklyData, navigation }: any) => {
+    const [activeSlide, setActiveSlide] = React.useState(0);
+    const [showInfoPopup, setShowInfoPopup] = React.useState(false);
+    const [weekOffset, setWeekOffset] = React.useState(0);
+    const slides = ['summary', 'distance', 'fitness'];
+
+    const nextSlide = () => setActiveSlide(prev => (prev + 1) % slides.length);
+    const prevSlide = () => setActiveSlide(prev => (prev - 1 + slides.length) % slides.length);
+
+    return (
+        <View style={styles.card}>
+            {/* Info Popup Overlay - Content based on activeSlide */}
+            {showInfoPopup && (
+                <TouchableOpacity
+                    style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.95)', zIndex: 100, padding: 16, borderRadius: 12 }}
+                    activeOpacity={1}
+                    onPress={() => setShowInfoPopup(false)}
+                >
+                    {activeSlide === 1 ? (
+                        <>
+                            <Text style={{ color: '#00CCFF', fontSize: 14, fontWeight: 'bold', marginBottom: 10 }}>📊 Weekly Distance</Text>
+                            <Text style={{ color: '#AAA', fontSize: 11, lineHeight: 18, marginBottom: 8 }}>
+                                Her bar bir haftanın <Text style={{ color: '#00CCFF' }}>toplam koşu mesafesini</Text> (km) gösterir.
+                            </Text>
+                            <Text style={{ color: '#AAA', fontSize: 11, lineHeight: 18, marginBottom: 8 }}>
+                                <Text style={{ color: '#99CC00' }}>↑ değeri</Text> = O haftanın toplam tırmanış (elevation gain) miktarı.
+                            </Text>
+                            <Text style={{ color: '#AAA', fontSize: 11, lineHeight: 18, marginBottom: 8 }}>
+                                <Text style={{ color: '#00CCFF' }}>Mavi barlar</Text> = Son 2 hafta (güncel dönem).
+                            </Text>
+                            <Text style={{ color: '#666', fontSize: 10, marginTop: 10 }}>
+                                💡 ◀ ▶ oklarıyla geçmiş haftalara bakabilirsin.
+                            </Text>
+                        </>
+                    ) : activeSlide === 2 ? (
+                        <>
+                            <Text style={{ color: '#CCFF00', fontSize: 14, fontWeight: 'bold', marginBottom: 10 }}>📊 How to Read PMC Chart</Text>
+                            <Text style={{ color: '#888', fontSize: 11, lineHeight: 18, marginBottom: 8 }}>
+                                <Text style={{ color: '#00CCFF' }}>CTL (Fitness)</Text> = 42-day training load average. Higher = more fit.
+                            </Text>
+                            <Text style={{ color: '#888', fontSize: 11, lineHeight: 18, marginBottom: 8 }}>
+                                <Text style={{ color: '#FF6600' }}>ATL (Fatigue)</Text> = 7-day training load average. Higher = more tired.
+                            </Text>
+                            <Text style={{ color: '#888', fontSize: 11, lineHeight: 18, marginBottom: 8 }}>
+                                <Text style={{ color: '#CCFF00' }}>TSB (Form)</Text> = CTL - ATL. Positive = fresh, negative = fatigued.
+                            </Text>
+                            <Text style={{ color: '#666', fontSize: 10, marginTop: 8 }}>
+                                🟢 +15: Peak performance{'\n'}
+                                🟡 +5 to +15: Fresh, ready to race{'\n'}
+                                ⚪ -10 to +5: Neutral{'\n'}
+                                🟠 -25 to -10: Building fitness{'\n'}
+                                🔴 Below -25: Overreaching risk
+                            </Text>
+                        </>
+                    ) : (
+                        <Text style={{ color: '#888', fontSize: 11 }}>Bilgi mevcut değil.</Text>
+                    )}
+                    <Text style={{ color: '#444', fontSize: 9, textAlign: 'center', marginTop: 12 }}>tap to close</Text>
+                </TouchableOpacity>
+            )}
+
+            {/* Header with title, info button, and navigation dots */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Text style={styles.cardTitle}>
+                        {activeSlide === 0 ? 'This Week' : activeSlide === 1 ? 'Weekly Distance' : 'Fitness vs Fatigue'}
+                    </Text>
+                    {activeSlide === 2 && (
+                        <TouchableOpacity onPress={() => setShowInfoPopup(true)}>
+                            <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: '#333', justifyContent: 'center', alignItems: 'center' }}>
+                                <Text style={{ color: '#888', fontSize: 11, fontWeight: 'bold' }}>i</Text>
+                            </View>
+                        </TouchableOpacity>
+                    )}
+                </View>
+                <View style={{ flexDirection: 'row', gap: 6 }}>
+                    {slides.map((_, idx) => (
+                        <TouchableOpacity key={idx} onPress={() => setActiveSlide(idx)}>
+                            <View style={{
+                                width: 8, height: 8, borderRadius: 4,
+                                backgroundColor: idx === activeSlide ? '#CCFF00' : '#444'
+                            }} />
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            </View>
+
+            {/* Slide Content */}
+            <TouchableOpacity activeOpacity={1} onPress={nextSlide}>
+                {/* Slide 0: Current Week Summary */}
+                {activeSlide === 0 && (
+                    <View>
+                        <Text style={{ color: '#888', fontSize: 11, marginBottom: 8 }}>{weeklyData.current_week.label} ({weeklyData.current_week.days_completed}/7 days)</Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 16 }}>
+                            <View style={{ alignItems: 'center' }}>
+                                <Text style={{ color: '#CCFF00', fontSize: 32, fontWeight: 'bold' }}>{weeklyData.current_week.distance_km}</Text>
+                                <Text style={{ color: '#666', fontSize: 11 }}>km</Text>
+                            </View>
+                            <View style={{ alignItems: 'center' }}>
+                                <Text style={{ color: '#FF9900', fontSize: 32, fontWeight: 'bold' }}>{weeklyData.current_week.tss}</Text>
+                                <Text style={{ color: '#666', fontSize: 11 }}>TSS</Text>
+                            </View>
+                        </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10, backgroundColor: '#0A0A0A', borderRadius: 8 }}>
+                            <Text style={{ color: '#666', fontSize: 10 }}>Projected: {weeklyData.current_week.projected_distance_km} km</Text>
+                            <Text style={{ color: '#666', fontSize: 10 }}>Avg: {weeklyData.avg_weekly_distance_km} km/wk</Text>
+                        </View>
+                        <Text style={{ color: '#888', fontSize: 11, marginTop: 12, textAlign: 'center' }}>{weeklyData.trend_emoji} {weeklyData.trend}</Text>
+                    </View>
+                )}
+
+                {/* Slide 1: Weekly Distance Chart */}
+                {activeSlide === 1 && (() => {
+                    const history = weeklyData.weekly_history || [];
+                    const weeksToShow = 8;
+                    const totalWeeks = history.length;
+
+                    // Use separate offset for distance chart (stored in weekOffset for now, share with PMC)
+                    const endIdx = Math.min(totalWeeks, totalWeeks - weekOffset + weeksToShow);
+                    const startIdx = Math.max(0, endIdx - weeksToShow);
+                    const visibleWeeks = history.slice(startIdx, endIdx);
+
+                    const canGoBackDist = startIdx > 0;
+                    const canGoForwardDist = endIdx < totalWeeks;
+
+                    const maxKm = Math.max(...visibleWeeks.map((w: any) => w.distance_km), 1);
+
+                    return (
+                        <View>
+                            {/* Navigation Header with Info */}
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        if (canGoBackDist) {
+                                            setWeekOffset(prev => prev + weeksToShow);
+                                        }
+                                        // Always consume touch - don't bubble
+                                    }}
+                                    style={{ padding: 8, opacity: canGoBackDist ? 1 : 0.3 }}
+                                >
+                                    <Text style={{ color: '#00CCFF', fontSize: 18, fontWeight: 'bold' }}>◀</Text>
+                                </TouchableOpacity>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Text style={{ color: '#666', fontSize: 10 }}>Weekly Distance</Text>
+                                    <TouchableOpacity onPress={() => setShowInfoPopup(!showInfoPopup)} style={{ marginLeft: 6 }}>
+                                        <Text style={{ color: '#888', fontSize: 12 }}>ⓘ</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        if (canGoForwardDist) {
+                                            setWeekOffset(prev => Math.max(0, prev - weeksToShow));
+                                        }
+                                        // Always consume touch - don't bubble
+                                    }}
+                                    style={{ padding: 8, opacity: canGoForwardDist ? 1 : 0.3 }}
+                                >
+                                    <Text style={{ color: '#00CCFF', fontSize: 18, fontWeight: 'bold' }}>▶</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            {/* Chart */}
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', height: 100, marginBottom: 8 }}>
+                                {visibleWeeks.map((week: any, idx: number) => {
+                                    const height = Math.max((week.distance_km / maxKm) * 55, 6);
+                                    const isRecent = idx >= visibleWeeks.length - 2;
+                                    const elevation = week.elevation_m || 0;
+                                    // Extract week label: "Nov 2025, W2" -> "Nov\nW2"
+                                    const labelParts = week.label.split(', ');
+                                    const monthShort = labelParts[0].substring(0, 3);
+                                    const weekNum = labelParts[1] || 'W?';
+                                    return (
+                                        <View key={week.week_start} style={{ alignItems: 'center', flex: 1, marginHorizontal: 1 }}>
+                                            {/* Values stacked vertically */}
+                                            <View style={{ alignItems: 'center', marginBottom: 3 }}>
+                                                <Text style={{ color: '#00CCFF', fontSize: 9, fontWeight: 'bold' }}>{week.distance_km}</Text>
+                                                {elevation > 0 && (
+                                                    <Text style={{ color: '#99CC00', fontSize: 7 }}>↑{Math.round(elevation)}</Text>
+                                                )}
+                                            </View>
+                                            {/* Bar */}
+                                            <View style={{ backgroundColor: isRecent ? '#00CCFF' : '#444', width: '80%', height, borderRadius: 3 }} />
+                                            {/* Label: Month + Week */}
+                                            <Text style={{ color: '#555', fontSize: 7, marginTop: 2 }}>{monthShort}</Text>
+                                            <Text style={{ color: '#666', fontSize: 6 }}>{weekNum}</Text>
+                                        </View>
+                                    );
+                                })}
+                            </View>
+
+                            {/* Footer */}
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                <Text style={{ color: '#666', fontSize: 10 }}>Avg: {weeklyData.avg_weekly_distance_km} km/week</Text>
+                                <Text style={{ color: '#888', fontSize: 10 }}>{weeklyData.trend_emoji} {weeklyData.trend}</Text>
+                            </View>
+                        </View>
+                    );
+                })()}
+            </TouchableOpacity>
+
+            {/* Slide 2: Fitness vs Fatigue - Weekly PMC Chart (OUTSIDE TouchableOpacity for button functionality) */}
+            {activeSlide === 2 && weeklyData.ctl_atl_history && weeklyData.ctl_atl_history.length > 10 && (() => {
+                const history = weeklyData.ctl_atl_history;
+                const totalDays = history.length;
+                const totalWeeks = Math.floor(totalDays / 7);
+
+                // Dynamically show available weeks (up to 8, min 4)
+                const weeksToShow = Math.min(8, Math.max(4, totalWeeks));
+
+                console.log('PMC DEBUG: totalDays=', totalDays, 'totalWeeks=', totalWeeks, 'weeksToShow=', weeksToShow, 'weekOffset=', weekOffset);
+
+                // Calculate display range - include current (partial) week
+                // When weekOffset=0, show the most recent weeks including current
+                const effectiveEndWeek = totalWeeks - weekOffset;
+                const endWeekIndex = Math.min(effectiveEndWeek + 1, totalWeeks + 1); // +1 to include current partial week
+                const startWeekIndex = Math.max(0, endWeekIndex - weeksToShow);
+
+                // Check navigation ability
+                const canGoBack = startWeekIndex > 0;
+                const canGoForward = weekOffset > 0;
+
+                console.log('PMC DEBUG: endWeek=', endWeekIndex, 'startWeek=', startWeekIndex, 'canGoBack=', canGoBack);
+
+                // Build weekly data points
+                const weeklyPoints: any[] = [];
+                // Include partial current week by using <= and handling the last week specially
+                for (let w = startWeekIndex; w < endWeekIndex && w <= totalWeeks; w++) {
+                    // For the last partial week, use the last available day
+                    const weekEndDayIndex = w === totalWeeks
+                        ? totalDays - 1  // Last available day for partial week
+                        : Math.min((w + 1) * 7 - 1, totalDays - 1);
+                    const weekStart = w * 7;
+                    const point = history[weekEndDayIndex];
+                    if (point) {
+                        const date = new Date(point.date);
+                        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                        const weekOfMonth = Math.ceil(date.getDate() / 7);
+                        const weekStartDate = new Date(history[weekStart]?.date || point.date);
+                        const weekEndDate = new Date(point.date);
+                        weeklyPoints.push({
+                            ...point,
+                            label: `${monthNames[date.getMonth()]}/${weekOfMonth}`,
+                            weekStartDate: weekStartDate.toISOString().split('T')[0],
+                            weekEndDate: weekEndDate.toISOString().split('T')[0],
+                        });
+                    }
+                }
+
+                const currentPoint = history[totalDays - 1];
+                const currentCtl = Math.round(currentPoint?.ctl || 0);
+                const currentAtl = Math.round(currentPoint?.atl || 0);
+                const currentTsb = Math.round((currentCtl - currentAtl) * 10) / 10;
+                const maxVal = Math.max(...weeklyPoints.map((h: any) => Math.max(h.ctl, h.atl)), 50);
+                const chartHeight = 100;
+
+                // Form status
+                let formStatus = '', formColor = '#888';
+                if (currentTsb > 15) { formStatus = '🟢 Peak Form'; formColor = '#CCFF00'; }
+                else if (currentTsb > 5) { formStatus = '🟡 Fresh'; formColor = '#FFCC00'; }
+                else if (currentTsb > -10) { formStatus = '⚪ Neutral'; formColor = '#888'; }
+                else if (currentTsb > -25) { formStatus = '🟠 Building'; formColor = '#FF9900'; }
+                else { formStatus = '🔴 Overreaching'; formColor = '#FF3333'; }
+
+                return (
+                    <View>
+                        {/* Current Values */}
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+                            <View>
+                                <Text style={{ color: '#00CCFF', fontSize: 28, fontWeight: 'bold' }}>{currentCtl}</Text>
+                                <Text style={{ color: '#666', fontSize: 10 }}>Fitness</Text>
+                            </View>
+                            <View style={{ alignItems: 'center' }}>
+                                <Text style={{ color: formColor, fontSize: 22, fontWeight: 'bold' }}>
+                                    {currentTsb > 0 ? '+' : ''}{currentTsb}
+                                </Text>
+                                <Text style={{ color: formColor, fontSize: 9 }}>{formStatus}</Text>
+                            </View>
+                            <View style={{ alignItems: 'flex-end' }}>
+                                <Text style={{ color: '#FF6600', fontSize: 28, fontWeight: 'bold' }}>{currentAtl}</Text>
+                                <Text style={{ color: '#666', fontSize: 10 }}>Fatigue</Text>
+                            </View>
+                        </View>
+
+                        {/* Navigation Header */}
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    console.log('LEFT ARROW PRESSED, canGoBack:', canGoBack, 'weekOffset:', weekOffset, 'startWeekIndex:', startWeekIndex);
+                                    if (canGoBack) {
+                                        setWeekOffset(weekOffset + 8);
+                                    }
+                                }}
+                                style={{ padding: 12, opacity: canGoBack ? 1 : 0.3 }}
+                            >
+                                <Text style={{ color: '#CCFF00', fontSize: 20, fontWeight: 'bold' }}>◀</Text>
+                            </TouchableOpacity>
+                            <Text style={{ color: '#666', fontSize: 10 }}>Weekly CTL/ATL (offset: {weekOffset})</Text>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    console.log('RIGHT ARROW PRESSED, canGoForward:', canGoForward, 'weekOffset:', weekOffset);
+                                    if (canGoForward) {
+                                        setWeekOffset(Math.max(0, weekOffset - 8));
+                                    }
+                                }}
+                                style={{ padding: 12, opacity: canGoForward ? 1 : 0.3 }}
+                            >
+                                <Text style={{ color: '#CCFF00', fontSize: 20, fontWeight: 'bold' }}>▶</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Weekly Bar Chart - Touchable Bars */}
+                        <View style={{ height: chartHeight, flexDirection: 'row', alignItems: 'flex-end', marginBottom: 4 }}>
+                            {weeklyPoints.map((point: any, idx: number) => {
+                                const ctlVal = Math.round(point.ctl);
+                                const atlVal = Math.round(point.atl);
+                                const ctlHeight = Math.max((point.ctl / maxVal) * (chartHeight - 25), 5);
+                                const atlHeight = Math.max((point.atl / maxVal) * (chartHeight - 25), 5);
+                                return (
+                                    <TouchableOpacity
+                                        key={point.date}
+                                        style={{ flex: 1, alignItems: 'center', height: chartHeight, justifyContent: 'flex-end' }}
+                                        onPress={() => {
+                                            // Navigate to WeekDetailScreen
+                                            navigation.navigate('WeekDetail', {
+                                                startDate: point.weekStartDate,
+                                                endDate: point.weekEndDate,
+                                                weekLabel: point.label
+                                            });
+                                        }}
+                                        activeOpacity={0.7}
+                                    >
+                                        {/* Values on top */}
+                                        <View style={{ position: 'absolute', top: 0, alignItems: 'center' }}>
+                                            <Text style={{ color: '#00CCFF', fontSize: 8, fontWeight: 'bold' }}>{ctlVal}</Text>
+                                            <Text style={{ color: '#FF6600', fontSize: 7 }}>{atlVal}</Text>
+                                        </View>
+                                        {/* CTL bar */}
+                                        <View style={{
+                                            position: 'absolute', bottom: 18, width: '80%', height: ctlHeight,
+                                            backgroundColor: 'rgba(0, 204, 255, 0.4)', borderTopLeftRadius: 3, borderTopRightRadius: 3,
+                                        }} />
+                                        {/* ATL bar */}
+                                        <View style={{
+                                            position: 'absolute', bottom: 18, width: '50%', height: atlHeight,
+                                            backgroundColor: 'rgba(255, 102, 0, 0.8)', borderTopLeftRadius: 2, borderTopRightRadius: 2,
+                                        }} />
+                                        {/* Week label */}
+                                        <Text style={{ position: 'absolute', bottom: 0, color: '#555', fontSize: 8 }}>{point.label}</Text>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+
+                        {/* Legend */}
+                        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16, marginTop: 6 }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                <View style={{ width: 12, height: 8, backgroundColor: 'rgba(0, 204, 255, 0.5)', borderRadius: 2 }} />
+                                <Text style={{ color: '#666', fontSize: 9 }}>CTL (Fitness)</Text>
+                            </View>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                <View style={{ width: 12, height: 8, backgroundColor: 'rgba(255, 102, 0, 0.7)', borderRadius: 2 }} />
+                                <Text style={{ color: '#666', fontSize: 9 }}>ATL (Fatigue)</Text>
+                            </View>
+                        </View>
+                    </View>
+                );
+            })()}
+
+            {/* Tap hint */}
+            <Text style={{ color: '#444', fontSize: 9, textAlign: 'center', marginTop: 12 }}>
+                {activeSlide === 2 ? 'use arrows to navigate weeks' : 'tap to switch'}
+            </Text>
+        </View>
+    );
+};
 
 const DailyCockpitScreen = () => {
     const navigation = useNavigation<any>();
@@ -39,7 +416,46 @@ const DailyCockpitScreen = () => {
                     setActivities([]);
                 });
         }
+
+        // Fetch weekly training load data
+        fetchWeeklyData();
     }, []);
+
+    const [weeklyData, setWeeklyData] = React.useState<{
+        current_week: {
+            start: string;
+            label: string;
+            tss: number;
+            distance_km: number;
+            elevation_m: number;
+            days_completed: number;
+            projected_tss: number;
+            projected_distance_km: number;
+        };
+        weekly_history: Array<{
+            week_start: string;
+            week_number: number;
+            label: string;
+            tss: number;
+            distance_km: number;
+            elevation_m: number;
+        }>;
+        avg_weekly_tss: number;
+        avg_weekly_distance_km: number;
+        trend: string;
+        trend_emoji: string;
+        ctl_atl_history: Array<{ date: string; ctl: number; atl: number }>;
+    } | null>(null);
+
+    const fetchWeeklyData = async () => {
+        try {
+            const response = await fetch('http://localhost:8000/ingestion/training-load/weekly');
+            const data = await response.json();
+            setWeeklyData(data);
+        } catch (error) {
+            console.error('Failed to fetch weekly data:', error);
+        }
+    };
 
     const getReadinessColor = (score: number) => {
         if (score >= 80) return '#CCFF00'; // Green
@@ -117,6 +533,11 @@ const DailyCockpitScreen = () => {
                                     <View style={[styles.progressFill, { width: `${store.bodyBattery}%`, backgroundColor: store.bodyBattery > 50 ? '#CCFF00' : '#FF3333' }]} />
                                 </View>
                             </View>
+
+                            {/* Weekly Training Load - Carousel */}
+                            {weeklyData && (
+                                <TrainingAnalyticsCarousel weeklyData={weeklyData} navigation={navigation} />
+                            )}
                         </View>
 
                         {/* Right Column: Workout */}
