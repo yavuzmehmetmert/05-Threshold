@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { ChevronLeft, ChevronRight, Activity, Calendar as CalendarIcon, MapPin, Clock, Flame, Zap } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Activity, Calendar as CalendarIcon, MapPin, Clock, Flame, Zap, Search } from 'lucide-react-native';
 import { useDashboardStore } from '../store/useDashboardStore';
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -14,6 +14,7 @@ const CalendarScreen = () => {
 
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [searchText, setSearchText] = useState('');
 
     useEffect(() => {
         fetchActivities();
@@ -21,7 +22,7 @@ const CalendarScreen = () => {
 
     const fetchActivities = async () => {
         try {
-            const response = await fetch('http://localhost:8000/ingestion/activities?limit=50');
+            const response = await fetch('http://localhost:8000/ingestion/activities?limit=1000');
             if (response.ok) {
                 const data = await response.json();
                 setActivities(data);
@@ -118,7 +119,7 @@ const CalendarScreen = () => {
     };
 
     const selectedDateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
-    const selectedActivities = activities.filter(a => a.startTimeLocal.startsWith(selectedDateStr));
+
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -140,38 +141,94 @@ const CalendarScreen = () => {
                 ))}
             </View>
 
+            {/* Search Bar */}
+            <View style={styles.searchContainer}>
+                <Search color="#666" size={20} style={{ marginRight: 10 }} />
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder="Search name or date (e.g. 2023-11)..."
+                    placeholderTextColor="#666"
+                    value={searchText}
+                    onChangeText={setSearchText}
+                />
+            </View>
+
+            {searchText.length > 0 && (
+                <View style={[styles.detailsSection, { marginBottom: 20 }]}>
+                    <Text style={styles.detailsTitle}>
+                        Search Results "{searchText}"
+                    </Text>
+
+                    {(() => {
+                        const selectedActivities = activities.filter(a =>
+                            a.activityName.toLowerCase().includes(searchText.toLowerCase()) ||
+                            (a.startTimeLocal && a.startTimeLocal.includes(searchText))
+                        );
+
+                        return selectedActivities.length > 0 ? (
+                            selectedActivities.map(activity => (
+                                <TouchableOpacity
+                                    key={activity.activityId}
+                                    style={styles.activityCard}
+                                    onPress={() => navigation.navigate('ActivityDetail', { activity })}
+                                >
+                                    <View style={[styles.iconBox, { backgroundColor: getIntensityColor(activity.averageHeartRate) + '20' }]}>
+                                        <Activity color={getIntensityColor(activity.averageHeartRate)} size={24} />
+                                    </View>
+                                    <View style={styles.activityInfo}>
+                                        <Text style={styles.activityName}>{activity.activityName}</Text>
+                                        <Text style={styles.activityMeta}>
+                                            {activity.startTimeLocal.split('T')[0]} • {(activity.distance / 1000).toFixed(2)} km • {(activity.duration / 60).toFixed(0)} min
+                                        </Text>
+                                    </View>
+                                    <ChevronRight color="#666" size={20} />
+                                </TouchableOpacity>
+                            ))
+                        ) : (
+                            <Text style={styles.noActivityText}>No activities found.</Text>
+                        );
+                    })()}
+                </View>
+            )}
+
             <View style={styles.calendarGrid}>
                 {renderCalendarGrid()}
             </View>
 
-            <View style={styles.detailsSection}>
-                <Text style={styles.detailsTitle}>
-                    Activities for {selectedDate.toDateString()}
-                </Text>
+            {!searchText && (
+                <View style={styles.detailsSection}>
+                    <Text style={styles.detailsTitle}>
+                        Activities for {selectedDate.toDateString()}
+                    </Text>
 
-                {selectedActivities.length > 0 ? (
-                    selectedActivities.map(activity => (
-                        <TouchableOpacity
-                            key={activity.activityId}
-                            style={styles.activityCard}
-                            onPress={() => navigation.navigate('ActivityDetail', { activity })}
-                        >
-                            <View style={[styles.iconBox, { backgroundColor: getIntensityColor(activity.averageHeartRate) + '20' }]}>
-                                <Activity color={getIntensityColor(activity.averageHeartRate)} size={24} />
-                            </View>
-                            <View style={styles.activityInfo}>
-                                <Text style={styles.activityName}>{activity.activityName}</Text>
-                                <Text style={styles.activityMeta}>
-                                    {(activity.distance / 1000).toFixed(2)} km • {(activity.duration / 60).toFixed(0)} min
-                                </Text>
-                            </View>
-                            <ChevronRight color="#666" size={20} />
-                        </TouchableOpacity>
-                    ))
-                ) : (
-                    <Text style={styles.noActivityText}>No activities recorded.</Text>
-                )}
-            </View>
+                    {(() => {
+                        const selectedActivities = activities.filter(a => a.startTimeLocal.startsWith(selectedDateStr));
+
+                        return selectedActivities.length > 0 ? (
+                            selectedActivities.map(activity => (
+                                <TouchableOpacity
+                                    key={activity.activityId}
+                                    style={styles.activityCard}
+                                    onPress={() => navigation.navigate('ActivityDetail', { activity })}
+                                >
+                                    <View style={[styles.iconBox, { backgroundColor: getIntensityColor(activity.averageHeartRate) + '20' }]}>
+                                        <Activity color={getIntensityColor(activity.averageHeartRate)} size={24} />
+                                    </View>
+                                    <View style={styles.activityInfo}>
+                                        <Text style={styles.activityName}>{activity.activityName}</Text>
+                                        <Text style={styles.activityMeta}>
+                                            {activity.startTimeLocal.split('T')[0]} • {(activity.distance / 1000).toFixed(2)} km • {(activity.duration / 60).toFixed(0)} min
+                                        </Text>
+                                    </View>
+                                    <ChevronRight color="#666" size={20} />
+                                </TouchableOpacity>
+                            ))
+                        ) : (
+                            <Text style={styles.noActivityText}>No activities recorded.</Text>
+                        );
+                    })()}
+                </View>
+            )}
         </ScrollView>
     );
 };
@@ -309,6 +366,20 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         textAlign: 'center',
         marginTop: 20,
+    },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#111',
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        marginBottom: 16,
+        height: 40,
+    },
+    searchInput: {
+        flex: 1,
+        color: 'white',
+        fontSize: 14,
     },
 });
 
