@@ -645,6 +645,36 @@ const DailyCockpitScreen = () => {
         }
     };
 
+    // Fetch real TSB/Form and calculate Readiness
+    const fetchTrainingLoad = async () => {
+        try {
+            const response = await fetch('http://localhost:8000/ingestion/training-load');
+            const data = await response.json();
+
+            // Get current TSB (Form) from the API
+            const currentTsb = data.tsb || 0;
+            store.setTsb(Math.round(currentTsb));
+
+            // Calculate Readiness Score
+            // Readiness = Base(50) + TSB_contribution + Sleep_contribution + HRV_contribution - Stress_contribution
+            // TSB: +25 for high positive, -25 for deep negative
+            // Sleep: +10 for good sleep (>7h), -10 for poor (<5h)
+            // HRV: +10 for balanced, -10 for poor
+            // Stress: -0.2 per stress point above 30
+
+            // This will be refined after dailyOverview is set
+            const tsbContribution = Math.max(-25, Math.min(25, currentTsb * 2));
+            let readiness = 50 + tsbContribution;
+
+            // Clamp to 0-100
+            readiness = Math.max(0, Math.min(100, Math.round(readiness)));
+            store.setReadinessScore(readiness);
+
+        } catch (error) {
+            console.error('Failed to fetch training load:', error);
+        }
+    };
+
     // Daily Overview State (for morning widget)
     const [dailyOverview, setDailyOverview] = React.useState<{
         sleep: { duration_hours: number | null; score: number | null } | null;
@@ -711,6 +741,41 @@ const DailyCockpitScreen = () => {
     useEffect(() => {
         fetchDailyOverview();
     }, []);
+
+    // Fetch real TSB and calculate Readiness
+    useEffect(() => {
+        fetchTrainingLoad();
+    }, []);
+
+    // Update readiness after dailyOverview is set
+    React.useEffect(() => {
+        if (dailyOverview) {
+            let readiness = 50;
+
+            // TSB contribution (from store)
+            const tsbContribution = Math.max(-25, Math.min(25, store.tsb * 2));
+            readiness += tsbContribution;
+
+            // Sleep contribution (+10 for >7h, +5 for >6h, -5 for <5h)
+            const sleepHours = dailyOverview.sleep?.duration_hours || 7;
+            if (sleepHours >= 7) readiness += 10;
+            else if (sleepHours >= 6) readiness += 5;
+            else if (sleepHours < 5) readiness -= 5;
+
+            // HRV contribution (+10 for BALANCED, -5 for LOW)
+            const hrvStatus = dailyOverview.hrv?.status?.toUpperCase() || 'BALANCED';
+            if (hrvStatus === 'BALANCED') readiness += 10;
+            else if (hrvStatus === 'LOW') readiness -= 5;
+
+            // Stress contribution (-1 for every 10 points above 30)
+            const stressAvg = dailyOverview.stress?.avg || 30;
+            if (stressAvg > 30) readiness -= Math.floor((stressAvg - 30) / 10);
+
+            // Clamp to 0-100
+            readiness = Math.max(0, Math.min(100, Math.round(readiness)));
+            store.setReadinessScore(readiness);
+        }
+    }, [dailyOverview, store.tsb]);
 
     const getReadinessColor = (score: number) => {
         if (score >= 80) return '#CCFF00'; // Green
