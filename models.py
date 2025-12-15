@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, BigInteger, JSON, ForeignKey, UniqueConstraint, Date
+from sqlalchemy import Column, Integer, String, Float, DateTime, BigInteger, JSON, ForeignKey, UniqueConstraint, Date, LargeBinary
 from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime
@@ -16,6 +16,10 @@ class User(Base):
     vo2_max_running = Column(Integer, nullable=True)
     resting_hr = Column(Integer, nullable=True)
     birth_date = Column(Date, nullable=True)  # For calculating Max HR (220 - age)
+    
+    # Encrypted Gemini API key for AI Coach
+    gemini_api_key_encrypted = Column(LargeBinary, nullable=True)
+    gemini_api_key_iv = Column(LargeBinary, nullable=True)  # Initialization vector
     
     activities = relationship("Activity", back_populates="user")
     shoes = relationship("Shoe", back_populates="user")

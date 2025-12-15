@@ -2,9 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from auth_service import router as auth_router
 from ingestion_service import router as ingestion_router
+from coach.router import router as coach_router
 
 from database import engine
 import models
+import coach.models as coach_models  # Import coach models for table creation
 
 # Veritabanı tablolarını oluştur (Yoksa)
 # !!! DİKKAT: Schema değişikliği için Drop All ekliyoruz.
@@ -27,6 +29,8 @@ origins = [
     "http://localhost:3000",  # React/Next.js varsayılan portu
     "http://localhost:8000",
     "http://localhost:8081",
+    "http://localhost:8082",
+    "http://localhost:19006",  # Expo web
 ]
 
 app.add_middleware(
@@ -40,6 +44,7 @@ app.add_middleware(
 # Router'ları Bağla
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(ingestion_router, prefix="/ingestion", tags=["Ingestion"])
+app.include_router(coach_router, tags=["AI Coach"])
 
 @app.get("/")
 async def health_check():

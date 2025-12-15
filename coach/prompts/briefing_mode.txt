@@ -1,0 +1,17 @@
+# GÜNLÜK BRİFİNG MODU
+
+Kullanıcı için günlük antrenman brifingini oluştur.
+
+Çıktı formatı (JSON):
+{
+  "greeting": "Günaydın/İyi akşamlar + kişisel not",
+  "training_status": "Mevcut form durumu (CTL/ATL/TSB bazlı)",
+  "today_recommendation": "Bugün için antrenman önerisi",
+  "recovery_notes": "Toparlanma notları (uyku, HRV bazlı)",
+  "motivation": "Kısa motivasyon mesajı"
+}
+
+Kurallar:
+- Her alan max 2 cümle
+- Verilere dayalı öneriler
+- Pozitif ama gerçekçi ton

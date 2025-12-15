@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, RefreshControl, Modal, TextInput, Alert, Dimensions } from 'react-native';
 import { useDashboardStore } from '../store/useDashboardStore';
-import { User, RefreshCw, Activity, Heart, Scale, Wind, LogOut, Plus, Trash2, X, TrendingUp, TrendingDown } from 'lucide-react-native';
+import { User, RefreshCw, Activity, Heart, Scale, Wind, LogOut, Plus, Trash2, X, TrendingUp, TrendingDown, Settings } from 'lucide-react-native';
 import { VictoryLine, VictoryChart, VictoryAxis, VictoryVoronoiContainer, VictoryScatter } from 'victory-native';
+import { APIKeyModal } from '../components/APIKeyModal';
 
 const { width } = Dimensions.get('window');
 
@@ -54,6 +55,7 @@ const ProfileScreen = () => {
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [timeRange, setTimeRange] = useState<'7' | '30' | '90' | '180' | '550'>('30');
     const [selectedPoint, setSelectedPoint] = useState<{ date: string; value: number } | null>(null);
+    const [showAPIKeyModal, setShowAPIKeyModal] = useState(false);
 
     const timeRangeOptions = [
         { label: '1W', value: '7' as const },
@@ -234,14 +236,25 @@ const ProfileScreen = () => {
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#CCFF00" />}
         >
             <View style={styles.header}>
-                <View style={styles.avatar}>
-                    <User color="#050505" size={40} />
+                <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                    <View style={styles.avatar}>
+                        <User color="#050505" size={40} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.name}>{userProfile.name || 'Runner'}</Text>
+                        <Text style={styles.email}>{userProfile.email || 'Connected via Garmin'}</Text>
+                    </View>
                 </View>
-                <View>
-                    <Text style={styles.name}>{userProfile.name || 'Runner'}</Text>
-                    <Text style={styles.email}>{userProfile.email || 'Connected via Garmin'}</Text>
-                </View>
+                <TouchableOpacity onPress={() => setShowAPIKeyModal(true)} style={styles.settingsButton}>
+                    <Settings color="#CCFF00" size={22} />
+                </TouchableOpacity>
             </View>
+
+            {/* API Key Modal */}
+            <APIKeyModal
+                visible={showAPIKeyModal}
+                onClose={() => setShowAPIKeyModal(false)}
+            />
 
             <View style={styles.section}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -581,6 +594,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#111',
         padding: 20,
         borderRadius: 16,
+    },
+    settingsButton: {
+        padding: 8,
+        marginLeft: 8,
     },
     avatar: {
         width: 64,

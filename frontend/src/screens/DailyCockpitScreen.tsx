@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, useWindowDimensions, TouchableOpacity, Alert, Animated, Easing } from 'react-native';
 import { useDashboardStore } from '../store/useDashboardStore';
-import { Battery, Zap, Activity, TrendingUp, AlertTriangle, ChevronRight, Play, RefreshCw, Moon, Sun, Heart } from 'lucide-react-native';
+import { Battery, Zap, Activity, TrendingUp, AlertTriangle, ChevronRight, Play, RefreshCw, Moon, Sun, Heart, MessageCircle } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
+import { HocaChatModal, HocaFAB } from '../components/HocaChatModal';
 
 const MetricCard = ({ title, value, subtext, icon: Icon, color, style }: any) => (
     <View style={[styles.card, style]}>
@@ -542,6 +543,7 @@ const DailyCockpitScreen = () => {
 
     // Sync state and animation
     const [syncing, setSyncing] = React.useState(false);
+    const [showHocaChat, setShowHocaChat] = React.useState(false);
     const spinValue = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
@@ -990,6 +992,15 @@ const DailyCockpitScreen = () => {
                     </View>
                 </View>
             </ScrollView>
+
+            {/* Hoca AI Coach FAB */}
+            <HocaFAB onPress={() => setShowHocaChat(true)} />
+
+            {/* Hoca Chat Modal */}
+            <HocaChatModal
+                visible={showHocaChat}
+                onClose={() => setShowHocaChat(false)}
+            />
         </View>
     );
 };
