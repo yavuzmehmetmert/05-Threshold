@@ -686,6 +686,7 @@ def sync_incremental(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+
 @router.post("/sync")
 def sync_all(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """

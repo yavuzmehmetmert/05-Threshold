@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, useWindowDimensions, TouchableOpacity, Alert, Animated, Easing } from 'react-native';
 import { useDashboardStore } from '../store/useDashboardStore';
-import { Battery, Zap, Activity, TrendingUp, AlertTriangle, ChevronRight, Play, RefreshCw } from 'lucide-react-native';
+import { Battery, Zap, Activity, TrendingUp, AlertTriangle, ChevronRight, Play, RefreshCw, Moon, Sun, Heart } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const MetricCard = ({ title, value, subtext, icon: Icon, color, style }: any) => (
@@ -645,6 +645,73 @@ const DailyCockpitScreen = () => {
         }
     };
 
+    // Daily Overview State (for morning widget)
+    const [dailyOverview, setDailyOverview] = React.useState<{
+        sleep: { duration_hours: number | null; score: number | null } | null;
+        hrv: { last_night_avg: number | null; status: string | null } | null;
+        stress: { avg: number | null } | null;
+        resting_hr: number | null;
+        last_sync: string | null;
+    } | null>(null);
+
+    const fetchDailyOverview = async () => {
+        try {
+            // Get yesterday's date
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const dateStr = yesterday.toISOString().split('T')[0];
+
+            // Fetch all data in parallel using existing endpoints
+            const [sleepRes, hrvRes, stressRes, profileRes] = await Promise.all([
+                fetch(`http://localhost:8000/ingestion/sleep/${dateStr}`),
+                fetch(`http://localhost:8000/ingestion/hrv/${dateStr}`),
+                fetch(`http://localhost:8000/ingestion/stress/${dateStr}`),
+                fetch('http://localhost:8000/ingestion/profile/latest')
+            ]);
+
+            const sleepData = await sleepRes.json();
+            const hrvData = await hrvRes.json();
+            const stressData = await stressRes.json();
+            const profileData = await profileRes.json();
+
+            // Parse the nested API response structures
+            // Sleep API returns: { dailySleepDTO: { dailySleepDTO: {...}, avgOvernightHrv, hrvStatus, restingHeartRate } }
+            const outerSleepDTO = sleepData?.dailySleepDTO;
+            const innerSleepDTO = outerSleepDTO?.dailySleepDTO;
+
+            setDailyOverview({
+                sleep: innerSleepDTO?.sleepTimeSeconds ? {
+                    duration_hours: Math.round((innerSleepDTO.sleepTimeSeconds / 3600) * 10) / 10,
+                    score: innerSleepDTO.sleepScores?.overall?.value || null
+                } : null,
+                hrv: outerSleepDTO?.avgOvernightHrv ? {
+                    last_night_avg: Math.round(outerSleepDTO.avgOvernightHrv),
+                    status: outerSleepDTO.hrvStatus || null
+                } : null,
+                stress: stressData?.avgStress ? {
+                    avg: stressData.avgStress
+                } : null,
+                resting_hr: outerSleepDTO?.restingHeartRate || profileData?.restingHr || null,
+                last_sync: profileData?.date || null
+            });
+        } catch (error) {
+            console.error('Failed to fetch daily overview:', error);
+        }
+    };
+
+    // Time-based greeting
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour >= 5 && hour < 12) return { text: 'Good Morning', emoji: '☀️' };
+        if (hour >= 12 && hour < 17) return { text: 'Good Afternoon', emoji: '🌤️' };
+        if (hour >= 17 && hour < 21) return { text: 'Good Evening', emoji: '🌅' };
+        return { text: 'Good Night', emoji: '🌙' };
+    };
+
+    useEffect(() => {
+        fetchDailyOverview();
+    }, []);
+
     const getReadinessColor = (score: number) => {
         if (score >= 80) return '#CCFF00'; // Green
         if (score >= 50) return '#FFCC00'; // Yellow
@@ -718,19 +785,81 @@ const DailyCockpitScreen = () => {
                                 />
                             </View>
 
-                            {/* Body Battery */}
+                            {/* Morning Widget - Greeting + Daily Stats */}
                             <View style={styles.card}>
-                                <View style={styles.cardHeader}>
-                                    <Text style={styles.cardTitle}>Body Battery</Text>
-                                    <Battery size={16} color={store.bodyBattery > 50 ? '#CCFF00' : '#FF3333'} />
+                                {/* Greeting Header */}
+                                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                                    <Text style={{ fontSize: 16, marginRight: 8 }}>{getGreeting().emoji}</Text>
+                                    <View>
+                                        <Text style={{ color: '#888', fontSize: 11 }}>{getGreeting().text}</Text>
+                                        <Text style={{ color: '#FFF', fontSize: 18, fontWeight: 'bold' }}>
+                                            Runner
+                                        </Text>
+                                    </View>
                                 </View>
-                                <View style={styles.batteryRow}>
-                                    <Text style={styles.cardValue}>{store.bodyBattery}%</Text>
-                                    <Text style={styles.cardSubtext}>Charged</Text>
+
+                                {/* Yesterday's Stats Grid */}
+                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+                                    {/* Sleep */}
+                                    <View style={{ flex: 1, minWidth: '45%', backgroundColor: '#1A1A1A', borderRadius: 8, padding: 10 }}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                                            <Moon size={14} color="#8B5CF6" />
+                                            <Text style={{ color: '#888', fontSize: 10, marginLeft: 6 }}>Sleep</Text>
+                                        </View>
+                                        <Text style={{ color: '#8B5CF6', fontSize: 20, fontWeight: 'bold' }}>
+                                            {dailyOverview?.sleep?.duration_hours || '--'}h
+                                        </Text>
+                                        {dailyOverview?.sleep?.score && (
+                                            <Text style={{ color: '#666', fontSize: 10 }}>Score: {dailyOverview.sleep.score}</Text>
+                                        )}
+                                    </View>
+
+                                    {/* HRV */}
+                                    <View style={{ flex: 1, minWidth: '45%', backgroundColor: '#1A1A1A', borderRadius: 8, padding: 10 }}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                                            <Activity size={14} color="#22C55E" />
+                                            <Text style={{ color: '#888', fontSize: 10, marginLeft: 6 }}>HRV</Text>
+                                        </View>
+                                        <Text style={{ color: '#22C55E', fontSize: 20, fontWeight: 'bold' }}>
+                                            {dailyOverview?.hrv?.last_night_avg || '--'}ms
+                                        </Text>
+                                        {dailyOverview?.hrv?.status && (
+                                            <Text style={{ color: '#666', fontSize: 10 }}>{dailyOverview.hrv.status}</Text>
+                                        )}
+                                    </View>
+
+                                    {/* Resting HR */}
+                                    <View style={{ flex: 1, minWidth: '45%', backgroundColor: '#1A1A1A', borderRadius: 8, padding: 10 }}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                                            <Heart size={14} color="#EF4444" />
+                                            <Text style={{ color: '#888', fontSize: 10, marginLeft: 6 }}>Resting HR</Text>
+                                        </View>
+                                        <Text style={{ color: '#EF4444', fontSize: 20, fontWeight: 'bold' }}>
+                                            {dailyOverview?.resting_hr || '--'}bpm
+                                        </Text>
+                                    </View>
+
+                                    {/* Stress */}
+                                    <View style={{ flex: 1, minWidth: '45%', backgroundColor: '#1A1A1A', borderRadius: 8, padding: 10 }}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                                            <Zap size={14} color="#F59E0B" />
+                                            <Text style={{ color: '#888', fontSize: 10, marginLeft: 6 }}>Stress</Text>
+                                        </View>
+                                        <Text style={{ color: '#F59E0B', fontSize: 20, fontWeight: 'bold' }}>
+                                            {dailyOverview?.stress?.avg || '--'}
+                                        </Text>
+                                        <Text style={{ color: '#666', fontSize: 10 }}>avg</Text>
+                                    </View>
                                 </View>
-                                <View style={styles.progressBar}>
-                                    <View style={[styles.progressFill, { width: `${store.bodyBattery}%`, backgroundColor: store.bodyBattery > 50 ? '#CCFF00' : '#FF3333' }]} />
-                                </View>
+
+                                {/* Last Sync */}
+                                {dailyOverview?.last_sync && (
+                                    <View style={{ marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#222' }}>
+                                        <Text style={{ color: '#555', fontSize: 10, textAlign: 'center' }}>
+                                            Last Sync: {dailyOverview.last_sync}
+                                        </Text>
+                                    </View>
+                                )}
                             </View>
 
                             {/* Weekly Training Load - Carousel */}
