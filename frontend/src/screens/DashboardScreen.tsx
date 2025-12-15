@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import React, { useEffect } from 'react';
 import { Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import { YStack, XStack, Text, Card, Button, Circle, Theme, View } from 'tamagui';
-import { Battery, Activity, Zap, ArrowRight, User, Calendar, Clock, MapPin } from 'lucide-react-native';
+import { Battery, Activity, Zap, ArrowRight, User, Calendar, Clock, MapPin, RefreshCw } from 'lucide-react-native';
 import { VictoryPie } from 'victory-native';
 import Animated, {
     useSharedValue,
@@ -158,6 +158,49 @@ export default function DashboardScreen() {
     const navigation = useNavigation<any>();
     const { readinessScore, activities, setActivities } = useDashboardStore();
     const [refreshing, setRefreshing] = React.useState(false);
+    const [syncing, setSyncing] = React.useState(false);
+
+    // Sync animation
+    const syncRotation = useSharedValue(0);
+
+    const syncAnimatedStyle = useAnimatedStyle(() => ({
+        transform: [{ rotate: `${syncRotation.value}deg` }]
+    }));
+
+    React.useEffect(() => {
+        if (syncing) {
+            syncRotation.value = withRepeat(
+                withTiming(360, { duration: 1000 }),
+                -1,
+                false
+            );
+        } else {
+            syncRotation.value = 0;
+        }
+    }, [syncing]);
+
+    const handleSync = async () => {
+        if (syncing) return;
+        setSyncing(true);
+        try {
+            const response = await fetch('http://localhost:8000/ingestion/sync/incremental', {
+                method: 'POST'
+            });
+            const result = await response.json();
+            console.log('Sync result:', result);
+
+            // Refresh all dashboard data
+            await Promise.all([
+                fetchActivities(),
+                fetchPmc(),
+                fetchWeekly()
+            ]);
+        } catch (error) {
+            console.error('Sync failed:', error);
+        } finally {
+            setSyncing(false);
+        }
+    };
 
     // PMC State
     const [pmc, setPmc] = React.useState<{
@@ -246,9 +289,18 @@ export default function DashboardScreen() {
                                         Agent <Text color="$color.neonGreen">007</Text>
                                     </Text>
                                 </YStack>
-                                <Circle size={48} backgroundColor="rgba(255,255,255,0.05)" borderWidth={1} borderColor="rgba(255,255,255,0.1)">
-                                    <User size={24} color="#fff" />
-                                </Circle>
+                                <XStack space="$3" alignItems="center">
+                                    <TouchableOpacity onPress={handleSync} disabled={syncing}>
+                                        <Circle size={48} backgroundColor={syncing ? "rgba(204,255,0,0.15)" : "rgba(255,255,255,0.05)"} borderWidth={1} borderColor={syncing ? "rgba(204,255,0,0.3)" : "rgba(255,255,255,0.1)"}>
+                                            <Animated.View style={syncAnimatedStyle}>
+                                                <RefreshCw size={22} color={syncing ? "#CCFF00" : "#fff"} />
+                                            </Animated.View>
+                                        </Circle>
+                                    </TouchableOpacity>
+                                    <Circle size={48} backgroundColor="rgba(255,255,255,0.05)" borderWidth={1} borderColor="rgba(255,255,255,0.1)">
+                                        <User size={24} color="#fff" />
+                                    </Circle>
+                                </XStack>
                             </XStack>
                         </Animated.View>
 

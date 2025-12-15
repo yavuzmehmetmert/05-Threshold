@@ -501,6 +501,190 @@ async def get_latest_profile(db: Session = Depends(get_db)):
         "birthDate": birth_date_str
     }
 
+# --- INCREMENTAL SYNC ENDPOINT ---
+@router.post("/sync/incremental")
+def sync_incremental(db: Session = Depends(get_db)):
+    """
+    Smart incremental sync that only fetches new data:
+    1. Activities: Only fetch activities newer than the last synced activity
+    2. Biometrics: Refresh sleep/stress/HRV/profile for last 7 days
+    
+    This is the production sync used by the app - much faster than full sync.
+    """
+    try:
+        logger.info("Starting Incremental Sync...")
+        
+        # Get or create user
+        if MOCK_MODE:
+            garmin_id = "mock_user_123"
+            email = "mock@user.com"
+            full_name = "Mock Runner"
+        else:
+            client = get_garmin_client()
+            garmin_id = client.username
+            email = "real@garmin.com"
+            full_name = client.display_name
+            
+        user_db = crud.upsert_user(db, garmin_id, email, full_name)
+        user_id = user_db.id
+        
+        # 1. Determine sync range based on last activity
+        last_activity = db.query(models.Activity).filter(
+            models.Activity.user_id == user_id
+        ).order_by(models.Activity.local_start_date.desc()).first()
+        
+        today = date.today()
+        if last_activity and last_activity.local_start_date:
+            days_to_sync = (today - last_activity.local_start_date).days + 1
+            # Minimum 1 day, maximum 30 days for incremental
+            days_to_sync = max(1, min(days_to_sync, 30))
+            logger.info(f"Last activity: {last_activity.local_start_date}. Syncing last {days_to_sync} days.")
+        else:
+            days_to_sync = 30  # Default to 30 days if no activities
+            logger.info("No activities found. Syncing last 30 days.")
+        
+        # 2. Fetch activities for the sync range
+        synced_activities = 0
+        new_activities = 0
+        
+        if not MOCK_MODE:
+            client = get_garmin_client()
+            
+            # Fetch recent activities (start=0, limit based on expected count)
+            # Typically 1-2 activities per day max, so fetch 2x days worth
+            batch_size = min(days_to_sync * 3, 100)
+            activities = client.get_activities(0, batch_size)
+            
+            logger.info(f"Fetched {len(activities)} recent activities from Garmin")
+            
+            for act in activities:
+                activity_id = act.get('activityId')
+                
+                # Check if activity already exists
+                existing = db.query(models.Activity).filter(
+                    models.Activity.activity_id == activity_id
+                ).first()
+                
+                if existing:
+                    continue  # Skip existing activities
+                
+                # New activity - fetch full details
+                logger.info(f"NEW Activity: {act.get('activityName')} ({activity_id})")
+                
+                # Weather enrichment
+                lat = act.get('startLatitude')
+                lon = act.get('startLongitude')
+                start_local = act.get('startTimeLocal')
+                if lat and lon and start_local:
+                    w_data = fetch_historical_weather(lat, lon, start_local)
+                    if w_data:
+                        act.update(w_data)
+                
+                # Fetch detailed data
+                try:
+                    details_json = client.connectapi(f"/activity-service/activity/{activity_id}/details")
+                    if details_json:
+                        act.update(details_json)
+                except Exception as e:
+                    logger.warning(f"Failed to fetch details: {e}")
+                
+                # Upsert activity
+                crud.upsert_activity(db, act, user_id)
+                new_activities += 1
+                synced_activities += 1
+                
+                # Sync biometrics for activity date
+                if start_local:
+                    date_str = start_local.split(' ')[0]
+                    date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+                    
+                    # Sleep
+                    try:
+                        sleep_data = client.get_sleep_data(date_str)
+                        if sleep_data:
+                            crud.upsert_sleep_log(db, user_id, date_obj, sleep_data)
+                    except Exception as e:
+                        logger.warning(f"Sleep sync error: {e}")
+                    
+                    # HRV
+                    try:
+                        hrv_data = client.get_hrv_data(date_str)
+                        if hrv_data:
+                            crud.upsert_hrv_log(db, user_id, date_obj, hrv_data)
+                    except Exception as e:
+                        logger.warning(f"HRV sync error: {e}")
+        
+        # 3. Sync biometrics for last 7 days (even if no new activities)
+        logger.info("Syncing biometrics for last 7 days...")
+        if not MOCK_MODE:
+            client = get_garmin_client()
+            for i in range(7):
+                check_date = today - timedelta(days=i)
+                date_str = check_date.isoformat()
+                
+                try:
+                    # Stress
+                    stress_data = client.get_stress_data(date_str)
+                    if stress_data and 'overallStressLevel' in stress_data:
+                        crud.upsert_stress_log(db, user_id, check_date, stress_data)
+                    
+                    # Sleep
+                    sleep_data = client.get_sleep_data(date_str)
+                    if sleep_data:
+                        crud.upsert_sleep_log(db, user_id, check_date, sleep_data)
+                    
+                    # HRV
+                    hrv_data = client.get_hrv_data(date_str)
+                    if hrv_data:
+                        crud.upsert_hrv_log(db, user_id, check_date, hrv_data)
+                        
+                except Exception as e:
+                    logger.warning(f"Biometric sync error for {date_str}: {e}")
+        
+        # 4. Sync profile (latest physiological metrics)
+        logger.info("Syncing profile...")
+        try:
+            if not MOCK_MODE:
+                profile = client.get_user_profile()
+                user_summary = client.get_user_summary(today.isoformat())
+                
+                # Update physiological log for today
+                log_data = {
+                    'weight': profile.get('userData', {}).get('weight', 0) / 1000 if profile.get('userData', {}).get('weight') else None,
+                    'resting_hr': user_summary.get('restingHeartRate') if user_summary else None,
+                    'avg_stress': user_summary.get('averageStressLevel') if user_summary else None,
+                    'vo2_max': profile.get('vo2MaxRunning'),
+                    'lactate_threshold_hr': profile.get('lactateThresholdHeartRate'),
+                }
+                
+                try:
+                    lt_data = client.get_lactate_threshold()
+                    if lt_data:
+                        log_data['ftp'] = lt_data.get('functionalThresholdPower')
+                except:
+                    pass
+                
+                crud.upsert_physiological_log(db, user_id, today, log_data)
+        except Exception as e:
+            logger.warning(f"Profile sync error: {e}")
+        
+        db.commit()
+        
+        logger.info(f"Incremental Sync Complete: {new_activities} new activities, {synced_activities} total processed")
+        
+        return {
+            "status": "success",
+            "new_activities": new_activities,
+            "total_processed": synced_activities,
+            "days_synced": days_to_sync,
+            "last_sync": today.isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Incremental Sync Error: {e}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/sync")
 def sync_all(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):

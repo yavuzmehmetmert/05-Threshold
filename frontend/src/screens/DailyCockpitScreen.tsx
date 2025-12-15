@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, useWindowDimensions, TouchableOpacity, Alert } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, useWindowDimensions, TouchableOpacity, Alert, Animated, Easing } from 'react-native';
 import { useDashboardStore } from '../store/useDashboardStore';
-import { Battery, Zap, Activity, TrendingUp, AlertTriangle, ChevronRight, Play } from 'lucide-react-native';
+import { Battery, Zap, Activity, TrendingUp, AlertTriangle, ChevronRight, Play, RefreshCw } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const MetricCard = ({ title, value, subtext, icon: Icon, color, style }: any) => (
@@ -540,6 +540,55 @@ const DailyCockpitScreen = () => {
     const { width } = useWindowDimensions();
     const isDesktop = width > 768;
 
+    // Sync state and animation
+    const [syncing, setSyncing] = React.useState(false);
+    const spinValue = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        if (syncing) {
+            Animated.loop(
+                Animated.timing(spinValue, {
+                    toValue: 1,
+                    duration: 1000,
+                    easing: Easing.linear,
+                    useNativeDriver: true,
+                })
+            ).start();
+        } else {
+            spinValue.setValue(0);
+        }
+    }, [syncing]);
+
+    const spin = spinValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0deg', '360deg']
+    });
+
+    const handleSync = async () => {
+        if (syncing) return;
+        setSyncing(true);
+        try {
+            const response = await fetch('http://localhost:8000/ingestion/sync/incremental', {
+                method: 'POST'
+            });
+            const result = await response.json();
+            console.log('Sync result:', result);
+
+            // Refresh dashboard data
+            fetchWeeklyData();
+            if (activities.length === 0 || result.new_activities > 0) {
+                const res = await fetch('http://localhost:8000/ingestion/activities?limit=3');
+                const data = await res.json();
+                setActivities(data);
+            }
+        } catch (error) {
+            console.error('Sync failed:', error);
+            Alert.alert('Sync Failed', 'Could not sync data from Garmin');
+        } finally {
+            setSyncing(false);
+        }
+    };
+
     useEffect(() => {
         // Fetch activities if empty
         if (activities.length === 0) {
@@ -615,8 +664,19 @@ const DailyCockpitScreen = () => {
                             <Text style={styles.headerLabel}>TODAY</Text>
                             <Text style={styles.headerTitle}>Daily Cockpit</Text>
                         </View>
-                        <View style={[styles.circle, { borderColor: readinessColor }]}>
-                            <Activity size={20} color={readinessColor} />
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                            <TouchableOpacity
+                                onPress={handleSync}
+                                disabled={syncing}
+                                style={[styles.circle, { borderColor: syncing ? '#CCFF00' : readinessColor, backgroundColor: syncing ? 'rgba(204, 255, 0, 0.1)' : 'rgba(255, 255, 255, 0.05)' }]}
+                            >
+                                <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                                    <RefreshCw size={20} color={syncing ? '#CCFF00' : '#888'} />
+                                </Animated.View>
+                            </TouchableOpacity>
+                            <View style={[styles.circle, { borderColor: readinessColor }]}>
+                                <Activity size={20} color={readinessColor} />
+                            </View>
                         </View>
                     </View>
 
