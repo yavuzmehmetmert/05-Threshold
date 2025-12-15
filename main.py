@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from auth_service import router as auth_router
 from ingestion_service import router as ingestion_router
 from coach.router import router as coach_router
+from coach_v2.router import router as coach_v2_router  # New Coach V2
 
 from database import engine
 import models
@@ -44,7 +45,8 @@ app.add_middleware(
 # Router'ları Bağla
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(ingestion_router, prefix="/ingestion", tags=["Ingestion"])
-app.include_router(coach_router, tags=["AI Coach"])
+app.include_router(coach_router, tags=["AI Coach (Legacy)"])
+app.include_router(coach_v2_router, tags=["AI Coach V2"])
 
 @app.get("/")
 async def health_check():

@@ -49,13 +49,13 @@ class GeminiClient:
     # Estimated tokens per character (rough heuristic)
     CHARS_PER_TOKEN = 3.5
     
-    def __init__(self, api_key: str, model: str = "gemini-2.5-flash"):
+    def __init__(self, api_key: str, model: str = "gemini-3-pro-preview"):
         """
         Initialize Gemini client.
         
         Args:
             api_key: Gemini API key
-            model: Model to use (default: gemini-2.5-flash for balanced speed/quality)
+            model: Model to use (default: gemini-3-pro-preview - latest with best reasoning)
         """
         self.api_key = api_key
         self.model_name = model
@@ -124,17 +124,30 @@ class GeminiClient:
         if mode_prompt:
             parts.append(mode_prompt)
         
-        # Add context if provided
+        # Add context if provided - make headers VERY prominent
         if context:
-            parts.append("\n# BAĞLAM")
+            parts.append("\n# ⚠️ BAĞLAM - BU VERİLER GERÇEK, MUTLAKA KULLAN!")
+            
+            # Priority order and enhanced headers
+            priority_labels = {
+                "last_activity": "📊 SON ANTRENMAN DETAYLARI (İNTERVAL/ZONE BİLGİSİ BURADA!)",
+                "profile": "👤 KULLANICI PROFİLİ",
+                "recent_7d": "📅 SON 7 GÜN ÖZETİ",
+                "user_analysis": "🧠 KULLANICI ANALİZİ",
+                "correlations": "📈 PERFORMANS KORELASYONLARI",
+                "biometrics_7d": "💓 BİYOMETRİK VERİLER",
+                "conversation": "💬 ÖNCEKİ KONUŞMA"
+            }
+            
             for key, value in context.items():
                 if value:
+                    label = priority_labels.get(key, f"📋 {key}")
                     if hasattr(value, 'to_context_string'):
-                        parts.append(f"## {key}\n{value.to_context_string()}")
+                        parts.append(f"## {label}\n{value.to_context_string()}")
                     elif isinstance(value, str):
-                        parts.append(f"## {key}\n{value}")
+                        parts.append(f"## {label}\n{value}")
                     elif isinstance(value, dict):
-                        parts.append(f"## {key}\n{json.dumps(value, ensure_ascii=False)}")
+                        parts.append(f"## {label}\n{json.dumps(value, ensure_ascii=False)}")
         
         # Add user message
         parts.append(f"\n# KULLANICI MESAJI\n{prompt}")

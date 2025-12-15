@@ -16,6 +16,9 @@ from coach.repository import CoachRepository
 from coach.tools import CoachTools
 from coach.gemini_client import GeminiClient, GenerationResult
 from coach.crypto import decrypt_api_key
+from coach.activity_analyzer import ActivityAnalyzer
+from coach.correlation_engine import CorrelationEngine
+from coach.rag_engine import RAGEngine
 import models
 
 
@@ -34,6 +37,9 @@ class Orchestrator:
         self.user_id = user_id
         self.repo = CoachRepository(db)
         self.tools = CoachTools(db, user_id)
+        self.activity_analyzer = ActivityAnalyzer(db)
+        self.correlation_engine = CorrelationEngine(db)
+        self.rag_engine = RAGEngine(db, user_id)
         self._client: Optional[GeminiClient] = None
     
     def _get_client(self) -> Optional[GeminiClient]:
@@ -107,8 +113,8 @@ class Orchestrator:
     
     def build_minimal_context(self) -> Dict[str, Any]:
         """
-        Build minimal context for every request.
-        ~400 tokens total.
+        Build RICH context for every request.
+        Includes correlations and detailed activity analysis.
         """
         context = {}
         
@@ -121,10 +127,14 @@ class Orchestrator:
         recent = self.repo.get_recent_summary(self.user_id, days=7)
         context["recent_7d"] = recent.to_context_string()
         
-        # Last activity (~150 chars)
+        # Last activity with FULL DETAILS (intervals, zones, etc.)
         last_activity = self.repo.get_last_activity_summary(self.user_id)
         if last_activity:
-            context["last_activity"] = last_activity.to_context_string()
+            detailed = self.activity_analyzer.analyze_activity(self.user_id, last_activity.id)
+            if detailed:
+                context["last_activity"] = detailed.to_context_string()
+            else:
+                context["last_activity"] = last_activity.to_context_string()
         
         # Conversation state (~800 chars)
         conv_state = self.repo.get_conversation_state(self.user_id)
@@ -135,6 +145,28 @@ class Orchestrator:
         facts = self.repo.get_user_facts(self.user_id)
         if facts and facts.facts_summary:
             context["user_analysis"] = facts.facts_summary[:2000]
+        
+        # PERFORMANCE CORRELATIONS - sleep, HRV, stress relationships
+        try:
+            correlations = self.correlation_engine.get_all_correlations(self.user_id, days=30)
+            context["correlations"] = correlations.to_context_string()
+        except Exception:
+            pass  # Skip if correlation data unavailable
+        
+        # Today's biometric status for immediate context
+        try:
+            bio_summary = self.correlation_engine.get_biometric_summary(self.user_id, days=7)
+            bio_parts = []
+            if bio_summary.get('avg_sleep_hours'):
+                bio_parts.append(f"Uyku: {bio_summary['avg_sleep_hours']}h/gün")
+            if bio_summary.get('avg_hrv'):
+                bio_parts.append(f"HRV: {bio_summary['avg_hrv']}ms")
+            if bio_summary.get('avg_stress'):
+                bio_parts.append(f"Stres: {bio_summary['avg_stress']}")
+            if bio_parts:
+                context["biometrics_7d"] = ", ".join(bio_parts)
+        except Exception:
+            pass
         
         return context
     
@@ -187,7 +219,7 @@ class Orchestrator:
         request: ChatRequest
     ) -> ChatResponse:
         """
-        Handle chat request with progressive disclosure.
+        Handle chat request with progressive disclosure and auto-onboarding.
         """
         client = self._get_client()
         if not client:
@@ -196,13 +228,22 @@ class Orchestrator:
                 suggestions=["API anahtarı nasıl alınır?"]
             )
         
+        # AUTO-ONBOARDING: Check if user needs deep learning
+        facts = self.repo.get_user_facts(self.user_id)
+        if not facts or not facts.facts_summary:
+            # First time user - trigger deep learning in background
+            try:
+                await self.handle_learn(force=False)
+            except Exception:
+                pass  # Continue even if learning fails
+        
         # 1. Detect intent
         intent = self.detect_intent(request.message)
         
-        # 2. Build minimal context
-        context = self.build_minimal_context()
+        # 2. RAG: Retrieve only relevant context based on query
+        context = self.rag_engine.retrieve_for_query(request.message)
         
-        # 3. Expand context based on intent
+        # 3. Expand context based on intent (optional additional data)
         context = self.expand_context_for_intent(intent, request.message, context)
         
         # 4. Add activity context if provided
