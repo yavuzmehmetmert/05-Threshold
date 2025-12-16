@@ -34,10 +34,19 @@ TURKISH_MONTHS = {
 
 # Intent patterns
 LAST_ACTIVITY_PATTERNS = [
-    r'son\s+(?:antrenman|koşu|aktivite)',
-    r'dün(?:kü)?\s+(?:antrenman|koşu)',
-    r'bugün(?:kü)?\s+(?:antrenman|koşu)',
-    r'en\s+son',
+    r'son\s+(?:antren?man|koşu|aktivite|run)',  # antrenman/antreman
+    r'son\s+(?:antren?man|koşu)\w*\s+(?:değerlendir|yorumla|incele|analiz|nasıl)',
+    r'son\s+(?:antren?man|koşu)\w*\s+(?:ne\s+)?(?:oldu|gitti|geçti)',
+    r'dün(?:kü)?\s+(?:antren?man|koşu)',
+    r'bugün(?:kü)?\s+(?:antren?man|koşu)',
+    r'en\s+son(?:ki)?',
+    r'az\s+önce(?:ki)?\s+(?:koşu)?',
+    r'biraz\s+önce',
+    r'son\s+(?:koştum|koştun|yaptım|yaptığım)',
+    r'(?:koşu|antren?man)\w*\s+(?:analiz|değerlendir|yorumla)',
+    r'son\s+(?:antren?man|koşu)\w*\s+(?:hakkında|için)',
+    r'son\s+(?:antren?man|koşu)\w*\s+detay',
+    r'son\s+(?:antren?man|koşu)\w*\s+ne\s+olduğ',  # "ne olduğunu bilmiyor"
 ]
 
 TREND_PATTERNS = [
@@ -46,6 +55,15 @@ TREND_PATTERNS = [
     r'ilerleme',
     r'trend',
     r'genel\s+durum',
+    # Broaden to capture typos like 'ahfta'
+    r'geçen\s+\w+',      # e.g. "geçen hafta", "geçen ahfta", "geçen ay"
+    r'geçtiğimiz\s+\w+', # e.g. "geçtiğimiz hafta"
+    r'bu\s+hafta',
+    r'nasıl\s+geçti',
+    r'hafta\s+nasıl',
+    r'nasıl\s+gidiyor',
+    r'ne\s+durumda',
+    r'ne\s+alemde',
 ]
 
 GREETING_PATTERNS = [
@@ -96,6 +114,57 @@ LONGITUDINAL_PATTERNS = [
     r'(\d+)\s*hafta(?:lık)?\s+(?:hazırlık|süreç|dönem)',
     r'hazırlık\s+sürecini?\s+yorumla',
     r'o\s+yarışa?\s+(?:özel|hazırlık)',
+    # NEW: Catch "3 ayı yorumla", "4 haftayı analiz et"
+    r'(\d+)\s*(?:ay|hafta)\w*\s+(?:yorumla|analiz|değerlendir|nasıl)',
+]
+
+# NEW: Status/Form patterns (TSB, CTL, etc.)
+STATUS_PATTERNS = [
+    r'durum',
+    r'form',
+    r'tsb',
+    r'ctl',
+    r'atl',
+    r'yorgunluk',
+    r'hazır\s+mıyım',
+    r'hazır\s+değil',
+    r'fiziksel',
+]
+
+# NEW: Race Strategy patterns
+RACE_STRATEGY_PATTERNS = [
+    r'yarış\s+stratejisi',
+    r'yarış\w*\s+(?:plan|hedef|taktik)',
+    r'10k|5k|21k|maraton|half',
+    r'pace\s+(?:hedef|öner|ne)',
+    r'(?:geçmiş|tüm)\s+yarış',
+    r'performans\w*\s+(?:analiz|değerlendir)',
+    r'nasıl\s+(?:bir|bi)\s+strateji',
+    r'(?:tempo|sprint|bitiriş)\s+(?:öner|hedef)',
+]
+
+# NEW: Temporal/Historical query patterns
+TEMPORAL_PATTERNS = [
+    r'(?:ne\s+zaman|when).+(?:en\s+hızlı|fastest|PR)',  # When was I fastest?
+    r'(?:neden|why|niye).+(?:formsuz|yavaş|kötü|düşük)',  # Why was I slow?
+    r'(?:nasıl|how).+(?:gelişti|improved|değişti)',  # How did I improve?
+    r'(?:karşılaştır|compare|kıyasla)',  # Compare periods
+    r'(?:\d+\s+ay\s+önce)',  # X months ago
+    r'(?:geçen|önceki)\s+(?:yıl|sezon|dönem)',  # Last year/season
+    r'(?:o\s+zaman|o\s+dönem)',  # Back then
+    r'(?:ocak|şubat|mart|nisan|mayıs|haziran|temmuz|ağustos|eylül|ekim|kasım|aralık)\s+ayı?(?:nda)?',  # In month X
+    r'beni\s+(?:öğren|tanı|analiz)',  # Learn about me
+    r'(?:kim|nasıl\s+bir)\s+(?:koşucu|atlet)',  # What kind of runner am I?
+    r'(?:güçlü|zayıf)\s+(?:yan|taraf)',  # Strengths/weaknesses
+]
+
+# NEW: Progression/Trend query patterns  
+PROGRESSION_PATTERNS = [
+    r'(?:ne\s+kadar|how\s+much).+(?:geliş|ilerle)',
+    r'(?:ilerle|geliş)(?:me|im|iş)',
+    r'(?:form|fitness)\s+(?:değişim|trendi?)',
+    r'vo2\s*max',
+    r'(?:threshold|eşik)\s+(?:pace|tempo)',
 ]
 
 
@@ -147,16 +216,7 @@ def parse_user_query(text: str, pinned_state: Optional[PinnedState] = None) -> P
     text_lower = text.lower().strip()
     original = text
     
-    # 1. Check for greeting
-    for pattern in GREETING_PATTERNS:
-        if re.search(pattern, text_lower):
-            return ParsedIntent(
-                intent_type='greeting',
-                original_query=original,
-                confidence=0.9
-            )
-    
-    # 2. Extract dates first (they take priority)
+    # 1. Extract dates first (they take priority)
     dates = _extract_dates(text_lower)
     
     # If dates found, this is a date-specific query
@@ -169,6 +229,33 @@ def parse_user_query(text: str, pinned_state: Optional[PinnedState] = None) -> P
             original_query=original,
             confidence=0.85
         )
+    
+    # 2.5. Check for RACE STRATEGY queries
+    for pattern in RACE_STRATEGY_PATTERNS:
+        if re.search(pattern, text_lower):
+            return ParsedIntent(
+                intent_type='race_strategy',
+                original_query=original,
+                confidence=0.85
+            )
+    
+    # 2.6. Check for TEMPORAL/HISTORICAL queries ("neden şubat'ta formsuzdum?")
+    for pattern in TEMPORAL_PATTERNS:
+        if re.search(pattern, text_lower):
+            return ParsedIntent(
+                intent_type='temporal_query',
+                original_query=original,
+                confidence=0.85
+            )
+    
+    # 2.7. Check for PROGRESSION queries ("VO2max nasıl değişti?")
+    for pattern in PROGRESSION_PATTERNS:
+        if re.search(pattern, text_lower):
+            return ParsedIntent(
+                intent_type='progression_query',
+                original_query=original,
+                confidence=0.85
+            )
     
     # 3. Check for HEALTH queries (uses pinned date if available)
     for pattern in HEALTH_PATTERNS:
@@ -225,7 +312,18 @@ def parse_user_query(text: str, pinned_state: Optional[PinnedState] = None) -> P
                     confidence=0.85
                 )
     
-    # 7. Check for trend/general longitudinal
+    # 7. Check for STATUS/FORM queries (TSB, Form, Durum)
+    for pattern in STATUS_PATTERNS:
+        if re.search(pattern, text_lower):
+             return ParsedIntent(
+                intent_type='trend',
+                trend_days=28, # Standard lookback for form/ACWR
+                anchor_date=pinned_state.local_start_date if pinned_state and pinned_state.is_valid else None,
+                original_query=original,
+                confidence=0.85
+             )
+
+    # 8. Check for trend/general longitudinal
     for pattern in TREND_PATTERNS:
         match = re.search(pattern, text_lower)
         if match:
@@ -277,6 +375,15 @@ def parse_user_query(text: str, pinned_state: Optional[PinnedState] = None) -> P
             confidence=0.6
         )
     
+    # 11. Check for greeting (LOWEST PRIORITY - only if nothing else matches)
+    for pattern in GREETING_PATTERNS:
+        if re.search(pattern, text_lower):
+            return ParsedIntent(
+                intent_type='greeting',
+                original_query=original,
+                confidence=0.9
+            )
+
     # Default: general question
     return ParsedIntent(
         intent_type='general',

@@ -203,7 +203,34 @@ class CandidateRetriever:
         return candidates[:5]  # Top 5
     
     def get_last_activity(self, user_id: int) -> Optional[ActivityCandidate]:
-        """Get the most recent activity for a user."""
+        """Get the most recent activity for a user from public.activities."""
+        # PRIMARY: Use public.activities (always up to date)
+        activity = self.db.query(models.Activity).filter(
+            models.Activity.user_id == user_id
+        ).order_by(models.Activity.start_time_local.desc()).first()
+        
+        if activity:
+            # Check if we have a summary for richer data
+            summary = self.db.query(ActivitySummary).filter(
+                ActivitySummary.garmin_activity_id == activity.activity_id
+            ).first()
+            
+            distance = (activity.distance or 0) / 1000
+            duration = int((activity.duration or 0) / 60)
+            
+            return ActivityCandidate(
+                garmin_activity_id=activity.activity_id,
+                activity_name=activity.activity_name or 'Unknown',
+                local_start_date=activity.local_start_date or date.today(),
+                distance_km=distance,
+                duration_min=duration,
+                workout_type=summary.workout_type if summary else 'unknown',
+                facts_text=summary.facts_text if summary else None,
+                summary_text=summary.summary_text if summary else None,
+                match_score=1.0
+            )
+        
+        # FALLBACK: Use activity summaries if no activities found
         summary = self.db.query(ActivitySummary).filter(
             ActivitySummary.user_id == user_id
         ).order_by(ActivitySummary.local_start_date.desc()).first()
@@ -211,11 +238,12 @@ class CandidateRetriever:
         if not summary:
             return None
         
-        activity = self.db.query(models.Activity).filter(
+        # Get activity name from public.activities
+        act = self.db.query(models.Activity).filter(
             models.Activity.activity_id == summary.garmin_activity_id
         ).first()
         
-        name = activity.activity_name if activity else f"Activity {summary.garmin_activity_id}"
+        name = act.activity_name if act else f"Activity {summary.garmin_activity_id}"
         distance = summary.summary_json.get('distance_km', 0) if summary.summary_json else 0
         duration = summary.summary_json.get('duration_min', 0) if summary.summary_json else 0
         
@@ -283,3 +311,83 @@ class CandidateRetriever:
         intersection = tokens1 & tokens2
         union = tokens1 | tokens2
         return len(intersection) / len(union)
+
+    def get_race_history(self, user_id: int, limit: int = 10) -> List[Dict]:
+        """
+        Get user's past races for performance analysis.
+        Races are identified by activity name containing race keywords.
+        """
+        race_keywords = ['race', 'yarış', '10k', '5k', '21k', 'maraton', 'half', 'parkrun', 'koşusu']
+        
+        # Query all activities
+        activities = self.db.query(models.Activity).filter(
+            models.Activity.user_id == user_id
+        ).order_by(models.Activity.start_time_local.desc()).limit(300).all()
+        
+        races = []
+        for a in activities:
+            name_lower = (a.activity_name or '').lower()
+            
+            # Only consider races by NAME, not by HR
+            is_race = any(kw in name_lower for kw in race_keywords)
+            
+            # Skip if not a race or too short (< 3km probably not a race)
+            if not is_race or not a.distance or a.distance < 3000:
+                continue
+            
+            # Calculate average pace
+            pace_str = None
+            if a.distance and a.distance > 0 and a.duration:
+                pace_sec = a.duration / (a.distance / 1000)
+                pace_min = int(pace_sec // 60)
+                pace_sec_rem = int(pace_sec % 60)
+                pace_str = f"{pace_min}:{pace_sec_rem:02d}"
+            
+            races.append({
+                'activity_id': a.activity_id,
+                'name': a.activity_name,
+                'date': a.local_start_date,
+                'distance_km': (a.distance or 0) / 1000,
+                'duration_min': (a.duration or 0) / 60,
+                'avg_pace': pace_str,
+                'avg_hr': a.average_hr,
+                'max_hr': a.max_hr
+            })
+            
+            if len(races) >= limit:
+                break
+        
+        return races
+
+    def get_recent_runs(self, user_id: int, days: int = 30, limit: int = 20) -> List[Dict]:
+        """Get recent runs for analysis."""
+        from datetime import timedelta
+        
+        start_date = date.today() - timedelta(days=days)
+        
+        activities = self.db.query(models.Activity).filter(
+            models.Activity.user_id == user_id,
+            models.Activity.local_start_date >= start_date,
+            models.Activity.activity_type.ilike('%running%')
+        ).order_by(models.Activity.start_time_local.desc()).limit(limit).all()
+        
+        runs = []
+        for a in activities:
+            pace_str = None
+            if a.distance and a.distance > 0 and a.duration:
+                pace_sec = a.duration / (a.distance / 1000)
+                pace_min = int(pace_sec // 60)
+                pace_sec_rem = int(pace_sec % 60)
+                pace_str = f"{pace_min}:{pace_sec_rem:02d}"
+            
+            runs.append({
+                'activity_id': a.activity_id,
+                'name': a.activity_name,
+                'date': a.local_start_date,
+                'distance_km': (a.distance or 0) / 1000,
+                'duration_min': (a.duration or 0) / 60,
+                'avg_pace': pace_str,
+                'avg_hr': a.average_hr
+            })
+        
+        return runs

@@ -39,12 +39,14 @@ class ChatRequestBody(BaseModel):
     deep_analysis_mode: bool = False
     debug: bool = False
     conversation_history: list[ChatMessage] = []  # Last N messages for context
+    activity_details_json: Optional[dict] = None  # Direct payload from frontend
 
 
 class ChatResponseBody(BaseModel):
     message: str
     resolved_activity_id: Optional[int] = None  # Activity being discussed
     debug_metadata: Optional[dict] = None
+
 
 
 class NoteRequestBody(BaseModel):
@@ -102,6 +104,7 @@ async def chat(body: ChatRequestBody, db: Session = Depends(get_db)):
     
     If garmin_activity_id is provided, the conversation will focus on that activity.
     If deep_analysis_mode is True, the system may query activity streams (slower).
+    If activity_details_json is provided (from frontend state), it uses that as source of truth.
     """
     llm_client = get_llm_client(body.user_id, db)
     orchestrator = CoachOrchestrator(db, llm_client)
@@ -115,7 +118,8 @@ async def chat(body: ChatRequestBody, db: Session = Depends(get_db)):
         garmin_activity_id=body.garmin_activity_id,
         deep_analysis_mode=body.deep_analysis_mode,
         debug=body.debug,
-        conversation_history=history
+        conversation_history=history,
+        activity_details_json=body.activity_details_json
     )
     
     response = orchestrator.handle_chat(request)

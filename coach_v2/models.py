@@ -19,7 +19,7 @@ from database import Base
 class ActivitySummary(Base):
     """Bounded per-activity summary with canonical facts."""
     __tablename__ = "activity_summaries"
-    __table_args__ = {'schema': 'coach_v2'}
+    __table_args__ = {'schema': 'coach_v2', 'extend_existing': True}
     
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -45,7 +45,7 @@ class UserModel(Base):
     __tablename__ = "user_model"
     __table_args__ = (
         CheckConstraint('length(model_json::text) < 4096', name='model_json_size'),
-        {'schema': 'coach_v2'}
+        {'schema': 'coach_v2', 'extend_existing': True}
     )
     
     id = Column(Integer, primary_key=True)
@@ -65,7 +65,7 @@ class UserModel(Base):
 class Insight(Base):
     """Daily generated insights with evidence."""
     __tablename__ = "insights"
-    __table_args__ = {'schema': 'coach_v2'}
+    __table_args__ = {'schema': 'coach_v2', 'extend_existing': True}
     
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -87,7 +87,7 @@ class Insight(Base):
 class DailyBriefing(Base):
     """Pre-computed morning briefings."""
     __tablename__ = "daily_briefings"
-    __table_args__ = {'schema': 'coach_v2'}
+    __table_args__ = {'schema': 'coach_v2', 'extend_existing': True}
     
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -104,7 +104,7 @@ class DailyBriefing(Base):
 class KBDoc(Base):
     """Knowledge base documents."""
     __tablename__ = "kb_docs"
-    __table_args__ = {'schema': 'coach_v2'}
+    __table_args__ = {'schema': 'coach_v2', 'extend_existing': True}
     
     id = Column(Integer, primary_key=True)
     title = Column(String(500), nullable=False)
@@ -121,7 +121,7 @@ class KBDoc(Base):
 class KBChunk(Base):
     """RAG chunks for knowledge base."""
     __tablename__ = "kb_chunks"
-    __table_args__ = {'schema': 'coach_v2'}
+    __table_args__ = {'schema': 'coach_v2', 'extend_existing': True}
     
     id = Column(Integer, primary_key=True)
     doc_id = Column(Integer, ForeignKey("coach_v2.kb_docs.id", ondelete="CASCADE"), nullable=False)
@@ -137,7 +137,7 @@ class KBChunk(Base):
 class Note(Base):
     """User notes on activities."""
     __tablename__ = "notes"
-    __table_args__ = {'schema': 'coach_v2'}
+    __table_args__ = {'schema': 'coach_v2', 'extend_existing': True}
     
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -152,7 +152,7 @@ class Note(Base):
 class PipelineRun(Base):
     """Track pipeline execution."""
     __tablename__ = "pipeline_runs"
-    __table_args__ = {'schema': 'coach_v2'}
+    __table_args__ = {'schema': 'coach_v2', 'extend_existing': True}
     
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
