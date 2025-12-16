@@ -23,7 +23,7 @@ from coach_v2.targeted_extraction import TargetedExtractor
 from coach_v2.evidence_gate import EvidenceGate
 from coach_v2.performance_analyzer import PerformanceAnalyzer
 from coach_v2.athlete_memory import AthleteMemoryStore
-from coach_v2.smart_query_engine import SmartQueryEngine
+from coach_v2.sql_agent import SQLAgent
 
 # ==============================================================================
 # CONTEXT BOUNDS
@@ -54,6 +54,7 @@ class ChatResponse:
     resolved_activity_id: Optional[int] = None
     resolved_date: Optional[str] = None
     debug_metadata: Optional[Dict[str, Any]] = None
+    debug_steps: Optional[List[Dict[str, Any]]] = None  # Step-by-step debug
 
 
 class ConversationStateManager:
@@ -206,7 +207,7 @@ Ne yapmak istersin?"""
         self.evidence_gate = EvidenceGate()
         self.performance_analyzer = PerformanceAnalyzer(db)
         self.memory_store = AthleteMemoryStore(db)
-        self.smart_engine = SmartQueryEngine(db, llm_client)
+        self.sql_agent = SQLAgent(db, llm_client)
     
     def handle_chat(self, request: ChatRequest) -> ChatResponse:
         """Handle chat request with pinned state awareness."""
@@ -229,54 +230,92 @@ Ne yapmak istersin?"""
     def _route_intent(self, request, parsed_intent, pinned_state, debug_info):
         """Route parsed intent to appropriate handler."""
         
+        # PRIORITY 1: Greeting - always respond with simple greeting
         if parsed_intent.intent_type == 'greeting':
-            return self._handle_greeting(request, debug_info)
+            if debug_info is not None:
+                debug_info['handler_used'] = 'greeting'
+            return ChatResponse(
+                message=self.GREETING_RESPONSE, 
+                debug_metadata=debug_info,
+                debug_steps=[{"step": 1, "name": "Intent Detection", "status": "greeting", "description": "Selamlama algılandı, basit cevap döndürülüyor"}]
+            )
         
-        # Case A: Explicit Activity ID provided (Frontend Context)
+        # PRIORITY 2: General/SQL Agent queries - ignore activity context for these
+        if parsed_intent.intent_type == 'general':
+            if debug_info is not None:
+                debug_info['handler_used'] = 'sql_agent'
+            return self._handle_general_query(request, debug_info)
+        
+        # Case A: Explicit Activity ID provided (Frontend Context) - only for activity-specific intents
         if request.garmin_activity_id:
-             return self._handle_specific_activity(request, request.garmin_activity_id, parsed_intent, debug_info)
+            if debug_info is not None:
+                debug_info['handler_used'] = 'specific_activity'
+                debug_info['reason'] = f'garmin_activity_id={request.garmin_activity_id} provided'
+            return self._handle_specific_activity(request, request.garmin_activity_id, parsed_intent, debug_info)
 
         # Case B: Date Query -> Resolve & Pin
         if parsed_intent.intent_type == 'specific_date':
+            if debug_info is not None:
+                debug_info['handler_used'] = 'date_query'
             return self._handle_date_query(request, parsed_intent, debug_info)
         
         # Case C: Trend/Status Query
         if parsed_intent.intent_type == 'trend':
+            if debug_info is not None:
+                debug_info['handler_used'] = 'trend_query'
             return self._handle_trend_query(request, parsed_intent, debug_info)
         
-        # Case C2: Race Strategy Query
-        if parsed_intent.intent_type == 'race_strategy':
+        # Case C2: Race Strategy
+        if parsed_intent.intent_type in ['race_strategy', 'workout_plan']:
+            if debug_info is not None:
+                debug_info['handler_used'] = 'race_strategy'
             return self._handle_race_strategy(request, parsed_intent, debug_info)
         
         # Case C3: Temporal Query ("neden şubat'ta formsuzdum?")
         if parsed_intent.intent_type == 'temporal_query':
+            if debug_info is not None:
+                debug_info['handler_used'] = 'temporal_query'
             return self._handle_temporal_query(request, parsed_intent, debug_info)
         
         # Case C4: Progression Query ("VO2max nasıl gelişti?")
         if parsed_intent.intent_type == 'progression_query':
+            if debug_info is not None:
+                debug_info['handler_used'] = 'progression_query'
             return self._handle_progression_query(request, parsed_intent, debug_info)
         
         # Case D: Longitudinal (uses pinned date/load)
         if parsed_intent.intent_type == 'longitudinal_prep':
+            if debug_info is not None:
+                debug_info['handler_used'] = 'longitudinal_prep'
             return self._handle_longitudinal_query(request, parsed_intent, pinned_state, debug_info)
         
         # Case E: Health (uses pinned date)
         if parsed_intent.intent_type == 'health_day_status':
+            if debug_info is not None:
+                debug_info['handler_used'] = 'health_query'
             return self._handle_health_query(request, parsed_intent, pinned_state, debug_info)
             
         # Case F: Follow-up Analysis (laps, technique, general) -> Needs Context
         if parsed_intent.intent_type in ['activity_analysis', 'laps_or_splits', 'technique']:
-             return self._handle_activity_followup(request, parsed_intent, pinned_state, debug_info)
+            if debug_info is not None:
+                debug_info['handler_used'] = 'activity_followup'
+            return self._handle_activity_followup(request, parsed_intent, pinned_state, debug_info)
 
         # Case G: Last Activity
         if parsed_intent.intent_type == 'last_activity':
+            if debug_info is not None:
+                debug_info['handler_used'] = 'last_activity'
             return self._handle_last_activity(request, parsed_intent, debug_info)
 
         # Case H: Specific Activity Name (e.g., "Almada koşusu")
         if parsed_intent.intent_type == 'specific_name':
+            if debug_info is not None:
+                debug_info['handler_used'] = 'specific_name'
             return self._handle_name_query(request, parsed_intent, debug_info)
 
-        # General - try to help
+        # FALLBACK: Unknown intent -> SQL Agent
+        if debug_info is not None:
+            debug_info['handler_used'] = 'sql_agent_fallback'
         return self._handle_general_query(request, debug_info)
     
     # ==========================================================================
@@ -637,18 +676,27 @@ TSB YORUMU:
         )
 
     def _handle_general_query(self, request, debug_info):
-        """Handle general questions with LLM-driven smart query engine."""
-        # Use SmartQueryEngine for flexible question answering
+        """Handle general questions with SQL Agent."""
+        # Use SQLAgent for dynamic SQL generation
         try:
-            response_text, smart_debug = self.smart_engine.analyze_and_answer(
+            response_text, sql_debug = self.sql_agent.analyze_and_answer(
                 request.user_id, 
                 request.message
             )
+            
+            # Extract debug_steps for UI display
+            debug_steps = sql_debug.get("steps", [])
+            
             if debug_info is not None:
-                debug_info['smart_query'] = smart_debug
-            return ChatResponse(message=response_text, debug_metadata=debug_info)
+                debug_info['sql_agent'] = sql_debug
+            
+            return ChatResponse(
+                message=response_text, 
+                debug_metadata=debug_info,
+                debug_steps=debug_steps
+            )
         except Exception as e:
-            logging.error(f"SmartQueryEngine failed: {e}")
+            logging.error(f"SQLAgent failed: {e}")
             return ChatResponse(message=self.NO_DATA_RESPONSE, debug_metadata=debug_info)
 
     # ==========================================================================
@@ -725,12 +773,33 @@ TSB YORUMU:
         is_valid, violation = self.evidence_gate.validate(resp.text, context + "\n" + request.message)
         if not is_valid:
             logging.warning(f"Potential hallucination: {violation}")
+        
+        # Build debug_steps for activity analysis
+        debug_steps = [
+            {
+                "step": 1,
+                "name": "Activity Data Loaded",
+                "status": "success",
+                "description": f"Aktivite: {activity_name}",
+                "data_source": "activities table + analysis pack",
+                "activity_context": context  # Full context, no truncation
+            },
+            {
+                "step": 2,
+                "name": "LLM Analysis",
+                "status": "success",
+                "prompt_sent": prompt,  # Full prompt, no truncation
+                "llm_response": resp.text,  # Full response, no truncation
+                "description": "LLM koşuyu analiz etti"
+            }
+        ]
             
         return ChatResponse(
             message=resp.text, 
             resolved_activity_id=act_id, 
             resolved_date=str(date_val) if date_val else None, 
-            debug_metadata=debug_info
+            debug_metadata=debug_info,
+            debug_steps=debug_steps
         )
 
     def _generate_conversational_response(self, request, context, context_type, debug_info, activity_id=None, date_val=None):
@@ -769,12 +838,32 @@ TSB YORUMU:
 """
         
         resp = self.llm.generate(prompt, max_tokens=400)
+        
+        # Build debug_steps for conversational response
+        debug_steps = [
+            {
+                "step": 1,
+                "name": f"Context Build ({context_type})",
+                "status": "success",
+                "description": f"{context_type} verisi yüklendi",
+                "context_preview": context[:200] + "..." if len(context) > 200 else context
+            },
+            {
+                "step": 2,
+                "name": "LLM Response",
+                "status": "success",
+                "prompt_sent": prompt,  # Full prompt
+                "llm_response": resp.text,  # Full response
+                "description": "LLM cevap üretti"
+            }
+        ]
              
         return ChatResponse(
             message=resp.text, 
             resolved_activity_id=activity_id, 
             resolved_date=str(date_val) if date_val else None, 
-            debug_metadata=debug_info
+            debug_metadata=debug_info,
+            debug_steps=debug_steps
         )
 
     # ==========================================================================
@@ -854,6 +943,102 @@ TSB YORUMU:
                         lines.append(f"- Toplam yükseliş farkı: {max_alt - min_alt:.0f}m (dalgalı parkur)")
             except Exception as e:
                 pass  # Silent fail - don't break analysis if altitude query fails
+        
+        # HEALTH DATA FOR THAT DAY (HRV, Stress, Sleep)
+        if activity_date:
+            try:
+                # HRV data from previous night
+                hrv = self.db.query(models.HRVLog).filter(
+                    models.HRVLog.user_id == 1,  # TODO: get from activity
+                    models.HRVLog.calendar_date == activity_date
+                ).first()
+                
+                if hrv:
+                    lines.append(f"\n💓 HRV VERİSİ (Önceki Gece):")
+                    lines.append(f"- HRV Ortalaması: {hrv.last_night_avg} ms")
+                    if hrv.status:
+                        lines.append(f"- Durum: {hrv.status}")
+                    if hrv.baseline_low and hrv.baseline_high:
+                        lines.append(f"- Baseline Aralığı: {hrv.baseline_low}-{hrv.baseline_high} ms")
+                
+                # Stress data
+                stress = self.db.query(models.StressLog).filter(
+                    models.StressLog.user_id == 1,
+                    models.StressLog.calendar_date == activity_date
+                ).first()
+                
+                if stress:
+                    lines.append(f"\n😰 STRES VERİSİ:")
+                    lines.append(f"- Ortalama Stres: {stress.avg_stress}")
+                    lines.append(f"- Max Stres: {stress.max_stress}")
+                    if stress.status:
+                        lines.append(f"- Durum: {stress.status}")
+                
+                # Sleep data from previous night
+                sleep = self.db.query(models.SleepLog).filter(
+                    models.SleepLog.user_id == 1,
+                    models.SleepLog.calendar_date == activity_date
+                ).first()
+                
+                if sleep:
+                    lines.append(f"\n😴 UYKU VERİSİ (Önceki Gece):")
+                    if sleep.sleep_score:
+                        lines.append(f"- Uyku Skoru: {sleep.sleep_score}")
+                    duration_hrs = sleep.duration_seconds / 3600 if sleep.duration_seconds else 0
+                    lines.append(f"- Uyku Süresi: {duration_hrs:.1f} saat")
+                    if sleep.deep_seconds:
+                        deep_hrs = sleep.deep_seconds / 3600
+                        lines.append(f"- Derin Uyku: {deep_hrs:.1f} saat")
+                    if sleep.quality_score:
+                        lines.append(f"- Kalite: {sleep.quality_score}")
+                        
+            except Exception as e:
+                pass  # Silent fail
+        
+        # SHOE DATA
+        if activity_id:
+            try:
+                activity = self.db.query(models.Activity).filter(
+                    models.Activity.activity_id == activity_id
+                ).first()
+                
+                if activity:
+                    # Full weather data including wind
+                    if activity.weather_temp is not None or activity.weather_wind_speed is not None:
+                        lines.append(f"\n🌤️ HAVA DURUMU (Detaylı):")
+                        if activity.weather_temp is not None:
+                            lines.append(f"- Sıcaklık: {activity.weather_temp}°C")
+                        if activity.weather_humidity is not None:
+                            lines.append(f"- Nem: %{activity.weather_humidity}")
+                        if activity.weather_wind_speed is not None:
+                            lines.append(f"- Rüzgar: {activity.weather_wind_speed} km/h")
+                        if activity.weather_condition:
+                            lines.append(f"- Durum: {activity.weather_condition}")
+                    
+                    # Shoe data with total km
+                    if activity.shoe_id and activity.shoe:
+                        shoe = activity.shoe
+                        # Calculate total distance on shoe
+                        from sqlalchemy import func as sql_func
+                        total_shoe_km = self.db.query(
+                            sql_func.sum(models.Activity.distance)
+                        ).filter(
+                            models.Activity.shoe_id == shoe.id
+                        ).scalar() or 0
+                        total_shoe_km = total_shoe_km / 1000 + (shoe.initial_distance or 0)
+                        
+                        lines.append(f"\n👟 AYAKKABI:")
+                        lines.append(f"- Model: {shoe.name}")
+                        if shoe.brand:
+                            lines.append(f"- Marka: {shoe.brand}")
+                        lines.append(f"- Toplam Mesafe: {total_shoe_km:.1f} km")
+                        if total_shoe_km > 700:
+                            lines.append(f"- ⚠️ Ayakkabı yıpranmış olabilir (>700km)")
+                        elif total_shoe_km > 500:
+                            lines.append(f"- Ayakkabı orta kullanımda (500-700km)")
+                            
+            except Exception as e:
+                pass  # Silent fail
         
         if pack.get('flags') and len(pack['flags']) > 0:
             lines.append(f"\nÖnemli Gözlemler:")

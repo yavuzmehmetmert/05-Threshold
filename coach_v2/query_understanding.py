@@ -216,6 +216,16 @@ def parse_user_query(text: str, pinned_state: Optional[PinnedState] = None) -> P
     text_lower = text.lower().strip()
     original = text
     
+    # 0. GREETING - HIGHEST PRIORITY (before any other check)
+    # Greeting ALWAYS returns greeting intent, regardless of pinned state
+    for pattern in GREETING_PATTERNS:
+        if re.search(pattern, text_lower):
+            return ParsedIntent(
+                intent_type='greeting',
+                original_query=original,
+                confidence=0.95
+            )
+    
     # 1. Extract dates first (they take priority)
     dates = _extract_dates(text_lower)
     

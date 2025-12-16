@@ -46,6 +46,7 @@ class ChatResponseBody(BaseModel):
     message: str
     resolved_activity_id: Optional[int] = None  # Activity being discussed
     debug_metadata: Optional[dict] = None
+    debug_steps: Optional[list] = None  # Step-by-step debug info
 
 
 
@@ -127,7 +128,8 @@ async def chat(body: ChatRequestBody, db: Session = Depends(get_db)):
     return ChatResponseBody(
         message=response.message,
         resolved_activity_id=response.resolved_activity_id,
-        debug_metadata=response.debug_metadata
+        debug_metadata=response.debug_metadata,
+        debug_steps=response.debug_steps
     )
 
 

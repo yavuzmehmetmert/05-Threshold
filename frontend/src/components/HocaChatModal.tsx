@@ -27,10 +27,29 @@ const COLORS = {
     error: '#FF3333',
 };
 
+interface DebugStep {
+    step: number;
+    name: string;
+    description?: string;
+    prompt_sent?: string;
+    llm_response?: string;
+    extracted_sql?: string;
+    sql?: string;
+    is_valid?: boolean;
+    result_count?: number;
+    sample_results?: any[];
+    status: string;
+    error?: string;
+    activity_context?: string;  // Activity data loaded
+    context_preview?: string;   // Context for trend/health
+    data_source?: string;       // Where data came from
+}
+
 interface Message {
     role: 'user' | 'assistant';
     content: string;
     timestamp: Date;
+    debug_steps?: DebugStep[];  // SQL Agent debug info
 }
 
 interface HocaChatModalProps {
@@ -124,7 +143,7 @@ export const HocaChatModal: React.FC<HocaChatModalProps> = ({
                     user_id: 1,  // TODO: Get from auth context
                     message: messageText,
                     garmin_activity_id: activityId || undefined,
-                    debug: false,
+                    debug: true,
                     conversation_history: conversationHistory,
                 }),
             });
@@ -137,11 +156,12 @@ export const HocaChatModal: React.FC<HocaChatModalProps> = ({
                 // setActivityId(data.resolved_activity_id);
             }
 
-            // Add assistant message
+            // Add assistant message with debug info
             const assistantMessage: Message = {
                 role: 'assistant',
                 content: data.message || 'Bir hata oluştu.',
                 timestamp: new Date(),
+                debug_steps: data.debug_steps || undefined,
             };
             setMessages(prev => [...prev, assistantMessage]);
 
@@ -233,26 +253,99 @@ export const HocaChatModal: React.FC<HocaChatModalProps> = ({
                     )}
 
                     {messages.map((msg, index) => (
-                        <View
-                            key={index}
-                            style={[
-                                styles.messageBubble,
-                                msg.role === 'user' ? styles.userBubble : styles.assistantBubble,
-                            ]}
-                        >
-                            {msg.role === 'assistant' && (
-                                <View style={styles.assistantIcon}>
-                                    <Bot size={16} color={COLORS.primary} />
-                                </View>
-                            )}
-                            <Text
+                        <View key={index}>
+                            <View
                                 style={[
-                                    styles.messageText,
-                                    msg.role === 'user' && styles.userMessageText,
+                                    styles.messageBubble,
+                                    msg.role === 'user' ? styles.userBubble : styles.assistantBubble,
                                 ]}
                             >
-                                {msg.content}
-                            </Text>
+                                {msg.role === 'assistant' && (
+                                    <View style={styles.assistantIcon}>
+                                        <Bot size={16} color={COLORS.primary} />
+                                    </View>
+                                )}
+                                <Text
+                                    style={[
+                                        styles.messageText,
+                                        msg.role === 'user' && styles.userMessageText,
+                                    ]}
+                                >
+                                    {msg.content}
+                                </Text>
+                            </View>
+
+                            {/* Debug Panel - Collapsible */}
+                            {msg.debug_steps && msg.debug_steps.length > 0 && (
+                                <View style={styles.debugPanel}>
+                                    <Text style={styles.debugTitle}>🔍 Debug (SQL Agent)</Text>
+                                    {msg.debug_steps.map((step, stepIdx) => (
+                                        <View key={stepIdx} style={styles.debugStep}>
+                                            <Text style={styles.debugStepName}>
+                                                Step {step.step}: {step.name} [{step.status}]
+                                            </Text>
+
+                                            {/* Prompt Sent to Gemini */}
+                                            {step.prompt_sent && (
+                                                <View style={styles.debugCode}>
+                                                    <Text style={styles.debugLabel}>📤 Prompt Gönderildi:</Text>
+                                                    <Text style={styles.debugPrompt}>
+                                                        {step.prompt_sent}
+                                                    </Text>
+                                                </View>
+                                            )}
+
+                                            {/* LLM Response */}
+                                            {step.llm_response && (
+                                                <View style={styles.debugCode}>
+                                                    <Text style={styles.debugLabelGreen}>📥 Gemini Cevabı:</Text>
+                                                    <Text style={styles.debugResponse}>
+                                                        {step.llm_response}
+                                                    </Text>
+                                                </View>
+                                            )}
+
+                                            {/* Extracted SQL */}
+                                            {step.extracted_sql && (
+                                                <View style={styles.debugCode}>
+                                                    <Text style={styles.debugLabel}>🔧 Çıkarılan SQL:</Text>
+                                                    <Text style={styles.debugSql}>{step.extracted_sql}</Text>
+                                                </View>
+                                            )}
+
+                                            {/* Result count */}
+                                            {step.result_count !== undefined && (
+                                                <Text style={styles.debugInfo}>📊 Results: {step.result_count} rows</Text>
+                                            )}
+
+                                            {/* Activity Context Data */}
+                                            {step.activity_context && (
+                                                <View style={styles.debugCode}>
+                                                    <Text style={styles.debugLabel}>📋 Activity Data:</Text>
+                                                    <Text style={styles.debugPrompt} numberOfLines={10}>
+                                                        {step.activity_context}
+                                                    </Text>
+                                                </View>
+                                            )}
+
+                                            {/* Context Preview (for trend/health) */}
+                                            {step.context_preview && (
+                                                <View style={styles.debugCode}>
+                                                    <Text style={styles.debugLabel}>📋 Context Data:</Text>
+                                                    <Text style={styles.debugPrompt} numberOfLines={6}>
+                                                        {step.context_preview}
+                                                    </Text>
+                                                </View>
+                                            )}
+
+                                            {/* Error */}
+                                            {step.error && (
+                                                <Text style={styles.debugError}>❌ Error: {step.error}</Text>
+                                            )}
+                                        </View>
+                                    ))}
+                                </View>
+                            )}
                         </View>
                     ))}
 
@@ -510,6 +603,80 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 8,
         elevation: 8,
+    },
+    // Debug Panel Styles
+    debugPanel: {
+        marginLeft: 12,
+        marginTop: 4,
+        marginBottom: 8,
+        padding: 12,
+        backgroundColor: '#0D1117',
+        borderRadius: 8,
+        borderLeftWidth: 3,
+        borderLeftColor: '#58A6FF',
+    },
+    debugTitle: {
+        color: '#58A6FF',
+        fontSize: 13,
+        fontWeight: 'bold',
+        marginBottom: 8,
+    },
+    debugStep: {
+        marginBottom: 10,
+        paddingBottom: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: '#21262D',
+    },
+    debugStepName: {
+        color: '#8B949E',
+        fontSize: 12,
+        fontWeight: '600',
+        marginBottom: 4,
+    },
+    debugCode: {
+        backgroundColor: '#161B22',
+        padding: 8,
+        borderRadius: 4,
+        marginTop: 4,
+    },
+    debugLabel: {
+        color: '#7EE787',
+        fontSize: 10,
+        fontWeight: 'bold',
+        marginBottom: 2,
+    },
+    debugSql: {
+        color: '#F0883E',
+        fontSize: 11,
+        fontFamily: 'monospace',
+    },
+    debugInfo: {
+        color: '#8B949E',
+        fontSize: 11,
+        marginTop: 4,
+    },
+    debugError: {
+        color: '#F85149',
+        fontSize: 11,
+        marginTop: 4,
+    },
+    debugPrompt: {
+        color: '#C9D1D9',
+        fontSize: 10,
+        fontFamily: 'monospace',
+        marginTop: 2,
+    },
+    debugLabelGreen: {
+        color: '#7EE787',
+        fontSize: 10,
+        fontWeight: 'bold',
+        marginBottom: 2,
+    },
+    debugResponse: {
+        color: '#A5D6FF',
+        fontSize: 10,
+        fontFamily: 'monospace',
+        marginTop: 2,
     },
 });
 
