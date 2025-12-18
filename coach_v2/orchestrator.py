@@ -24,6 +24,7 @@ from coach_v2.evidence_gate import EvidenceGate
 from coach_v2.performance_analyzer import PerformanceAnalyzer
 from coach_v2.athlete_memory import AthleteMemoryStore
 from coach_v2.sql_agent import SQLAgent
+from coach_v2.intent_classifier import IntentClassifier, classify_intent, classify_intent_with_debug
 
 # ==============================================================================
 # CONTEXT BOUNDS
@@ -139,14 +140,18 @@ KİMLİĞİN:
 - Veri okumada ustasın ama sayıları ezberletmezsin, hikaye anlatırsın.
 - Motivasyon verirken gerçekçisin - boş övgü yapmaz, somut gelişimi gösterirsin.
 
-İLETİŞİM TARZI:
-- Doğal konuş, arkadaş gibi. Ama saçmalama.
+İLETİŞİM TARZI (Federico Tedesco tarzı):
+- Düşünceli ve doğrudan konuş. Her cümlen bir amaca hizmet etsin.
+- Sakin ama tutkulu ol. Gereksiz heyecan gösterme, ama işini ciddiye al.
+- Özgüvenli ol, ama kibirli olma. Bildiğin şeyi net söyle.
+- Açıklamalarını tamamla, yarım bırakma. Koşucu kafasında soru kalmasın.
+- SORU SORMA - Sadece gerçekten cevaba ihtiyacın varsa sor. Her mesajı soru ile bitirme.
 - Kısa cümleler kur. Paragraflar 2-3 cümleyi geçmesin.
 - Emoji kullanabilirsin ama abartma (max 1-2 per message).
 - "Sen" diye hitap et, "siz" resmi.
-- Soru sor, merak et, takip et.
 
 ASLA YAPMA:
+- Her mesajın sonuna soru ekleme.
 - Veri yokken sayı uydurma. "Verine bakmam lazım" de.
 - Robotik format (VERİ: / ANALİZ: gibi) kullanma.
 - Aynı cümleleri tekrarlama.
@@ -184,16 +189,18 @@ PACE REHBERİ (yaklaşık):
 
     GREETING_RESPONSE = """Selam! 👋 
 
-Bugün sana nasıl yardımcı olabilirim? Son antrenmanını konuşabiliriz, haftalık yüklenmeye bakabiliriz, ya da aklındaki herhangi bir soru varsa onu tartışabiliriz."""
+Bugün antrenmanını değerlendirebiliriz, haftalık yüklenmeye bakabiliriz, ya da aklındaki herhangi bir konuyu konuşabiliriz. Hazır olduğunda başlayalım."""
 
-    NO_DATA_RESPONSE = """Hmm, şu an elimde analiz edecek veri yok. 
+    NO_DATA_RESPONSE = """Şu an elimde analiz edecek veri yok. 
 
 Birkaç seçenek var:
 - "Son koşumu analiz et" diyebilirsin
 - Belirli bir tarih sorabilirsin (örn: "3 Aralık'taki koşu")
-- Ya da formun hakkında konuşabiliriz ("Bu hafta nasıldı?")
+- Ya da formun hakkında konuşabiliriz (örn: "Bu hafta nasıldı?")"""
 
-Ne yapmak istersin?"""
+    FAREWELL_RESPONSE = """Görüşürüz! 👋 
+
+Bir sonraki antrenmanda burada olacağım."""
 
     def __init__(self, db: Session, llm_client: LLMClient):
         self.db = db
@@ -210,22 +217,143 @@ Ne yapmak istersin?"""
         self.sql_agent = SQLAgent(db, llm_client)
     
     def handle_chat(self, request: ChatRequest) -> ChatResponse:
-        """Handle chat request with pinned state awareness."""
+        """Handle chat request with AI-based intent classification."""
         debug_info = {} if request.debug else None
+        debug_steps = [] if request.debug else None
         
-        # 1. Get pinned state
+        # 1. AI Intent Classification (Gemini Flash - fast)
+        if request.debug:
+            handler_type, ai_debug = classify_intent_with_debug(request.message)
+            debug_info['ai_handler_type'] = handler_type
+            debug_info['ai_classifier_debug'] = ai_debug
+            debug_steps.append({
+                "step": 0,
+                "name": "AI Intent Classification",
+                "status": handler_type,
+                "description": f"Gemini Flash → {handler_type}",
+                "details": {
+                    "model": ai_debug.get('model'),
+                    "raw_response": ai_debug.get('raw_response'),
+                    "prompt_preview": (ai_debug.get('prompt') or '')[:100] + '...'
+                }
+            })
+        else:
+            handler_type = classify_intent(request.message)
+        
+        # 2. Get pinned state for activity context
         pinned_state = self.state_manager.get_pinned_state(request.user_id)
         
-        # 2. Parse query
-        parsed_intent = parse_user_query(request.message, pinned_state)
+        if debug_info is not None:
+            debug_info['pinned_activity_id'] = pinned_state.garmin_activity_id if pinned_state else None
+        
+        # 3. Route based on AI classification
+        return self._route_by_handler(request, handler_type, pinned_state, debug_info, debug_steps)
+    
+    # =========================================================================
+    # AI-BASED HANDLER ROUTING
+    # =========================================================================
+    
+    SMALL_TALK_RESPONSE = """İyiyim, teşekkürler. 💪
+
+Son koşunu analiz edebilirim ya da haftalık durumuna bakabiliriz. Hazır olduğunda söyle."""
+
+    def _route_by_handler(self, request, handler_type: str, pinned_state, debug_info, debug_steps=None):
+        """Route to handler based on AI classification."""
         
         if debug_info is not None:
-            debug_info['intent_type'] = parsed_intent.intent_type
-            debug_info['pinned_activity_id'] = pinned_state.garmin_activity_id
+            debug_info['handler_routed'] = handler_type
         
-        # 3. Route
-        response = self._route_intent(request, parsed_intent, pinned_state, debug_info)
-        return response
+        # Initialize debug_steps if needed
+        if debug_steps is None:
+            debug_steps = []
+        
+        # STATIC RESPONSES (no LLM needed)
+        if handler_type == "welcome_intent":
+            debug_steps.append({"step": 1, "name": "Handler", "status": "Static Response", "description": "Selamlama cevabı"})
+            return ChatResponse(
+                message=self.GREETING_RESPONSE,
+                debug_metadata=debug_info,
+                debug_steps=debug_steps
+            )
+        
+        if handler_type == "small_talk_intent":
+            debug_steps.append({"step": 1, "name": "Handler", "status": "Static Response", "description": "Small talk cevabı"})
+            return ChatResponse(
+                message=self.SMALL_TALK_RESPONSE,
+                debug_metadata=debug_info,
+                debug_steps=debug_steps
+            )
+        
+        if handler_type == "farewell_intent":
+            debug_steps.append({"step": 1, "name": "Handler", "status": "Static Response", "description": "Veda cevabı"})
+            return ChatResponse(
+                message=self.FAREWELL_RESPONSE,
+                debug_metadata=debug_info,
+                debug_steps=debug_steps
+            )
+        
+        # LLM-BASED HANDLERS
+        if handler_type == "training_detail_handler":
+            debug_steps.append({"step": 1, "name": "Handler", "status": "training_detail_handler", "description": "Son aktivite analizi"})
+            # Get last activity and do deep analysis
+            return self._handle_training_detail(request, pinned_state, debug_info, debug_steps)
+        
+        if handler_type == "db_handler":
+            debug_steps.append({"step": 1, "name": "Handler", "status": "db_handler", "description": "SQL Agent sorgusu"})
+            # SQL Agent for database queries
+            return self._handle_general_query(request, debug_info, debug_steps)
+        
+        if handler_type == "sohbet_handler":
+            debug_steps.append({"step": 1, "name": "Handler", "status": "sohbet_handler", "description": "Genel sohbet (LLM)"})
+            # Direct LLM conversation - NO database
+            return self._handle_sohbet(request, debug_info, debug_steps)
+    
+    def _handle_sohbet(self, request, debug_info, debug_steps=None):
+        """Handle general conversation with LLM only - no database queries."""
+        try:
+            prompt = f"""{self.COACH_PERSONA}
+
+{self.RUNNING_EXPERTISE}
+
+# SOHBET KURALLARI
+Sporcu sana genel bir soru soruyor veya sohbet etmek istiyor.
+- Samimi, kısa ve net cevap ver.
+- Tedesco tarzı: Düşünceli, doğrudan, gereksiz soru sorma.
+- Veritabanına gitme, antrenman analizi yapma.
+- Eğer spesifik veri lazımsa öneri sun ama soru şeklinde değil.
+- Max 2-3 cümle yeterli.
+
+SPORCU MESAJI: {request.message}
+"""
+            
+            response = self.llm.generate(prompt, max_tokens=300, temperature=0.7)
+            
+            if debug_steps:
+                debug_steps.append({
+                    "step": 2, 
+                    "name": "LLM Sohbet", 
+                    "status": "success",
+                    "description": "Direkt LLM cevabı (DB kullanılmadı)"
+                })
+            
+            return ChatResponse(
+                message=response.text,
+                debug_metadata=debug_info,
+                debug_steps=debug_steps or []
+            )
+        except Exception as e:
+            logging.error(f"Sohbet handler failed: {e}")
+            return ChatResponse(
+                message="Şu an sohbet edemiyorum, teknik bir sorun var.",
+                debug_metadata=debug_info,
+                debug_steps=debug_steps or []
+            )
+    
+    def _handle_training_detail(self, request, pinned_state, debug_info, debug_steps=None):
+        """Handle training detail requests - fetch last activity and analyze."""
+        # Use existing last_activity handler logic
+        parsed_intent = ParsedIntent(intent_type='last_activity', original_query=request.message)
+        return self._handle_last_activity(request, parsed_intent, debug_info)
 
     def _route_intent(self, request, parsed_intent, pinned_state, debug_info):
         """Route parsed intent to appropriate handler."""
@@ -238,6 +366,16 @@ Ne yapmak istersin?"""
                 message=self.GREETING_RESPONSE, 
                 debug_metadata=debug_info,
                 debug_steps=[{"step": 1, "name": "Intent Detection", "status": "greeting", "description": "Selamlama algılandı, basit cevap döndürülüyor"}]
+            )
+        
+        # PRIORITY 1.5: Farewell - simple goodbye
+        if parsed_intent.intent_type == 'farewell':
+            if debug_info is not None:
+                debug_info['handler_used'] = 'farewell'
+            return ChatResponse(
+                message=self.FAREWELL_RESPONSE, 
+                debug_metadata=debug_info,
+                debug_steps=[{"step": 1, "name": "Intent Detection", "status": "farewell", "description": "Veda algılandı, basit cevap döndürülüyor"}]
             )
         
         # PRIORITY 2: General/SQL Agent queries - ignore activity context for these
@@ -675,7 +813,7 @@ TSB YORUMU:
             debug_metadata=debug_info
         )
 
-    def _handle_general_query(self, request, debug_info):
+    def _handle_general_query(self, request, debug_info, incoming_debug_steps=None):
         """Handle general questions with SQL Agent."""
         # Use SQLAgent for dynamic SQL generation
         try:
@@ -684,8 +822,12 @@ TSB YORUMU:
                 request.message
             )
             
-            # Extract debug_steps for UI display
-            debug_steps = sql_debug.get("steps", [])
+            # Merge incoming debug_steps (AI Intent) with SQL Agent steps
+            sql_steps = sql_debug.get("steps", [])
+            if incoming_debug_steps:
+                debug_steps = incoming_debug_steps + sql_steps
+            else:
+                debug_steps = sql_steps
             
             if debug_info is not None:
                 debug_info['sql_agent'] = sql_debug
@@ -748,7 +890,6 @@ TSB YORUMU:
 - Elevation verisi varsa değerlendir (tırmanış nabzı etkisi).
 - Hava durumu verisi varsa performansa etkisini değerlendir.
 - Yüksek rakım koşusuysa (Kapadokya, Bolu vb) bunu belirt.
-- Sonda bir soru sor veya öneri ver.
 """
         
         prompt = f"""{self.COACH_PERSONA}

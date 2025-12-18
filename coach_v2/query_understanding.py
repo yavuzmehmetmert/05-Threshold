@@ -68,10 +68,28 @@ TREND_PATTERNS = [
 
 GREETING_PATTERNS = [
     r'^selam',
+    r'^selamlar',
     r'^merhaba',
     r'^hey',
     r'^nasılsın',
     r'^iyi\s+günler',
+    r'^naber',
+    r'^ne\s+haber',
+    r'^nabıyon',
+    r'kanka.*naber',  # "Kanka naber" anywhere
+    r'^kanka',
+]
+
+# Farewell patterns - should respond with a goodbye, not analyze anything
+FAREWELL_PATTERNS = [
+    r'^hoşça\s*kal',
+    r'^hoşçakal',
+    r'^görüşürüz',
+    r'^bye',
+    r'^iyi\s+günler$',  # At end = farewell, at start = greeting
+    r'^iyi\s+akşamlar$',
+    r'^iyi\s+geceler',
+    r'^kendine\s+iyi\s+bak',
 ]
 
 # NEW: Activity analysis follow-up patterns
@@ -222,6 +240,15 @@ def parse_user_query(text: str, pinned_state: Optional[PinnedState] = None) -> P
         if re.search(pattern, text_lower):
             return ParsedIntent(
                 intent_type='greeting',
+                original_query=original,
+                confidence=0.95
+            )
+    
+    # 0.5 FAREWELL - Goodbye messages
+    for pattern in FAREWELL_PATTERNS:
+        if re.search(pattern, text_lower):
+            return ParsedIntent(
+                intent_type='farewell',
                 original_query=original,
                 confidence=0.95
             )
