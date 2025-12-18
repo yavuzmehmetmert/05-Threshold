@@ -225,9 +225,9 @@ def upsert_stress_log(db: Session, user_id: int, date_obj, data: dict):
     obj_in = models.StressLog(
         user_id=user_id,
         calendar_date=date_obj,
-        avg_stress=data.get('avgStress'),
-        max_stress=data.get('maxStress'),
-        min_stress=data.get('minStress'),
+        avg_stress=data.get('avgStress') or data.get('avgStressLevel'),
+        max_stress=data.get('maxStress') or data.get('maxStressLevel'),
+        min_stress=data.get('minStress') or data.get('minStressLevel'),
         status=data.get('status'),
         raw_json=data
     )

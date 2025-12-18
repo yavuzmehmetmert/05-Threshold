@@ -116,34 +116,139 @@ class AnalysisPackBuilder:
         return "\n".join(lines[:25]) # Cap length logic implicit
 
     def _build_tables(self, data: Dict[str, Any]) -> str:
-        """Create markdown tables for Laps and Technique."""
-        laps = data.get('laps', [])
-        if not laps:
-            return "No Lap Data Available"
-            
-        # Table A: Laps (Top 10 max)
-        # Columns: Lap #, Time, Dist, Pace, HR, Max HR
-        headers = "| # | Time | Dist | Pace | HR | Max HR |"
-        sep = "|---|---|---|---|---|---|"
-        rows = [headers, sep]
+        """Create comprehensive tables for Laps, Running Dynamics, and Technique."""
+        sections = []
         
-        for i, lap in enumerate(laps[:10], 1):
-            dur = lap.get('duration', 0)
-            dist = lap.get('distance', 0)
+        # =========================================
+        # TABLE A: LAPS (from native_laps - Garmin FIT format)
+        # =========================================
+        # Try native_laps first (Garmin FIT data), then fall back to laps
+        laps = data.get('native_laps', data.get('laps', []))
+        
+        if laps:
+            # Columns: Lap #, Time, Dist, Pace, HR, MaxHR, Elev+/-, Kadans, Power
+            headers = "| # | Süre | Mesafe | Pace | HR | MaxHR | Elev | Kadans | Power |"
+            sep = "|---|---|---|---|---|---|---|---|---|"
+            rows = ["\n📊 LAP TABLOSU:", headers, sep]
             
-            # Formatting
-            dur_str = str(timedelta(seconds=int(dur))) if dur else "-"
-            dist_str = f"{dist/1000:.2f}" if dist else "-"
-            pace_str = self._format_pace(lap.get('averageSpeed'))
-            hr_str = str(int(lap.get('averageHR'))) if lap.get('averageHR') else "-"
-            max_hr_str = str(int(lap.get('maxHR'))) if lap.get('maxHR') else "-"
+            for i, lap in enumerate(laps[:20], 1):  # Max 20 laps
+                # Distance & Duration (native_laps uses different field names)
+                dist = lap.get('total_distance', lap.get('distance', 0))
+                dur = lap.get('total_elapsed_time', lap.get('total_timer_time', lap.get('duration', 0)))
+                
+                # Format duration
+                if dur:
+                    mins = int(dur // 60)
+                    secs = int(dur % 60)
+                    dur_str = f"{mins}:{secs:02d}"
+                else:
+                    dur_str = "-"
+                
+                # Format distance
+                dist_km = dist / 1000 if dist else 0
+                dist_str = f"{dist_km:.2f}km" if dist else "-"
+                
+                # Calculate pace from distance and duration
+                if dist > 0 and dur > 0:
+                    pace = (dur / 60) / (dist / 1000)  # min per km
+                    pace_min = int(pace)
+                    pace_sec = int((pace % 1) * 60)
+                    pace_str = f"{pace_min}:{pace_sec:02d}"
+                else:
+                    # Fallback to speed if available
+                    speed = lap.get('enhanced_avg_speed', lap.get('averageSpeed'))
+                    pace_str = self._format_pace(speed) if speed else "-"
+                
+                # Heart rate
+                hr = lap.get('avg_heart_rate', lap.get('averageHR'))
+                max_hr = lap.get('max_heart_rate', lap.get('maxHR'))
+                hr_str = str(int(hr)) if hr else "-"
+                max_hr_str = str(int(max_hr)) if max_hr else "-"
+                
+                # Elevation (+/-)
+                elev_gain = lap.get('total_ascent', lap.get('elevationGain', 0)) or 0
+                elev_loss = lap.get('total_descent', lap.get('elevationLoss', 0)) or 0
+                if elev_gain or elev_loss:
+                    elev_str = f"+{int(elev_gain)}/-{int(elev_loss)}"
+                else:
+                    elev_str = "0"
+                
+                # Cadence (native_laps uses avg_running_cadence, need to *2 for spm)
+                cadence = lap.get('avg_running_cadence', lap.get('averageCadence'))
+                if cadence:
+                    cadence_spm = int(cadence * 2)  # Convert to steps per minute
+                    cadence_str = f"{cadence_spm}"
+                else:
+                    cadence_str = "-"
+                
+                # Power
+                power = lap.get('avg_power', lap.get('averagePower'))
+                power_str = f"{int(power)}W" if power else "-"
+                
+                rows.append(f"| {i} | {dur_str} | {dist_str} | {pace_str} | {hr_str} | {max_hr_str} | {elev_str} | {cadence_str} | {power_str} |")
+                
+            if len(laps) > 20:
+                rows.append(f"| ... | ({len(laps)-20} more) | ... | ... | ... | ... | ... | ... | ... |")
             
-            rows.append(f"| {i} | {dur_str} | {dist_str} | {pace_str} | {hr_str} | {max_hr_str} |")
+            sections.append("\n".join(rows))
+        else:
+            sections.append("📊 LAP TABLOSU: Veri yok")
+        
+        # =========================================
+        # TABLE B: RUNNING DYNAMICS
+        # =========================================
+        # Look for running dynamics in activity summary
+        rd_section = []
+        
+        avg_vo = data.get('avgVerticalOscillation', data.get('averageVerticalOscillation'))
+        avg_gct = data.get('avgGroundContactTime', data.get('averageGroundContactTime'))
+        avg_stride = data.get('avgStrideLength', data.get('averageStrideLength'))
+        avg_stb = data.get('avgStanceTimeBalance', data.get('averageStanceTimeBalance'))
+        avg_vr = data.get('avgVerticalRatio', data.get('averageVerticalRatio'))
+        
+        # Check if any running dynamics data exists
+        has_rd = any([avg_vo, avg_gct, avg_stride, avg_stb, avg_vr])
+        
+        if has_rd:
+            rd_section.append("\n🏃 RUNNING DYNAMICS:")
+            if avg_vo:
+                rd_section.append(f"  - Dikey Salınım: {avg_vo:.1f} cm")
+            if avg_gct:
+                rd_section.append(f"  - Yer Teması Süresi: {avg_gct:.0f} ms")
+            if avg_stride:
+                rd_section.append(f"  - Adım Uzunluğu: {avg_stride:.2f} m")
+            if avg_stb:
+                rd_section.append(f"  - Denge (Sol/Sağ): {avg_stb:.1f}%")
+            if avg_vr:
+                rd_section.append(f"  - Dikey Oran: {avg_vr:.1f}%")
+                
+            # Analysis hints
+            if avg_vo and avg_vo > 10:
+                rd_section.append("  - ⚠️ Dikey salınım yüksek (>10cm) - enerji kaybı")
+            if avg_gct and avg_gct > 260:
+                rd_section.append("  - ⚠️ Yer teması süresi uzun (>260ms) - kadans artırılabilir")
+            if avg_stride and avg_stride < 1.0:
+                rd_section.append("  - ⚠️ Adım uzunluğu kısa (<1m)")
+                
+            sections.append("\n".join(rd_section))
+        
+        # =========================================
+        # TABLE C: POWER DATA (if available)
+        # =========================================
+        avg_power = data.get('avgPower', data.get('averagePower'))
+        max_power = data.get('maxPower', data.get('maxRunningPower'))
+        np_power = data.get('normPower', data.get('normalizedPower'))
+        
+        if avg_power:
+            power_section = ["\n⚡ GÜÇ VERİSİ:"]
+            power_section.append(f"  - Ortalama Güç: {int(avg_power)} W")
+            if max_power:
+                power_section.append(f"  - Max Güç: {int(max_power)} W")
+            if np_power:
+                power_section.append(f"  - Normalized Power: {int(np_power)} W")
+            sections.append("\n".join(power_section))
             
-        if len(laps) > 10:
-            rows.append(f"| ... | ... | ... | ... | ... | ... |")
-            
-        return "\n".join(rows)
+        return "\n".join(sections) if sections else "Detaylı veri mevcut değil"
 
     def _build_flags(self, data: Dict[str, Any]) -> List[str]:
         """Heuristic flags based on data."""

@@ -589,9 +589,75 @@ def sync_incremental(db: Session = Depends(get_db)):
                     logger.warning(f"Failed to fetch details: {e}")
                 
                 # Upsert activity
-                crud.upsert_activity(db, act, user_id)
+                db_act = crud.upsert_activity(db, act, user_id)
                 new_activities += 1
                 synced_activities += 1
+                
+                # Download FIT file and extract streams/laps (same as sync_all)
+                try:
+                    logger.info(f"Downloading FIT for activity {activity_id}...")
+                    zip_data = client.download_activity(activity_id, dl_fmt=client.ActivityDownloadFormat.ORIGINAL)
+                    
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as tmp_zip:
+                        tmp_zip.write(zip_data)
+                        tmp_zip_path = tmp_zip.name
+                    
+                    import zipfile
+                    with zipfile.ZipFile(tmp_zip_path, 'r') as zip_ref:
+                        fit_filename = zip_ref.namelist()[0]
+                        zip_ref.extract(fit_filename, path=tempfile.gettempdir())
+                        fit_path = os.path.join(tempfile.gettempdir(), fit_filename)
+                    
+                    df, laps_data, session_rpe = process_fit_file(fit_path)
+                    
+                    if session_rpe is not None:
+                        db_act.rpe = int(session_rpe)
+                    
+                    if laps_data:
+                        if not db_act.raw_json: db_act.raw_json = {}
+                        db_act.raw_json['native_laps'] = laps_data
+                        from sqlalchemy.orm.attributes import flag_modified
+                        flag_modified(db_act, "raw_json")
+                        db.commit()
+                        logger.info(f"Saved {len(laps_data)} laps for activity {activity_id}")
+                    
+                    if os.path.exists(tmp_zip_path): os.remove(tmp_zip_path)
+                    if os.path.exists(fit_path): os.remove(fit_path)
+                    
+                    if df is not None and not df.empty:
+                        # Convert DF to stream records
+                        df = df.where(pd.notnull(df), None)
+                        records = df.to_dict('records')
+                        
+                        streams_data = []
+                        for rec in records:
+                            def safe_int(val):
+                                if val is None: return None
+                                try: return int(val)
+                                except: return None
+                            
+                            streams_data.append({
+                                "activity_id": activity_id,
+                                "timestamp": rec.get('timestamp'),
+                                "heart_rate": safe_int(rec.get('heart_rate')),
+                                "speed": rec.get('speed'),
+                                "cadence": safe_int(rec.get('cadence')),
+                                "altitude": rec.get('altitude'),
+                                "power": safe_int(rec.get('power')),
+                                "grade": rec.get('grade'),
+                                "latitude": rec.get('latitude'),
+                                "longitude": rec.get('longitude'),
+                                "vertical_oscillation": rec.get('vertical_oscillation'),
+                                "stance_time": rec.get('stance_time'),
+                                "stance_time_balance": rec.get('stance_time_balance'),
+                                "step_length": rec.get('step_length')
+                            })
+                        
+                        if streams_data:
+                            crud.save_activity_streams_batch(db, activity_id, streams_data)
+                            logger.info(f"Saved {len(streams_data)} stream points for activity {activity_id}")
+                except Exception as e:
+                    logger.error(f"FIT processing error for {activity_id}: {e}")
                 
                 # Sync biometrics for activity date
                 if start_local:
@@ -625,7 +691,7 @@ def sync_incremental(db: Session = Depends(get_db)):
                 try:
                     # Stress
                     stress_data = client.get_stress_data(date_str)
-                    if stress_data and 'overallStressLevel' in stress_data:
+                    if stress_data and (stress_data.get('overallStressLevel') is not None or stress_data.get('avgStressLevel') is not None):
                         crud.upsert_stress_log(db, user_id, check_date, stress_data)
                     
                     # Sleep
@@ -653,17 +719,45 @@ def sync_incremental(db: Session = Depends(get_db)):
                     'weight': profile.get('userData', {}).get('weight', 0) / 1000 if profile.get('userData', {}).get('weight') else None,
                     'resting_hr': user_summary.get('restingHeartRate') if user_summary else None,
                     'avg_stress': user_summary.get('averageStressLevel') if user_summary else None,
-                    'vo2_max': profile.get('vo2MaxRunning'),
-                    'lactate_threshold_hr': profile.get('lactateThresholdHeartRate'),
+                    'vo2_max': None,  # Will try to fetch below
+                    'lactate_threshold_hr': None,  # Will try to fetch below
+                    'ftp': None,  # Will try to fetch below
                 }
                 
+                # Get LTHR and FTP from get_lactate_threshold() - nested structure!
                 try:
                     lt_data = client.get_lactate_threshold()
                     if lt_data:
-                        log_data['ftp'] = lt_data.get('functionalThresholdPower')
+                        # LTHR is at speed_and_heart_rate.heartRate
+                        speed_hr = lt_data.get('speed_and_heart_rate', {})
+                        if speed_hr and speed_hr.get('heartRate'):
+                            log_data['lactate_threshold_hr'] = speed_hr['heartRate']
+                        
+                        # FTP is at power.functionalThresholdPower
+                        power = lt_data.get('power', {})
+                        if power and power.get('functionalThresholdPower'):
+                            log_data['ftp'] = power['functionalThresholdPower']
+                except Exception as e:
+                    logger.warning(f"Lactate threshold fetch error: {e}")
+                
+                # Try to get VO2max from different sources
+                try:
+                    # Method 1: From get_max_metrics
+                    max_metrics = client.get_max_metrics(today.isoformat())
+                    if max_metrics and 'generic' in max_metrics:
+                        vo2_entries = max_metrics.get('generic', [])
+                        for entry in vo2_entries:
+                            if entry.get('metricDescriptorKey') == 'vo2Max':
+                                log_data['vo2_max'] = int(entry.get('value', 0))
+                                break
                 except:
                     pass
                 
+                # Method 2: From user profile if available
+                if not log_data['vo2_max'] and profile.get('vo2Running'):
+                    log_data['vo2_max'] = profile.get('vo2Running')
+                
+                logger.info(f"Profile data - LTHR: {log_data['lactate_threshold_hr']}, FTP: {log_data['ftp']}, VO2max: {log_data['vo2_max']}")
                 crud.upsert_physiological_log(db, user_id, today, log_data)
         except Exception as e:
             logger.warning(f"Profile sync error: {e}")
@@ -972,6 +1066,103 @@ def sync_all(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     
     return result
 
+@router.post("/resync-fit/{activity_id}")
+def resync_activity_fit(activity_id: int, db: Session = Depends(get_db)):
+    """
+    Re-download FIT file for a specific activity and extract streams/laps.
+    Use this to backfill activities that were synced before FIT download was added.
+    """
+    if MOCK_MODE:
+        return {"status": "error", "message": "Not available in mock mode"}
+    
+    # Check activity exists
+    db_act = db.query(models.Activity).filter(
+        models.Activity.activity_id == activity_id
+    ).first()
+    
+    if not db_act:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    
+    try:
+        client = get_garmin_client()
+        logger.info(f"Re-syncing FIT for activity {activity_id}...")
+        
+        # Download FIT
+        zip_data = client.download_activity(activity_id, dl_fmt=client.ActivityDownloadFormat.ORIGINAL)
+        
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as tmp_zip:
+            tmp_zip.write(zip_data)
+            tmp_zip_path = tmp_zip.name
+        
+        import zipfile
+        with zipfile.ZipFile(tmp_zip_path, 'r') as zip_ref:
+            fit_filename = zip_ref.namelist()[0]
+            zip_ref.extract(fit_filename, path=tempfile.gettempdir())
+            fit_path = os.path.join(tempfile.gettempdir(), fit_filename)
+        
+        df, laps_data, session_rpe = process_fit_file(fit_path)
+        
+        result = {"activity_id": activity_id, "laps_count": 0, "streams_count": 0}
+        
+        if session_rpe is not None:
+            db_act.rpe = int(session_rpe)
+        
+        if laps_data:
+            if not db_act.raw_json: db_act.raw_json = {}
+            db_act.raw_json['native_laps'] = laps_data
+            from sqlalchemy.orm.attributes import flag_modified
+            flag_modified(db_act, "raw_json")
+            result["laps_count"] = len(laps_data)
+        
+        db.commit()
+        
+        if os.path.exists(tmp_zip_path): os.remove(tmp_zip_path)
+        if os.path.exists(fit_path): os.remove(fit_path)
+        
+        if df is not None and not df.empty:
+            df = df.where(pd.notnull(df), None)
+            records = df.to_dict('records')
+            
+            streams_data = []
+            for rec in records:
+                def safe_int(val):
+                    if val is None: return None
+                    try: return int(val)
+                    except: return None
+                
+                streams_data.append({
+                    "activity_id": activity_id,
+                    "timestamp": rec.get('timestamp'),
+                    "heart_rate": safe_int(rec.get('heart_rate')),
+                    "speed": rec.get('speed'),
+                    "cadence": safe_int(rec.get('cadence')),
+                    "altitude": rec.get('altitude'),
+                    "power": safe_int(rec.get('power')),
+                    "grade": rec.get('grade'),
+                    "latitude": rec.get('latitude'),
+                    "longitude": rec.get('longitude'),
+                    "vertical_oscillation": rec.get('vertical_oscillation'),
+                    "stance_time": rec.get('stance_time'),
+                    "stance_time_balance": rec.get('stance_time_balance'),
+                    "step_length": rec.get('step_length')
+                })
+            
+            if streams_data:
+                # Delete existing streams first
+                db.query(models.ActivityStream).filter(
+                    models.ActivityStream.activity_id == activity_id
+                ).delete()
+                db.commit()
+                
+                crud.save_activity_streams_batch(db, activity_id, streams_data)
+                result["streams_count"] = len(streams_data)
+        
+        return {"status": "success", **result}
+        
+    except Exception as e:
+        logger.error(f"Resync FIT error for {activity_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.get("/profile")
 async def get_user_profile():
     if MOCK_MODE:
@@ -1034,15 +1225,38 @@ async def get_sleep_by_date(date_str: str, db: Session = Depends(get_db)):
             }
         }
     
-    # 2. Try DB only - no API fallback for speed
+    # 2. Try DB - with robust fallback
     try:
         user_id = 1
         clean_date_str = date_str.split('T')[0]
         date_obj = datetime.strptime(clean_date_str, "%Y-%m-%d").date()
         
         log = crud.get_sleep_log(db, user_id, date_obj)
-        if log and log.raw_json:
-            return {"dailySleepDTO": log.raw_json} 
+        if log:
+            # Check if raw_json has the nested structure
+            if log.raw_json:
+                # If raw_json contains dailySleepDTO, extract it
+                if 'dailySleepDTO' in log.raw_json:
+                    inner_dto = log.raw_json['dailySleepDTO']
+                    return {"dailySleepDTO": inner_dto}
+                # If raw_json has sleepTimeSeconds directly, return as-is wrapped
+                elif 'sleepTimeSeconds' in log.raw_json:
+                    return {"dailySleepDTO": log.raw_json}
+            
+            # Fallback: Build from model fields (most robust)
+            return {
+                "dailySleepDTO": {
+                    "sleepTimeSeconds": log.duration_seconds,
+                    "sleepScores": {"overall": {"value": log.sleep_score}},
+                    "deepSleepSeconds": log.deep_seconds,
+                    "lightSleepSeconds": log.light_seconds,
+                    "remSleepSeconds": log.rem_seconds,
+                    "awakeSleepSeconds": log.awake_seconds,
+                    "avgOvernightHrv": log.avg_hrv,
+                    "hrvStatus": log.hrv_status,
+                    "restingHeartRate": log.resting_hr
+                }
+            }
     except Exception as e:
         logger.warning(f"DB Sleep Read Error: {e}")
     
@@ -1058,14 +1272,34 @@ async def get_hrv_by_date(date_str: str, db: Session = Depends(get_db)):
         status = "Balanced" if hrv_val > 50 else "Unbalanced"
         return {"hrvSummary": {"weeklyAvg": hrv_val, "lastNightAvg": hrv_val, "status": status}}
 
-    # Try DB only - no API fallback for speed
+    # Try DB - with robust fallback
     try:
         user_id = 1
         clean_date_str = date_str.split('T')[0]
         date_obj = datetime.strptime(clean_date_str, "%Y-%m-%d").date()
         log = crud.get_hrv_log(db, user_id, date_obj)
-        if log and log.raw_json:
-            return {"hrvSummary": log.raw_json}
+        if log:
+            # Check raw_json structure
+            if log.raw_json:
+                # If raw_json contains hrvSummary, extract it
+                if 'hrvSummary' in log.raw_json:
+                    return {"hrvSummary": log.raw_json['hrvSummary']}
+                # If raw_json has lastNightAvg directly
+                elif 'lastNightAvg' in log.raw_json:
+                    return {"hrvSummary": log.raw_json}
+            
+            # Fallback: Build from model fields
+            return {
+                "hrvSummary": {
+                    "lastNightAvg": log.last_night_avg,
+                    "lastNight5MinHigh": log.last_night_5min_high,
+                    "weeklyAvg": log.weekly_avg,
+                    "status": log.status,
+                    "baselineLowUpper": log.baseline_low_upper,
+                    "baselineBalancedLower": log.baseline_balanced_lower,
+                    "baselineBalancedUpper": log.baseline_balanced_upper
+                }
+            }
     except Exception as e:
          logger.warning(f"DB HRV Read Error: {e}")
     

@@ -543,22 +543,28 @@ const DailyCockpitScreen = () => {
 
     // Sync state and animation
     const [syncing, setSyncing] = React.useState(false);
+    const [syncInfo, setSyncInfo] = React.useState<{ message: string; visible: boolean }>({ message: '', visible: false });
     const [showHocaChat, setShowHocaChat] = React.useState(false);
     const spinValue = useRef(new Animated.Value(0)).current;
+    const spinAnimation = useRef<Animated.CompositeAnimation | null>(null);
 
     useEffect(() => {
+        let intervalId: NodeJS.Timeout | null = null;
+
         if (syncing) {
-            Animated.loop(
-                Animated.timing(spinValue, {
-                    toValue: 1,
-                    duration: 1000,
-                    easing: Easing.linear,
-                    useNativeDriver: true,
-                })
-            ).start();
+            // Continuous rotation using interval
+            let rotation = 0;
+            intervalId = setInterval(() => {
+                rotation = (rotation + 10) % 360;
+                spinValue.setValue(rotation / 360);
+            }, 30); // ~33fps
         } else {
             spinValue.setValue(0);
         }
+
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+        };
     }, [syncing]);
 
     const spin = spinValue.interpolate({
@@ -569,6 +575,8 @@ const DailyCockpitScreen = () => {
     const handleSync = async () => {
         if (syncing) return;
         setSyncing(true);
+        setSyncInfo({ message: '', visible: false }); // Clear previous
+
         try {
             const response = await fetch('http://localhost:8000/ingestion/sync/incremental', {
                 method: 'POST'
@@ -576,8 +584,33 @@ const DailyCockpitScreen = () => {
             const result = await response.json();
             console.log('Sync result:', result);
 
-            // Refresh dashboard data
+            // Build info message
+            const parts: string[] = [];
+            if (result.new_activities > 0) {
+                parts.push(`🏃 ${result.new_activities} new`);
+            } else {
+                parts.push('✓ Up to date');
+            }
+            parts.push(`📅 ${result.days_synced}d`);
+            parts.push('🩺 Health synced');
+
+            // Show success toast
+            setSyncInfo({
+                message: parts.join(' • '),
+                visible: true
+            });
+
+            // Hide after 5 seconds
+            setTimeout(() => {
+                setSyncInfo(prev => ({ ...prev, visible: false }));
+            }, 5000);
+
+            // Refresh all dashboard data after sync
             fetchWeeklyData();
+            fetchDailyOverview();  // Refresh Sleep/HRV/Stress
+            fetchTrainingLoad();   // Refresh TSB/Readiness
+
+            // Refresh activities if new ones synced
             if (activities.length === 0 || result.new_activities > 0) {
                 const res = await fetch('http://localhost:8000/ingestion/activities?limit=3');
                 const data = await res.json();
@@ -585,7 +618,8 @@ const DailyCockpitScreen = () => {
             }
         } catch (error) {
             console.error('Sync failed:', error);
-            Alert.alert('Sync Failed', 'Could not sync data from Garmin');
+            setSyncInfo({ message: '✗ Sync failed', visible: true });
+            setTimeout(() => setSyncInfo(prev => ({ ...prev, visible: false })), 5000);
         } finally {
             setSyncing(false);
         }
@@ -688,10 +722,9 @@ const DailyCockpitScreen = () => {
 
     const fetchDailyOverview = async () => {
         try {
-            // Get yesterday's date
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const dateStr = yesterday.toISOString().split('T')[0];
+            // Get today's date (synced data is for today)
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0];
 
             // Fetch all data in parallel using existing endpoints
             const [sleepRes, hrvRes, stressRes, profileRes] = await Promise.all([
@@ -706,25 +739,28 @@ const DailyCockpitScreen = () => {
             const stressData = await stressRes.json();
             const profileData = await profileRes.json();
 
-            // Parse the nested API response structures
-            // Sleep API returns: { dailySleepDTO: { dailySleepDTO: {...}, avgOvernightHrv, hrvStatus, restingHeartRate } }
-            const outerSleepDTO = sleepData?.dailySleepDTO;
-            const innerSleepDTO = outerSleepDTO?.dailySleepDTO;
+            // Parse the API response - dailySleepDTO contains the sleep data directly
+            // Also check for HRV which may be nested differently  
+            const sleepDTO = sleepData?.dailySleepDTO;
+            const hrvDTO = hrvData?.hrvSummary;
 
             setDailyOverview({
-                sleep: innerSleepDTO?.sleepTimeSeconds ? {
-                    duration_hours: Math.round((innerSleepDTO.sleepTimeSeconds / 3600) * 10) / 10,
-                    score: innerSleepDTO.sleepScores?.overall?.value || null
+                sleep: sleepDTO?.sleepTimeSeconds ? {
+                    duration_hours: Math.round((sleepDTO.sleepTimeSeconds / 3600) * 10) / 10,
+                    score: sleepDTO.sleepScores?.overall?.value || null
                 } : null,
-                hrv: outerSleepDTO?.avgOvernightHrv ? {
-                    last_night_avg: Math.round(outerSleepDTO.avgOvernightHrv),
-                    status: outerSleepDTO.hrvStatus || null
-                } : null,
+                hrv: hrvDTO?.lastNightAvg ? {
+                    last_night_avg: Math.round(hrvDTO.lastNightAvg),
+                    status: hrvDTO.status || null
+                } : (sleepDTO?.avgOvernightHrv ? {
+                    last_night_avg: Math.round(sleepDTO.avgOvernightHrv),
+                    status: sleepDTO.hrvStatus || null
+                } : null),
                 stress: stressData?.avgStress ? {
                     avg: stressData.avgStress
                 } : null,
-                resting_hr: outerSleepDTO?.restingHeartRate || profileData?.restingHr || null,
-                last_sync: profileData?.date || null
+                resting_hr: sleepDTO?.restingHeartRate || profileData?.restingHr || null,
+                last_sync: profileData?.date || new Date().toISOString().split('T')[0]
             });
         } catch (error) {
             console.error('Failed to fetch daily overview:', error);
@@ -813,6 +849,29 @@ const DailyCockpitScreen = () => {
                             </View>
                         </View>
                     </View>
+
+                    {/* Sync Info Toast */}
+                    {syncInfo.visible && (
+                        <View style={{
+                            backgroundColor: syncInfo.message.includes('✓') ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                            borderColor: syncInfo.message.includes('✓') ? '#22C55E' : '#EF4444',
+                            borderWidth: 1,
+                            borderRadius: 8,
+                            padding: 12,
+                            marginBottom: 12,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            <Text style={{
+                                color: syncInfo.message.includes('✓') ? '#22C55E' : '#EF4444',
+                                fontSize: 14,
+                                fontWeight: '600'
+                            }}>
+                                {syncInfo.message}
+                            </Text>
+                        </View>
+                    )}
 
                     {/* Adaptation Banner */}
                     {store.adaptation?.active && (

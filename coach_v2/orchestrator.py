@@ -737,8 +737,14 @@ TSB YORUMU:
         else:
             word_limit = "150-200"
             detail_instruction = """
+- LAP TABLOSUNU ANALİZ ET VE ANTRENMAN TÜRÜNÜ KEŞFET:
+  * Lap'leri incele, interval pattern'ı bul (örn: 8x30sn, 6x200m, 4x1km)
+  * Kısa-hızlı lap'ler interval, uzun-yavaş lap'ler ısınma/soğuma
+  * Interval'lerde pace, HR, power değişimini yorumla
+  * Recovery lap'lerinde toparlanma kalitesini değerlendir
 - Veriyi hikaye gibi anlat, tablo formatı kullanma.
 - Önemli noktaları vurgula ama her detayı sayma.
+- CTL/ATL/TSB verisi varsa form durumunu yorumla.
 - Elevation verisi varsa değerlendir (tırmanış nabzı etkisi).
 - Hava durumu verisi varsa performansa etkisini değerlendir.
 - Yüksek rakım koşusuysa (Kapadokya, Bolu vb) bunu belirt.
@@ -991,6 +997,48 @@ TSB YORUMU:
                         lines.append(f"- Derin Uyku: {deep_hrs:.1f} saat")
                     if sleep.quality_score:
                         lines.append(f"- Kalite: {sleep.quality_score}")
+                
+                # CTL/ATL/TSB using the same formula as dashboard
+                import training_load
+                
+                if activity_date:
+                    # Get all activities for PMC calculation
+                    all_activities = self.db.query(models.Activity).filter(
+                        models.Activity.user_id == 1
+                    ).order_by(models.Activity.start_time_local).all()
+                    
+                    if all_activities:
+                        # Convert to dict format expected by training_load
+                        act_list = [
+                            {
+                                'local_start_date': a.local_start_date,
+                                'start_time_local': a.start_time_local,
+                                'duration': a.duration,
+                                'average_hr': a.average_hr,
+                                'distance': a.distance,
+                                'elevation_gain': a.elevation_gain
+                            }
+                            for a in all_activities
+                        ]
+                        
+                        # Use the same function as dashboard API
+                        load_context = training_load.get_recent_load_context(
+                            act_list,
+                            activity_date,
+                            lthr=165,
+                            resting_hr=45
+                        )
+                        
+                        ctl = load_context['ctl_before']
+                        atl = load_context['atl_before']
+                        tsb = load_context['tsb_before']
+                        form_status = load_context['form_status']
+                        
+                        lines.append(f"\n📈 FORM DURUMU (O Gün):")
+                        lines.append(f"- Fitness (CTL): {ctl:.0f}")
+                        lines.append(f"- Yorgunluk (ATL): {atl:.0f}")
+                        lines.append(f"- Form (TSB): {tsb:.0f}")
+                        lines.append(f"- Durum: {form_status}")
                         
             except Exception as e:
                 pass  # Silent fail
@@ -1046,7 +1094,7 @@ TSB YORUMU:
                 lines.append(f"- {flag}")
         
         if pack.get('tables'):
-            lines.append(f"\nDetay:\n{pack['tables'][:800]}")
+            lines.append(f"\n{pack['tables']}")  # Full tables - no truncation
             
         if pack.get('readiness') and pack['readiness'] != "Not in summary":
             lines.append(f"\nToparlanma Durumu:\n{pack['readiness']}")
@@ -1115,16 +1163,29 @@ DURUM: {form_status}
         return "\n".join(lines)
 
     def _fetch_pack_from_db(self, user_id, activity_id) -> Optional[Dict]:
-        """Fetch raw JSON from DB and build pack on fly."""
-        repo_act = self.repo.get_activity_summary(user_id, activity_id)
+        """Fetch raw JSON from DB and build pack with full lap tables."""
+        import models
         
+        # First try to get full activity with raw_json for lap data
+        activity = self.db.query(models.Activity).filter(
+            models.Activity.activity_id == activity_id
+        ).first()
+        
+        if activity and activity.raw_json:
+            # Use pack builder for proper lap tables and running dynamics
+            raw = activity.raw_json if isinstance(activity.raw_json, dict) else {}
+            pack = self.pack_builder.build_pack(raw)
+            return pack
+        
+        # Fallback to repo summary if no raw_json
+        repo_act = self.repo.get_activity_summary(user_id, activity_id)
         if repo_act:
-             return {
-                 "facts": repo_act.facts_text, 
-                 "tables": repo_act.summary_text or "Detay yok",
-                 "flags": [],
-                 "readiness": "Not in summary" 
-             }
+            return {
+                "facts": repo_act.facts_text, 
+                "tables": repo_act.summary_text or "Detay yok",
+                "flags": [],
+                "readiness": "Not in summary" 
+            }
         return None
 
     def _get_health_for_date(self, user_id, date_val):
