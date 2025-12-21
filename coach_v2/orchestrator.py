@@ -5,7 +5,7 @@ Coach V2 Orchestrator (Humanized Rewrite)
 A conversational, memory-aware running coach with deep expertise.
 """
 
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime, date, timedelta
 from sqlalchemy.orm import Session
@@ -24,7 +24,15 @@ from coach_v2.evidence_gate import EvidenceGate
 from coach_v2.performance_analyzer import PerformanceAnalyzer
 from coach_v2.athlete_memory import AthleteMemoryStore
 from coach_v2.sql_agent import SQLAgent
-from coach_v2.intent_classifier import IntentClassifier, classify_intent, classify_intent_with_debug
+from coach_v2.intent_classifier import (
+    IntentClassifier, classify_intent, classify_intent_with_debug, 
+    classify_intent_full, classify_intent_full_with_debug, IntentResult
+)
+from coach_v2.planner import (
+    Planner, create_execution_plan, create_execution_plan_with_debug,
+    ExecutionPlan, ActionStep
+)
+from coach_v2.state import conversation_state_manager, ConversationState
 
 # ==============================================================================
 # CONTEXT BOUNDS
@@ -56,6 +64,34 @@ class ChatResponse:
     resolved_date: Optional[str] = None
     debug_metadata: Optional[Dict[str, Any]] = None
     debug_steps: Optional[List[Dict[str, Any]]] = None  # Step-by-step debug
+
+
+def get_persona_modifier(tsb: float) -> str:
+    """
+    Get proactive persona modifier based on athlete's TSB.
+    
+    Args:
+        tsb: Training Stress Balance (CTL - ATL). 
+             Positive = rested, Negative = fatigued.
+    
+    Returns:
+        Persona modifier string to inject into prompts.
+    """
+    if tsb < -20:
+        return """
+SPORCU DURUMU: YORGUN (TSB < -20)
+- Nazik ve koruyucu ol. Sporcunun yorgun olduğunu anla.
+- Ağır antrenman önerme. Recovery'ye odaklan.
+- "Dinlensen iyi olur" gibi yumuşak öneriler ver.
+"""
+    elif tsb > 10:
+        return """
+SPORCU DURUMU: DİNLENMİŞ (TSB > 10)
+- Meydan oku! Sporcu hazır.
+- "Daha fazlasını verebilirsin" de.
+- Yoğun antrenman veya yarış önerilebilir.
+"""
+    return ""  # Normal TSB range (-20 to +10)
 
 
 class ConversationStateManager:
@@ -225,45 +261,324 @@ Bir sonraki antrenmanda burada olacağım."""
         self.sql_agent = SQLAgent(db, llm_client)
     
     def handle_chat(self, request: ChatRequest) -> ChatResponse:
-        """Handle chat request with AI-based intent classification."""
+        """
+        Handle chat request with AI Planner for multi-action execution.
+        
+        Flow:
+        1. Create ExecutionPlan (list of actions)
+        2. Execute each action in sequence
+        3. Pass results between handlers
+        4. Return final combined response
+        """
         debug_info = {} if request.debug else None
         debug_steps = [] if request.debug else None
         
-        # 1. AI Intent Classification (Gemini Flash - fast)
+        # 0. Get or create conversation state for this user
+        conv_state = conversation_state_manager.get_or_create(request.user_id, self.db)
+        
+        # Add user message to history
+        conv_state.add_turn("user", request.message)
+        
+        # Update metrics if stale (more than 5 min old)
+        if (conv_state.metrics.last_updated is None or 
+            (datetime.now() - conv_state.metrics.last_updated).seconds > 300):
+            conv_state.update_metrics_from_db(self.db)
+        
+        # 1. Create Execution Plan (AI Planner)
+        history_for_planner = conv_state.get_history_for_prompt()
+        metrics_context = conv_state.get_metrics_summary()
+        
+        plan, planner_debug = create_execution_plan_with_debug(
+            request.message, 
+            history_for_planner,
+            metrics_context
+        )
+        
+        # 2. Compute proactive persona based on TSB
+        tsb = conv_state.metrics.tsb
+        persona_modifier = get_persona_modifier(tsb)
+        
         if request.debug:
-            handler_type, ai_debug = classify_intent_with_debug(request.message)
-            debug_info['ai_handler_type'] = handler_type
-            debug_info['ai_classifier_debug'] = ai_debug
+            debug_info['planner_thought'] = plan.thought_process
+            debug_info['planner_debug'] = planner_debug
+            debug_info['plan_step_count'] = plan.step_count
+            debug_info['plan_needs_input'] = plan.needs_user_input
+            debug_info['conversation_history_count'] = len(conv_state.history)
+            debug_info['user_tsb'] = tsb
+            debug_info['persona_modifier'] = 'YORGUN' if tsb < -20 else ('DİNLENMİŞ' if tsb > 10 else 'NORMAL')
             
-            # Show clear indication of Gemini vs Fallback
-            model_used = ai_debug.get('model', 'unknown')
+            # Show planner output
+            model_used = planner_debug.get('model', 'unknown')
             if 'fallback' in model_used.lower():
-                source_description = f"⚠️ Fallback (Regex) → {handler_type}"
+                source_description = f"⚠️ Fallback → {plan.step_count} step(s)"
             else:
-                source_description = f"✅ {model_used} → {handler_type}"
+                source_description = f"✅ {model_used} → {plan.step_count} step(s) (conf: {plan.confidence:.0%})"
+            
+            # Build detailed plan visualization
+            plan_visualization = []
+            for i, s in enumerate(plan.steps):
+                step_info = {
+                    "step": i + 1,
+                    "handler": s.handler,
+                    "description": s.entities.get('description', f"Execute {s.handler}"),
+                    "entities": s.entities,
+                    "depends_on": getattr(s, 'depends_on', None)
+                }
+                if s.requires_input:
+                    step_info["requires_user_input"] = True
+                    step_info["input_question"] = s.input_prompt
+                plan_visualization.append(step_info)
             
             debug_steps.append({
                 "step": 0,
-                "name": "AI Intent Classification",
-                "status": handler_type,
+                "name": "📋 EXECUTION PLAN",
+                "status": f"{plan.step_count} step(s) planned",
                 "description": source_description,
-                "details": {
-                    "model": model_used,
-                    "raw_response": ai_debug.get('raw_response'),
-                    "prompt_preview": (ai_debug.get('prompt') or '')[:100] + '...' if ai_debug.get('prompt') else 'N/A (fallback used)'
-                }
+                "thought_process": plan.thought_process,
+                "plan": plan_visualization,
+                "persona_mode": debug_info.get('persona_modifier')
             })
-        else:
-            handler_type = classify_intent(request.message)
         
-        # 2. Get pinned state for activity context
+        # 3. Get pinned state for activity context
         pinned_state = self.state_manager.get_pinned_state(request.user_id)
         
         if debug_info is not None:
             debug_info['pinned_activity_id'] = pinned_state.garmin_activity_id if pinned_state else None
         
-        # 3. Route based on AI classification
-        return self._route_by_handler(request, handler_type, pinned_state, debug_info, debug_steps)
+        # 4. Execute plan (sequential handler execution)
+        response = self._execute_plan(
+            request, plan, pinned_state, debug_info, debug_steps,
+            persona_modifier=persona_modifier, conv_state=conv_state
+        )
+        
+        # 5. Add assistant response to conversation history
+        final_handler = plan.steps[-1].handler if plan.steps else "unknown"
+        conv_state.add_turn("assistant", response.message, handler_type=final_handler)
+        
+        return response
+    
+    def _execute_plan(
+        self, 
+        request, 
+        plan: ExecutionPlan,
+        pinned_state,
+        debug_info,
+        debug_steps,
+        persona_modifier: str = "",
+        conv_state: ConversationState = None
+    ) -> ChatResponse:
+        """
+        Execute an ExecutionPlan sequentially.
+        
+        Passes results between handlers for context.
+        Captures raw data from each step for debugging.
+        """
+        execution_results = []  # Results from each step with raw data
+        
+        for i, step in enumerate(plan.steps):
+            step_num = i + 1
+            
+            # Pre-execution debug entry
+            step_debug_entry = {
+                "step": step_num,
+                "name": f"Execute: {step.handler}",
+                "status": "running",
+                "description": f"Step {step_num}/{plan.step_count}: {step.handler}",
+                "entities": step.entities
+            }
+            if debug_steps is not None:
+                debug_steps.append(step_debug_entry)
+            
+            # Execute this handler and capture result + raw data
+            result, raw_data = self._execute_single_handler_with_data(
+                request=request,
+                handler_type=step.handler,
+                entities=step.entities,
+                pinned_state=pinned_state,
+                debug_info=debug_info,
+                debug_steps=debug_steps,
+                persona_modifier=persona_modifier,
+                conv_state=conv_state,
+                previous_results=execution_results
+            )
+            
+            # Store both message and raw data for next handlers
+            step_result = {
+                "handler": step.handler,
+                "step": step_num,
+                "result": result.message if result else None,
+                "raw_data": raw_data  # Full data context (activity, health, etc.)
+            }
+            execution_results.append(step_result)
+            
+            # Add fetched data to debug (summarized)
+            if debug_steps is not None and raw_data:
+                debug_steps.append({
+                    "step": step_num,
+                    "name": "📊 Data Fetched",
+                    "status": "success",
+                    "description": f"Step {step_num} data",
+                    "data_summary": self._summarize_raw_data(raw_data),
+                    "raw_data_keys": list(raw_data.keys()) if isinstance(raw_data, dict) else None
+                })
+            
+            # If this step requires user input, return immediately with question
+            if step.requires_input and step.input_prompt:
+                return ChatResponse(
+                    message=step.input_prompt,
+                    debug_metadata=debug_info,
+                    debug_steps=debug_steps
+                )
+            
+            # If this is the last step, return its response
+            if i == len(plan.steps) - 1:
+                return result
+        
+        # Fallback if no steps
+        return ChatResponse(
+            message=self.NO_DATA_RESPONSE,
+            debug_metadata=debug_info,
+            debug_steps=debug_steps
+        )
+    
+    def _execute_single_handler_with_data(
+        self,
+        request,
+        handler_type: str,
+        entities: Dict[str, Any],
+        pinned_state,
+        debug_info,
+        debug_steps,
+        persona_modifier: str,
+        conv_state: ConversationState,
+        previous_results: List[Dict] = None
+    ) -> Tuple[ChatResponse, Optional[Dict]]:
+        """
+        Execute a single handler with context from previous results.
+        
+        Returns:
+            Tuple of (ChatResponse, raw_data_dict)
+            raw_data_dict contains the fetched data for debugging and passing to next handlers
+        """
+        raw_data = None
+        
+        # Build comprehensive context from previous handler results
+        if previous_results and handler_type in ["sohbet_handler"]:
+            # Build context with both message and raw data
+            context_parts = []
+            for r in previous_results:
+                if r.get('raw_data'):
+                    # Use raw_data for full context
+                    data = r['raw_data']
+                    context_parts.append(f"=== {r['handler']} (Step {r.get('step', '?')}) ===\n{self._format_raw_data_for_context(data)}")
+                elif r.get('result'):
+                    # Fallback to message
+                    context_parts.append(f"[{r['handler']}]: {r['result'][:500]}")
+            
+            context_from_previous = "\n\n".join(context_parts)
+            entities = entities.copy()
+            entities['previous_context'] = context_from_previous
+        
+        # Route to appropriate handler and capture raw data
+        result = self._route_by_handler(
+            request, handler_type, pinned_state, debug_info, debug_steps,
+            entities=entities, persona_modifier=persona_modifier, conv_state=conv_state
+        )
+        
+        # Extract raw_data from result if available (set by handlers)
+        if hasattr(result, 'raw_data'):
+            raw_data = result.raw_data
+        elif debug_info and 'last_handler_data' in debug_info:
+            raw_data = debug_info.pop('last_handler_data')
+        
+        return result, raw_data
+    
+    def _summarize_raw_data(self, raw_data: Dict) -> str:
+        """Summarize raw data for debug display."""
+        if not raw_data:
+            return "No data"
+        
+        summary_parts = []
+        
+        # Activity info
+        if 'activity' in raw_data:
+            act = raw_data['activity']
+            summary_parts.append(f"📍 {act.get('name', 'Activity')} ({act.get('date', '')})")
+            if 'distance_km' in act:
+                summary_parts.append(f"🏃 {act['distance_km']:.1f}km")
+            if 'avg_pace' in act:
+                summary_parts.append(f"⏱️ Pace: {act['avg_pace']}")
+            if 'avg_hr' in act:
+                summary_parts.append(f"❤️ HR: {act['avg_hr']}bpm")
+        
+        # Health data
+        if 'health' in raw_data:
+            health = raw_data['health']
+            if health.get('hrv'):
+                summary_parts.append(f"💓 HRV: {health['hrv']}ms")
+            if health.get('sleep_score'):
+                summary_parts.append(f"😴 Sleep: {health['sleep_score']}")
+            if health.get('stress'):
+                summary_parts.append(f"😰 Stress: {health['stress']}")
+        
+        # Training load
+        if 'training_load' in raw_data:
+            tl = raw_data['training_load']
+            if tl.get('tsb') is not None:
+                summary_parts.append(f"📊 TSB: {tl['tsb']:.1f}")
+        
+        return " | ".join(summary_parts) if summary_parts else str(list(raw_data.keys()))
+    
+    def _format_raw_data_for_context(self, raw_data: Dict) -> str:
+        """Format raw data as context string for LLM."""
+        if not raw_data:
+            return ""
+        
+        lines = []
+        
+        if 'activity' in raw_data:
+            act = raw_data['activity']
+            lines.append(f"Aktivite: {act.get('name', 'Unknown')}")
+            lines.append(f"Tarih: {act.get('date', 'Unknown')}")
+            if 'distance_km' in act:
+                lines.append(f"Mesafe: {act['distance_km']:.2f} km")
+            if 'duration' in act:
+                lines.append(f"Süre: {act['duration']}")
+            if 'avg_pace' in act:
+                lines.append(f"Ortalama Pace: {act['avg_pace']}")
+            if 'avg_hr' in act:
+                lines.append(f"Ortalama Nabız: {act['avg_hr']} bpm")
+            if 'elevation_gain' in act:
+                lines.append(f"Yükseliş: {act['elevation_gain']}m")
+        
+        if 'health' in raw_data:
+            health = raw_data['health']
+            lines.append("\nSağlık Verileri:")
+            if health.get('hrv'):
+                lines.append(f"- HRV: {health['hrv']} ms")
+            if health.get('sleep_score'):
+                lines.append(f"- Uyku Skoru: {health['sleep_score']}")
+            if health.get('sleep_duration'):
+                lines.append(f"- Uyku Süresi: {health['sleep_duration']}")
+            if health.get('stress'):
+                lines.append(f"- Stres: {health['stress']}")
+        
+        if 'training_load' in raw_data:
+            tl = raw_data['training_load']
+            lines.append("\nAntrenman Yükü:")
+            if tl.get('ctl') is not None:
+                lines.append(f"- CTL (Fitness): {tl['ctl']:.1f}")
+            if tl.get('atl') is not None:
+                lines.append(f"- ATL (Yorgunluk): {tl['atl']:.1f}")
+            if tl.get('tsb') is not None:
+                lines.append(f"- TSB (Form): {tl['tsb']:.1f}")
+        
+        if 'laps' in raw_data and raw_data['laps']:
+            lines.append(f"\nTurlar ({len(raw_data['laps'])} tur):")
+            for lap in raw_data['laps'][:5]:  # First 5 laps
+                lines.append(f"  - {lap.get('distance_km', '?')}km @ {lap.get('pace', '?')}")
+        
+        return "\n".join(lines)
     
     # =========================================================================
     # AI-BASED HANDLER ROUTING
@@ -273,8 +588,32 @@ Bir sonraki antrenmanda burada olacağım."""
 
 Son koşunu analiz edebilirim ya da haftalık durumuna bakabiliriz. Hazır olduğunda söyle."""
 
-    def _route_by_handler(self, request, handler_type: str, pinned_state, debug_info, debug_steps=None):
-        """Route to handler based on AI classification."""
+    def _route_by_handler(
+        self, 
+        request, 
+        handler_type: str, 
+        pinned_state, 
+        debug_info, 
+        debug_steps=None,
+        entities: Dict[str, Any] = None,
+        persona_modifier: str = "",
+        conv_state: ConversationState = None
+    ):
+        """
+        Route to handler based on AI classification.
+        
+        Args:
+            request: ChatRequest
+            handler_type: Handler name from IntentClassifier
+            pinned_state: Pinned activity context
+            debug_info: Debug metadata dict
+            debug_steps: Debug step list
+            entities: Extracted entities (date, metric, etc.)
+            persona_modifier: TSB-based persona adjustment
+            conv_state: Current conversation state
+        """
+        if entities is None:
+            entities = {}
         
         if debug_info is not None:
             debug_info['handler_routed'] = handler_type
@@ -310,46 +649,87 @@ Son koşunu analiz edebilirim ya da haftalık durumuna bakabiliriz. Hazır oldu�
         
         # LLM-BASED HANDLERS
         if handler_type == "training_detail_handler":
-            debug_steps.append({"step": 1, "name": "Handler", "status": "training_detail_handler", "description": "Son aktivite analizi"})
-            # Get last activity and do deep analysis
-            return self._handle_training_detail(request, pinned_state, debug_info, debug_steps)
+            debug_steps.append({"step": 1, "name": "Handler", "status": "training_detail_handler", "description": f"Aktivite analizi (entities: {entities})"})
+            # Get activity based on entities (date, activity_ref)
+            return self._handle_training_detail(request, pinned_state, debug_info, debug_steps, entities=entities)
         
         if handler_type == "db_handler":
-            debug_steps.append({"step": 1, "name": "Handler", "status": "db_handler", "description": "SQL Agent sorgusu"})
-            # SQL Agent for database queries
-            return self._handle_general_query(request, debug_info, debug_steps)
+            debug_steps.append({"step": 1, "name": "Handler", "status": "db_handler", "description": f"SQL Agent sorgusu (entities: {entities})"})
+            # SQL Agent for database queries using entities
+            return self._handle_general_query(request, debug_info, debug_steps, entities=entities)
         
         if handler_type == "sohbet_handler":
             debug_steps.append({"step": 1, "name": "Handler", "status": "sohbet_handler", "description": "Genel sohbet (LLM)"})
-            # Direct LLM conversation - NO database
-            return self._handle_sohbet(request, debug_info, debug_steps)
+            # Direct LLM conversation with context from previous handlers
+            return self._handle_sohbet(request, debug_info, debug_steps, persona_modifier=persona_modifier, conv_state=conv_state, entities=entities)
     
-    def _handle_sohbet(self, request, debug_info, debug_steps=None):
-        """Handle general conversation with LLM only - no database queries."""
+    def _handle_sohbet(self, request, debug_info, debug_steps=None, persona_modifier: str = "", conv_state: ConversationState = None, entities: Dict[str, Any] = None):
+        """Handle general conversation with LLM - may include context from previous handlers."""
+        if entities is None:
+            entities = {}
+        
         try:
-            prompt = f"""{self.COACH_PERSONA}
+            # Build context with metrics if available
+            metrics_context = ""
+            if conv_state and conv_state.metrics.last_updated:
+                metrics_context = conv_state.get_metrics_summary()
+            
+            # Get previous handler results (multi-step execution context)
+            previous_context = entities.get('previous_context', '')
+            has_data_context = bool(previous_context)
+            
+            if has_data_context:
+                # Multi-step mode: analyze data from previous handlers
+                prompt = f"""{self.COACH_PERSONA}
 
 {self.RUNNING_EXPERTISE}
+
+{persona_modifier}
+
+{metrics_context}
+
+# ÖNCEKİ ADIMLARDAN GELEN VERİLER
+Aşağıdaki veriler veritabanından çekildi:
+
+{previous_context}
+
+# GÖREV
+Yukarıdaki verileri analiz edip sporcuya açıkla.
+- Verileri karşılaştır, önemli farkları vurgula.
+- Koçluk tavsiyesi ver.
+- Tedesco tarzı: Net, doğrudan, gerekçeli.
+
+SPORCU SORUSU: {request.message}
+"""
+            else:
+                # Simple sohbet mode: no data context
+                prompt = f"""{self.COACH_PERSONA}
+
+{self.RUNNING_EXPERTISE}
+
+{persona_modifier}
+
+{metrics_context}
 
 # SOHBET KURALLARI
 Sporcu sana genel bir soru soruyor veya sohbet etmek istiyor.
 - Samimi, kısa ve net cevap ver.
 - Tedesco tarzı: Düşünceli, doğrudan, gereksiz soru sorma.
-- Veritabanına gitme, antrenman analizi yapma.
 - Eğer spesifik veri lazımsa öneri sun ama soru şeklinde değil.
 - Max 2-3 cümle yeterli.
 
 SPORCU MESAJI: {request.message}
 """
             
-            response = self.llm.generate(prompt, max_tokens=300, temperature=0.7)
+            response = self.llm.generate(prompt, max_tokens=500 if has_data_context else 300, temperature=0.7)
             
             if debug_steps:
                 debug_steps.append({
                     "step": 2, 
                     "name": "LLM Sohbet", 
                     "status": "success",
-                    "description": "Direkt LLM cevabı (DB kullanılmadı)"
+                    "description": f"LLM cevabı ({'Veri analizi' if has_data_context else 'Sohbet'})",
+                    "has_data_context": has_data_context
                 })
             
             return ChatResponse(
@@ -365,11 +745,253 @@ SPORCU MESAJI: {request.message}
                 debug_steps=debug_steps or []
             )
     
-    def _handle_training_detail(self, request, pinned_state, debug_info, debug_steps=None):
-        """Handle training detail requests - fetch last activity and analyze."""
-        # Use existing last_activity handler logic
-        parsed_intent = ParsedIntent(intent_type='last_activity', original_query=request.message)
-        return self._handle_last_activity(request, parsed_intent, debug_info)
+    def _handle_training_detail(self, request, pinned_state, debug_info, debug_steps=None, entities: Dict[str, Any] = None):
+        """
+        Handle training detail requests - fetch activity based on entities.
+        
+        Entities can include:
+        - date: "yesterday", "today", "last_week", or specific date
+        - activity_ref: "last", "this", "previous", "today", "yesterday"
+        - metric: "pace", "hr", "power" for focused analysis
+        
+        Returns ChatResponse and stores raw_data in debug_info for handler chaining.
+        """
+        if entities is None:
+            entities = {}
+        
+        # Determine which activity to fetch based on activity_ref
+        activity_ref = entities.get('activity_ref', 'last')
+        
+        # Get activity based on reference
+        activity = None
+        if activity_ref in ['today', 'yesterday']:
+            target_date = self._resolve_date_from_entities({'date': activity_ref})
+            activity = self._get_activity_by_date(request.user_id, target_date)
+        elif activity_ref == 'previous':
+            # Get the second most recent activity using direct DB query
+            import models
+            activities = self.db.query(models.Activity).filter(
+                models.Activity.user_id == request.user_id
+            ).order_by(models.Activity.start_time_local.desc()).limit(2).all()
+            if len(activities) >= 2:
+                activity = activities[1]  # Second most recent
+            elif len(activities) == 1:
+                activity = activities[0]
+        else:  # 'last' or default
+            activity = self.retriever.get_last_activity(request.user_id)
+        
+        if debug_steps:
+            debug_steps.append({
+                "step": 2,
+                "name": "Date Resolution",
+                "status": "success",
+                "description": f"Activity ref: {activity_ref}" + (f" → {activity.activity_name}" if activity else " → Not found")
+            })
+        
+        if not activity:
+            return ChatResponse(
+                message=f"'{activity_ref}' için aktivite bulunamadı.",
+                debug_metadata=debug_info
+            )
+        
+        # Get activity ID (handles both Activity model and ActivityCandidate)
+        act_id = getattr(activity, 'garmin_activity_id', None) or getattr(activity, 'activity_id', None)
+        act_date = getattr(activity, 'local_start_date', None)
+        act_name = getattr(activity, 'activity_name', 'Unknown')
+        
+        # Fetch pack with full data
+        pack = self._fetch_pack_from_db(request.user_id, act_id)
+        
+        # Build raw_data structure for handler chaining
+        raw_data = self._build_raw_data_from_activity(activity, pack, request.user_id)
+        
+        # Store in debug_info for _execute_single_handler_with_data to pick up
+        if debug_info is not None:
+            debug_info['last_handler_data'] = raw_data
+        
+        # Pin this activity
+        self.state_manager.pin_activity(
+            request.user_id, 
+            act_id, 
+            act_date,
+            act_name, 
+            'training_detail'
+        )
+        
+        return self._generate_activity_analysis(
+            request, pack, act_name, debug_info, 
+            act_id, act_date
+        )
+    
+    def _build_raw_data_from_activity(self, activity, pack, user_id: int) -> Dict:
+        """Build structured raw_data dict from activity and pack for handler chaining."""
+        from datetime import date as date_type
+        
+        # Handle both Activity model and ActivityCandidate dataclass
+        act_id = getattr(activity, 'garmin_activity_id', None) or getattr(activity, 'activity_id', None)
+        act_name = getattr(activity, 'activity_name', 'Unknown')
+        act_date = getattr(activity, 'local_start_date', None)
+        
+        # Get distance - Activity model has 'distance' in meters, ActivityCandidate has 'distance_km'
+        if hasattr(activity, 'distance_km'):
+            distance_km = activity.distance_km
+        elif hasattr(activity, 'distance') and activity.distance:
+            distance_km = activity.distance / 1000
+        else:
+            distance_km = None
+        
+        raw_data = {
+            'activity': {
+                'id': act_id,
+                'name': act_name,
+                'date': str(act_date) if act_date else '',
+                'distance_km': distance_km,
+            }
+        }
+        
+        # Add pack data if available
+        if pack:
+            if hasattr(pack, 'avg_pace_str'):
+                raw_data['activity']['avg_pace'] = pack.avg_pace_str
+            if hasattr(pack, 'avg_hr') and pack.avg_hr:
+                raw_data['activity']['avg_hr'] = pack.avg_hr
+            if hasattr(pack, 'elevation_gain') and pack.elevation_gain:
+                raw_data['activity']['elevation_gain'] = pack.elevation_gain
+            if hasattr(pack, 'duration') and pack.duration:
+                raw_data['activity']['duration'] = str(pack.duration)
+            
+            # Lap data
+            if hasattr(pack, 'laps') and pack.laps:
+                raw_data['laps'] = [
+                    {'distance_km': f"{lap.get('distance', 0)/1000:.2f}", 'pace': lap.get('pace_str', '?')}
+                    for lap in pack.laps[:10]
+                ]
+        
+        # Get health data for this date
+        activity_date = activity.local_start_date
+        health_data = self._get_health_data_for_date(user_id, activity_date)
+        if health_data:
+            raw_data['health'] = health_data
+        
+        # Get training load
+        training_load = self._get_training_load_for_user(user_id)
+        if training_load:
+            raw_data['training_load'] = training_load
+        
+        return raw_data
+    
+    def _get_health_data_for_date(self, user_id: int, activity_date) -> Optional[Dict]:
+        """Get HRV, sleep, stress data for a specific date."""
+        try:
+            from datetime import date as date_type, timedelta
+            import models
+            
+            health = {}
+            
+            # HRV
+            hrv = self.db.query(models.HRVLog).filter(
+                models.HRVLog.user_id == user_id,
+                models.HRVLog.calendar_date == activity_date
+            ).first()
+            if hrv and hrv.last_night_avg:
+                health['hrv'] = hrv.last_night_avg
+            
+            # Sleep
+            sleep = self.db.query(models.SleepLog).filter(
+                models.SleepLog.user_id == user_id,
+                models.SleepLog.calendar_date == activity_date
+            ).first()
+            if sleep:
+                if sleep.overall_score:
+                    health['sleep_score'] = sleep.overall_score
+                if sleep.sleep_time_seconds:
+                    hours = sleep.sleep_time_seconds // 3600
+                    mins = (sleep.sleep_time_seconds % 3600) // 60
+                    health['sleep_duration'] = f"{hours}h {mins}m"
+            
+            # Stress  
+            stress = self.db.query(models.StressLog).filter(
+                models.StressLog.user_id == user_id,
+                models.StressLog.calendar_date == activity_date
+            ).first()
+            if stress and stress.overall_stress_avg:
+                health['stress'] = stress.overall_stress_avg
+            
+            return health if health else None
+        except Exception as e:
+            logging.warning(f"Failed to get health data: {e}")
+            return None
+    
+    def _get_training_load_for_user(self, user_id: int) -> Optional[Dict]:
+        """Get current CTL/ATL/TSB for user."""
+        try:
+            import models
+            phys = self.db.query(models.PhysiologicalLog).filter(
+                models.PhysiologicalLog.user_id == user_id
+            ).order_by(models.PhysiologicalLog.calendar_date.desc()).first()
+            
+            if phys:
+                return {
+                    'ctl': phys.ctl if hasattr(phys, 'ctl') else None,
+                    'atl': phys.atl if hasattr(phys, 'atl') else None,
+                    'tsb': phys.tsb if hasattr(phys, 'tsb') else None,
+                }
+        except Exception as e:
+            logging.warning(f"Failed to get training load: {e}")
+        return None
+    
+    def _get_activity_by_date(self, user_id: int, target_date):
+        """Get activity for a specific date."""
+        import models
+        from datetime import datetime
+        
+        activity = self.db.query(models.Activity).filter(
+            models.Activity.user_id == user_id,
+            models.Activity.start_time_local >= datetime.combine(target_date, datetime.min.time()),
+            models.Activity.start_time_local < datetime.combine(target_date, datetime.max.time())
+        ).order_by(models.Activity.start_time_local.desc()).first()
+        
+        return activity
+    
+    def _resolve_date_from_entities(self, entities: Dict[str, Any]):
+        """Resolve a target date from extracted entities."""
+        from datetime import date, timedelta
+        
+        date_ref = entities.get('date', '')
+        
+        if not date_ref:
+            return None
+        
+        today = date.today()
+        
+        # Handle relative dates
+        if date_ref == 'yesterday':
+            return today - timedelta(days=1)
+        elif date_ref == 'today':
+            return today
+        elif date_ref == 'last_week':
+            return today - timedelta(days=7)
+        elif date_ref == 'last_month':
+            return today - timedelta(days=30)
+        
+        # Handle day names (Tuesday, etc.)
+        day_names = {
+            'monday': 0, 'tuesday': 1, 'wednesday': 2, 'thursday': 3,
+            'friday': 4, 'saturday': 5, 'sunday': 6,
+            'pazartesi': 0, 'salı': 1, 'çarşamba': 2, 'perşembe': 3,
+            'cuma': 4, 'cumartesi': 5, 'pazar': 6
+        }
+        
+        if date_ref.lower() in day_names:
+            target_weekday = day_names[date_ref.lower()]
+            current_weekday = today.weekday()
+            days_back = (current_weekday - target_weekday) % 7
+            if days_back == 0:
+                days_back = 7  # Last week's same day
+            return today - timedelta(days=days_back)
+        
+        return None
+
 
     def _route_intent(self, request, parsed_intent, pinned_state, debug_info):
         """Route parsed intent to appropriate handler."""
@@ -829,13 +1451,25 @@ TSB YORUMU:
             debug_metadata=debug_info
         )
 
-    def _handle_general_query(self, request, debug_info, incoming_debug_steps=None):
-        """Handle general questions with SQL Agent."""
-        # Use SQLAgent for dynamic SQL generation
+    def _handle_general_query(self, request, debug_info, incoming_debug_steps=None, entities: Dict[str, Any] = None):
+        """
+        Handle general questions with SQL Agent.
+        
+        Uses entities for smarter query construction:
+        - metric: distance, pace, hr, power
+        - date: yesterday, last_week, last_month
+        - comparison: weekly, monthly, trend
+        """
+        if entities is None:
+            entities = {}
+        
+        # Enhance the question with entity context for SQL Agent
+        enhanced_question = self._enhance_question_with_entities(request.message, entities)
+        
         try:
             response_text, sql_debug = self.sql_agent.analyze_and_answer(
                 request.user_id, 
-                request.message
+                enhanced_question
             )
             
             # Merge incoming debug_steps (AI Intent) with SQL Agent steps
@@ -847,6 +1481,7 @@ TSB YORUMU:
             
             if debug_info is not None:
                 debug_info['sql_agent'] = sql_debug
+                debug_info['enhanced_question'] = enhanced_question
             
             return ChatResponse(
                 message=response_text, 
@@ -856,6 +1491,47 @@ TSB YORUMU:
         except Exception as e:
             logging.error(f"SQLAgent failed: {e}")
             return ChatResponse(message=self.NO_DATA_RESPONSE, debug_metadata=debug_info)
+    
+    def _enhance_question_with_entities(self, question: str, entities: Dict[str, Any]) -> str:
+        """
+        Enhance user question with extracted entity context.
+        Helps SQL Agent generate more accurate queries.
+        """
+        enhancements = []
+        
+        if entities.get('metric'):
+            metric_map = {
+                'distance': 'mesafe (km)',
+                'pace': 'pace (dk/km)',
+                'hr': 'nabız (bpm)',
+                'power': 'güç (watt)',
+                'cadence': 'kadans (adım/dk)',
+                'time': 'süre'
+            }
+            metric = entities['metric']
+            enhancements.append(f"[Metrik: {metric_map.get(metric, metric)}]")
+        
+        if entities.get('date'):
+            date_ref = entities['date']
+            date_map = {
+                'yesterday': 'dün',
+                'today': 'bugün',
+                'last_week': 'son 7 gün',
+                'last_month': 'son 30 gün'
+            }
+            enhancements.append(f"[Tarih: {date_map.get(date_ref, date_ref)}]")
+        
+        if entities.get('comparison'):
+            comp_map = {
+                'weekly': 'haftalık karşılaştırma',
+                'monthly': 'aylık karşılaştırma',
+                'trend': 'trend analizi'
+            }
+            enhancements.append(f"[Karşılaştırma: {comp_map.get(entities['comparison'], entities['comparison'])}]")
+        
+        if enhancements:
+            return f"{question} {' '.join(enhancements)}"
+        return question
 
     # ==========================================================================
     # RESPONSE GENERATORS
@@ -870,7 +1546,7 @@ TSB YORUMU:
         wants_detail = any(w in request.message.lower() for w in ['detay', 'derin', 'kapsamlı', 'tam', 'her', 'tüm'])
         
         # Build rich context
-        context = self._build_activity_context(pack, activity_name, date_val, activity_id=act_id)
+        context = self._build_activity_context(pack, activity_name, date_val, activity_id=act_id, user_id=request.user_id)
         
         # Include conversation history for continuity
         history_context = self._format_conversation_history(request.conversation_history)
@@ -1033,10 +1709,11 @@ TSB YORUMU:
     # CONTEXT BUILDERS
     # ==========================================================================
     
-    def _build_activity_context(self, pack, activity_name, activity_date, activity_id=None) -> str:
-        """Build rich context from activity pack including real elevation and weather."""
+    def _build_activity_context(self, pack, activity_name, activity_date, activity_id=None, user_id: int = 1) -> str:
+        """Build rich context from activity pack including real elevation, weather, and health data."""
         import models
         from sqlalchemy import func
+        from datetime import date as date_type, timedelta
         
         lines = [f"Aktivite: {activity_name}"]
         if activity_date:
@@ -1111,10 +1788,18 @@ TSB YORUMU:
         if activity_date:
             try:
                 # HRV data from previous night
+                # Try activity_date and day before (HRV is recorded overnight)
                 hrv = self.db.query(models.HRVLog).filter(
-                    models.HRVLog.user_id == 1,  # TODO: get from activity
+                    models.HRVLog.user_id == user_id,
                     models.HRVLog.calendar_date == activity_date
                 ).first()
+                
+                # If not found, try day before (HRV often recorded for previous night)
+                if not hrv and isinstance(activity_date, date_type):
+                    hrv = self.db.query(models.HRVLog).filter(
+                        models.HRVLog.user_id == user_id,
+                        models.HRVLog.calendar_date == activity_date - timedelta(days=1)
+                    ).first()
                 
                 if hrv:
                     lines.append(f"\n💓 HRV VERİSİ (Önceki Gece):")
@@ -1126,7 +1811,7 @@ TSB YORUMU:
                 
                 # Stress data
                 stress = self.db.query(models.StressLog).filter(
-                    models.StressLog.user_id == 1,
+                    models.StressLog.user_id == user_id,
                     models.StressLog.calendar_date == activity_date
                 ).first()
                 
@@ -1138,10 +1823,13 @@ TSB YORUMU:
                         lines.append(f"- Durum: {stress.status}")
                 
                 # Sleep data from previous night
+                # Sleep from previous night (day before activity)
+                sleep_date = activity_date - timedelta(days=1) if isinstance(activity_date, date_type) else activity_date
                 sleep = self.db.query(models.SleepLog).filter(
-                    models.SleepLog.user_id == 1,
-                    models.SleepLog.calendar_date == activity_date
-                ).first()
+                    models.SleepLog.user_id == user_id,
+                    models.SleepLog.calendar_date >= sleep_date,
+                    models.SleepLog.calendar_date <= activity_date
+                ).order_by(models.SleepLog.calendar_date.desc()).first()
                 
                 if sleep:
                     lines.append(f"\n😴 UYKU VERİSİ (Önceki Gece):")
@@ -1161,7 +1849,7 @@ TSB YORUMU:
                 if activity_date:
                     # Get all activities for PMC calculation
                     all_activities = self.db.query(models.Activity).filter(
-                        models.Activity.user_id == 1
+                        models.Activity.user_id == user_id
                     ).order_by(models.Activity.start_time_local).all()
                     
                     if all_activities:

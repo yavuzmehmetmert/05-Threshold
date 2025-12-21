@@ -43,6 +43,15 @@ interface DebugStep {
     activity_context?: string;  // Activity data loaded
     context_preview?: string;   // Context for trend/health
     data_source?: string;       // Where data came from
+    // Execution plan fields
+    thought_process?: string;   // Planner's reasoning
+    plan?: {                    // Planned steps
+        step: number;
+        handler: string;
+        description?: string;
+        entities?: any;
+        depends_on?: number | number[] | null;
+    }[];
 }
 
 interface Message {
@@ -292,15 +301,63 @@ export const HocaChatModal: React.FC<HocaChatModalProps> = ({
                                     <Text style={styles.debugTitle}>🔍 Debug (SQL Agent)</Text>
                                     {msg.debug_steps.map((step, stepIdx) => (
                                         <View key={stepIdx} style={styles.debugStep}>
-                                            <Text style={styles.debugStepName}>
-                                                Step {step.step}: {step.name} [{step.status}]
-                                            </Text>
+                                            {/* Special rendering for EXECUTION PLAN (step 0) */}
+                                            {step.name === '📋 EXECUTION PLAN' && step.plan ? (
+                                                <View>
+                                                    <Text style={styles.debugStepName}>
+                                                        {step.name} [{step.status}]
+                                                    </Text>
+                                                    <Text style={styles.debugDescription}>
+                                                        {step.description}
+                                                    </Text>
 
-                                            {/* Description - Shows Gemini vs Fallback */}
-                                            {step.description && (
-                                                <Text style={styles.debugDescription}>
-                                                    {step.description}
-                                                </Text>
+                                                    {/* Thought Process */}
+                                                    {step.thought_process && (
+                                                        <View style={styles.planThought}>
+                                                            <Text style={styles.planThoughtLabel}>💭 Düşünce:</Text>
+                                                            <Text style={styles.planThoughtText}>{step.thought_process}</Text>
+                                                        </View>
+                                                    )}
+
+                                                    {/* Plan Steps */}
+                                                    <View style={styles.planSteps}>
+                                                        <Text style={styles.planStepsLabel}>📋 Plan:</Text>
+                                                        {step.plan.map((planStep: any, planIdx: number) => (
+                                                            <View key={planIdx} style={styles.planStepItem}>
+                                                                <Text style={styles.planStepNumber}>
+                                                                    Step {planStep.step}:
+                                                                </Text>
+                                                                <Text style={styles.planStepHandler}>
+                                                                    {planStep.handler}
+                                                                </Text>
+                                                                {planStep.description && planStep.description !== `Execute ${planStep.handler}` && (
+                                                                    <Text style={styles.planStepDesc}>
+                                                                        → {planStep.description}
+                                                                    </Text>
+                                                                )}
+                                                                {planStep.depends_on && planStep.depends_on !== -1 && (
+                                                                    <Text style={styles.planStepDeps}>
+                                                                        (depends: {Array.isArray(planStep.depends_on) ? planStep.depends_on.join(', ') : planStep.depends_on})
+                                                                    </Text>
+                                                                )}
+                                                            </View>
+                                                        ))}
+                                                    </View>
+                                                </View>
+                                            ) : (
+                                                /* Regular step rendering */
+                                                <View>
+                                                    <Text style={styles.debugStepName}>
+                                                        Step {step.step}: {step.name} [{step.status}]
+                                                    </Text>
+
+                                                    {/* Description - Shows Gemini vs Fallback */}
+                                                    {step.description && (
+                                                        <Text style={styles.debugDescription}>
+                                                            {step.description}
+                                                        </Text>
+                                                    )}
+                                                </View>
                                             )}
 
                                             {/* Prompt Sent to Gemini */}
@@ -708,6 +765,70 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontFamily: 'monospace',
         marginTop: 2,
+    },
+    // Plan visualization styles
+    planThought: {
+        backgroundColor: '#1a2a3a',
+        padding: 8,
+        borderRadius: 4,
+        marginTop: 8,
+        marginBottom: 8,
+    },
+    planThoughtLabel: {
+        color: '#FFD700',
+        fontSize: 11,
+        fontWeight: 'bold',
+        marginBottom: 4,
+    },
+    planThoughtText: {
+        color: '#CCCCCC',
+        fontSize: 11,
+        fontStyle: 'italic',
+    },
+    planSteps: {
+        backgroundColor: '#0d1117',
+        borderRadius: 4,
+        padding: 8,
+        marginTop: 8,
+    },
+    planStepsLabel: {
+        color: '#CCFF00',
+        fontSize: 12,
+        fontWeight: 'bold',
+        marginBottom: 8,
+    },
+    planStepItem: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        paddingVertical: 4,
+        paddingLeft: 8,
+        borderLeftWidth: 2,
+        borderLeftColor: '#CCFF00',
+        marginBottom: 6,
+    },
+    planStepNumber: {
+        color: '#CCFF00',
+        fontSize: 11,
+        fontWeight: 'bold',
+        marginRight: 6,
+    },
+    planStepHandler: {
+        color: '#58A6FF',
+        fontSize: 11,
+        fontWeight: 'bold',
+    },
+    planStepDesc: {
+        color: '#8B949E',
+        fontSize: 10,
+        marginLeft: 8,
+        flexBasis: '100%',
+        marginTop: 2,
+    },
+    planStepDeps: {
+        color: '#7C3AED',
+        fontSize: 9,
+        marginLeft: 8,
     },
 });
 
