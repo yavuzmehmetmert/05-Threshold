@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, RefreshControl, Modal, TextInput, Alert, Dimensions } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useDashboardStore } from '../store/useDashboardStore';
 import { User, RefreshCw, Activity, Heart, Scale, Wind, LogOut, Plus, Trash2, X, TrendingUp, TrendingDown, Settings } from 'lucide-react-native';
 import { VictoryLine, VictoryChart, VictoryAxis, VictoryVoronoiContainer, VictoryScatter } from 'victory-native';
@@ -139,10 +140,13 @@ const ProfileScreen = () => {
         }
     };
 
-    useEffect(() => {
-        fetchProfileData(); // Load profile data on mount
-        fetchShoes();
-    }, []);
+    // Refresh data every time screen is focused (after sync from other screens)
+    useFocusEffect(
+        useCallback(() => {
+            fetchProfileData();
+            fetchShoes();
+        }, [])
+    );
 
     const fetchShoes = async () => {
         try {

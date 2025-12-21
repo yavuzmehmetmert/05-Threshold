@@ -15,7 +15,7 @@ import {
     Platform,
     ActivityIndicator,
 } from 'react-native';
-import { MessageCircle, X, Send, Bot, User, Sparkles, Brain, Loader } from 'lucide-react-native';
+import { MessageCircle, X, Send, Bot, User, Sparkles, Brain, Loader, Eye, EyeOff } from 'lucide-react-native';
 
 const COLORS = {
     background: '#050505',
@@ -70,6 +70,7 @@ export const HocaChatModal: React.FC<HocaChatModalProps> = ({
     const [loading, setLoading] = useState(false);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [deepLearning, setDeepLearning] = useState(false);
+    const [showDebug, setShowDebug] = useState(false);
     const scrollViewRef = useRef<ScrollView>(null);
 
     // Deep Learning - Analyze all training history
@@ -215,6 +216,16 @@ export const HocaChatModal: React.FC<HocaChatModalProps> = ({
                     </View>
                     <View style={styles.headerActions}>
                         <TouchableOpacity
+                            onPress={() => setShowDebug(!showDebug)}
+                            style={[styles.debugToggleButton, showDebug && styles.debugToggleButtonActive]}
+                        >
+                            {showDebug ? (
+                                <Eye size={18} color={COLORS.primary} />
+                            ) : (
+                                <EyeOff size={18} color={COLORS.textSecondary} />
+                            )}
+                        </TouchableOpacity>
+                        <TouchableOpacity
                             onPress={runDeepLearning}
                             style={[styles.deepLearnButton, deepLearning && styles.deepLearnButtonActive]}
                             disabled={deepLearning}
@@ -275,8 +286,8 @@ export const HocaChatModal: React.FC<HocaChatModalProps> = ({
                                 </Text>
                             </View>
 
-                            {/* Debug Panel - Collapsible */}
-                            {msg.debug_steps && msg.debug_steps.length > 0 && (
+                            {/* Debug Panel - Conditional */}
+                            {showDebug && msg.debug_steps && msg.debug_steps.length > 0 && (
                                 <View style={styles.debugPanel}>
                                     <Text style={styles.debugTitle}>🔍 Debug (SQL Agent)</Text>
                                     {msg.debug_steps.map((step, stepIdx) => (
@@ -284,6 +295,13 @@ export const HocaChatModal: React.FC<HocaChatModalProps> = ({
                                             <Text style={styles.debugStepName}>
                                                 Step {step.step}: {step.name} [{step.status}]
                                             </Text>
+
+                                            {/* Description - Shows Gemini vs Fallback */}
+                                            {step.description && (
+                                                <Text style={styles.debugDescription}>
+                                                    {step.description}
+                                                </Text>
+                                            )}
 
                                             {/* Prompt Sent to Gemini */}
                                             {step.prompt_sent && (
@@ -447,6 +465,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
+    },
+    debugToggleButton: {
+        padding: 8,
+        borderRadius: 8,
+    },
+    debugToggleButtonActive: {
+        backgroundColor: COLORS.surfaceLight,
     },
     deepLearnButton: {
         flexDirection: 'row',
@@ -632,6 +657,12 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '600',
         marginBottom: 4,
+    },
+    debugDescription: {
+        color: '#58A6FF',
+        fontSize: 11,
+        marginBottom: 6,
+        fontStyle: 'italic',
     },
     debugCode: {
         backgroundColor: '#161B22',

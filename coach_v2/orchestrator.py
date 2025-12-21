@@ -226,15 +226,23 @@ Bir sonraki antrenmanda burada olacağım."""
             handler_type, ai_debug = classify_intent_with_debug(request.message)
             debug_info['ai_handler_type'] = handler_type
             debug_info['ai_classifier_debug'] = ai_debug
+            
+            # Show clear indication of Gemini vs Fallback
+            model_used = ai_debug.get('model', 'unknown')
+            if 'fallback' in model_used.lower():
+                source_description = f"⚠️ Fallback (Regex) → {handler_type}"
+            else:
+                source_description = f"✅ {model_used} → {handler_type}"
+            
             debug_steps.append({
                 "step": 0,
                 "name": "AI Intent Classification",
                 "status": handler_type,
-                "description": f"Gemini Flash → {handler_type}",
+                "description": source_description,
                 "details": {
-                    "model": ai_debug.get('model'),
+                    "model": model_used,
                     "raw_response": ai_debug.get('raw_response'),
-                    "prompt_preview": (ai_debug.get('prompt') or '')[:100] + '...'
+                    "prompt_preview": (ai_debug.get('prompt') or '')[:100] + '...' if ai_debug.get('prompt') else 'N/A (fallback used)'
                 }
             })
         else:

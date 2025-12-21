@@ -487,13 +487,22 @@ async def get_latest_profile(db: Session = Depends(get_db)):
             "birthDate": birth_date_str
         }
     
+    # Get latest non-null VO2 max (may not be from today)
+    latest_vo2max = log.vo2_max
+    if not latest_vo2max:
+        vo2_log = db.query(models.PhysiologicalLog).filter(
+            models.PhysiologicalLog.user_id == user_id,
+            models.PhysiologicalLog.vo2_max.isnot(None)
+        ).order_by(models.PhysiologicalLog.calendar_date.desc()).first()
+        latest_vo2max = vo2_log.vo2_max if vo2_log else 50
+    
     return {
         "date": log.calendar_date.isoformat(),
         "weight": log.weight or 70,
         "restingHr": log.resting_hr or 50,
         "maxHr": max_hr,  # Calculated from age (220 - age)
         "lthr": log.lactate_threshold_hr or 170,
-        "vo2max": log.vo2_max or 50,
+        "vo2max": latest_vo2max,
         "thresholdPace": log.threshold_pace,
         "ftp": log.ftp,
         "bodyFatPct": log.body_fat_pct,
