@@ -31,6 +31,16 @@ import re
 FULL_SCHEMA_CONTEXT = """
 # ATHLETE DATABASE SCHEMA
 
+⚠️ KRİTİK: Bu veritabanı PostgreSQL kullanıyor. SQLite syntax ÇALIŞMAZ!
+
+## POSTGRESQL SYNTAX KURALLARI (ZORUNLU)
+- ❌ YASAK: strftime() - PostgreSQL'de bu fonksiyon YOK!
+- ✅ DOĞRU: DATE_TRUNC('week', date_column) - Haftalık gruplama için
+- ✅ DOĞRU: DATE_TRUNC('month', date_column) - Aylık gruplama için
+- ✅ DOĞRU: EXTRACT(YEAR FROM date_column) - Yıl çıkarmak için
+- ✅ DOĞRU: EXTRACT(MONTH FROM date_column) - Ay çıkarmak için
+- ✅ DOĞRU: TO_CHAR(date_column, 'YYYY-MM-DD') - Tarih formatlama için
+
 Sen bir SQL uzmanısın. Aşağıdaki veritabanını kullanarak sporcu sorularını cevapla.
 
 ## TABLOLAR VE KOLONLAR
@@ -262,6 +272,23 @@ GROUP BY a.activity_id, a.activity_name, a.local_start_date, a.average_hr
 HAVING AVG(st.altitude) > 1000
 ORDER BY a.local_start_date DESC
 LIMIT 100
+```
+
+### Haftalık uyku istatistikleri (DATE_TRUNC örneği - ZORUNLU PostgreSQL syntax)
+```sql
+SELECT 
+    DATE_TRUNC('week', calendar_date)::date as week_start,
+    AVG(sleep_score) as avg_sleep_score,
+    AVG(rem_sleep_seconds / 60.0) as avg_rem_minutes,
+    AVG(deep_sleep_seconds / 60.0) as avg_deep_minutes,
+    AVG(sleep_time_seconds / 3600.0) as avg_sleep_hours,
+    COUNT(*) as days_tracked
+FROM sleep_logs
+WHERE user_id = :user_id 
+    AND calendar_date >= CURRENT_DATE - INTERVAL '30 days'
+GROUP BY week_start
+ORDER BY week_start DESC
+LIMIT 10
 ```
 
 ## KISITLAMALAR

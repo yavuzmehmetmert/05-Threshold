@@ -424,6 +424,13 @@ Bir sonraki antrenmanda burada olacağım."""
                     "data_preview": self._format_data_preview(raw_data)
                 })
             
+            # Merge handler's debug_steps into our main debug_steps
+            if debug_steps is not None and result and result.debug_steps:
+                for handler_step in result.debug_steps:
+                    # Avoid duplicating already-added steps
+                    if handler_step not in debug_steps:
+                        debug_steps.append(handler_step)
+            
             # If this step requires user input, return immediately with question
             if step.requires_input and step.input_prompt:
                 return ChatResponse(
@@ -432,9 +439,13 @@ Bir sonraki antrenmanda burada olacağım."""
                     debug_steps=debug_steps
                 )
             
-            # If this is the last step, return its response
+            # If this is the last step, return with merged debug_steps
             if i == len(plan.steps) - 1:
-                return result
+                return ChatResponse(
+                    message=result.message if result else self.NO_DATA_RESPONSE,
+                    debug_metadata=debug_info,
+                    debug_steps=debug_steps
+                )
         
         # Fallback if no steps
         return ChatResponse(
