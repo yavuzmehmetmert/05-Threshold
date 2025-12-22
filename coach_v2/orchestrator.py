@@ -411,7 +411,7 @@ Bir sonraki antrenmanda burada olacağım."""
             }
             execution_results.append(step_result)
             
-            # Add fetched data to debug (summarized)
+            # Add fetched data to debug (detailed view)
             if debug_steps is not None and raw_data:
                 debug_steps.append({
                     "step": step_num,
@@ -419,7 +419,9 @@ Bir sonraki antrenmanda burada olacağım."""
                     "status": "success",
                     "description": f"Step {step_num} data",
                     "data_summary": self._summarize_raw_data(raw_data),
-                    "raw_data_keys": list(raw_data.keys()) if isinstance(raw_data, dict) else None
+                    "raw_data_keys": list(raw_data.keys()) if isinstance(raw_data, dict) else None,
+                    # Detailed data preview
+                    "data_preview": self._format_data_preview(raw_data)
                 })
             
             # If this step requires user input, return immediately with question
@@ -482,7 +484,8 @@ Bir sonraki antrenmanda burada olacağım."""
         # Route to appropriate handler and capture raw data
         result = self._route_by_handler(
             request, handler_type, pinned_state, debug_info, debug_steps,
-            entities=entities, persona_modifier=persona_modifier, conv_state=conv_state
+            entities=entities, persona_modifier=persona_modifier, conv_state=conv_state,
+            previous_results=previous_results
         )
         
         # Extract raw_data from result if available (set by handlers)
@@ -534,6 +537,10 @@ Bir sonraki antrenmanda burada olacağım."""
         if not raw_data:
             return ""
         
+        # If full_context_string is available, use it directly (built by _build_activity_context)
+        if 'full_context_string' in raw_data and raw_data['full_context_string']:
+            return raw_data['full_context_string']
+        
         lines = []
         
         if 'activity' in raw_data:
@@ -580,6 +587,77 @@ Bir sonraki antrenmanda burada olacağım."""
         
         return "\n".join(lines)
     
+    def _format_data_preview(self, raw_data: Dict) -> str:
+        """Format raw data as detailed table-like preview for debug output."""
+        if not raw_data:
+            return "No data"
+        
+        lines = []
+        
+        # Activity table header
+        if 'activity' in raw_data:
+            act = raw_data['activity']
+            lines.append("┌─────────────────── ACTIVITY ───────────────────┐")
+            lines.append(f"│ ID:       {act.get('id', 'N/A')}")
+            lines.append(f"│ Name:     {act.get('name', 'Unknown')}")
+            lines.append(f"│ Date:     {act.get('date', 'N/A')}")
+            if act.get('distance_km'):
+                lines.append(f"│ Distance: {act['distance_km']:.2f} km")
+            if act.get('duration'):
+                lines.append(f"│ Duration: {act['duration']}")
+            if act.get('avg_pace'):
+                lines.append(f"│ Avg Pace: {act['avg_pace']}")
+            if act.get('avg_hr'):
+                lines.append(f"│ Avg HR:   {act['avg_hr']} bpm")
+            if act.get('elevation_gain'):
+                lines.append(f"│ Elevation: {act['elevation_gain']}m")
+            lines.append("└────────────────────────────────────────────────┘")
+        
+        # Health data table
+        if 'health' in raw_data and raw_data['health']:
+            health = raw_data['health']
+            lines.append("")
+            lines.append("┌─────────────────── HEALTH ────────────────────┐")
+            if health.get('hrv'):
+                lines.append(f"│ HRV (last night): {health['hrv']} ms")
+            if health.get('sleep_score'):
+                lines.append(f"│ Sleep Score:      {health['sleep_score']}")
+            if health.get('sleep_duration'):
+                lines.append(f"│ Sleep Duration:   {health['sleep_duration']}")
+            if health.get('stress'):
+                lines.append(f"│ Stress Level:     {health['stress']}")
+            lines.append("└────────────────────────────────────────────────┘")
+        
+        # Training load table
+        if 'training_load' in raw_data and raw_data['training_load']:
+            tl = raw_data['training_load']
+            lines.append("")
+            lines.append("┌─────────────── TRAINING LOAD ─────────────────┐")
+            if tl.get('ctl') is not None:
+                lines.append(f"│ CTL (Fitness):   {tl['ctl']:.1f}")
+            if tl.get('atl') is not None:
+                lines.append(f"│ ATL (Fatigue):   {tl['atl']:.1f}")
+            if tl.get('tsb') is not None:
+                lines.append(f"│ TSB (Form):      {tl['tsb']:.1f}")
+            lines.append("└────────────────────────────────────────────────┘")
+        
+        # Lap splits table (first 5)
+        if 'laps' in raw_data and raw_data['laps']:
+            laps = raw_data['laps']
+            lines.append("")
+            lines.append(f"┌───────────────── LAPS ({len(laps)} total) ─────────────────┐")
+            lines.append("│ Lap │ Distance │  Pace  │")
+            lines.append("├─────┼──────────┼────────┤")
+            for i, lap in enumerate(laps[:5], 1):
+                dist = lap.get('distance_km', '?')
+                pace = lap.get('pace', '?')
+                lines.append(f"│  {i}  │ {dist:>7}km │ {pace:>6} │")
+            if len(laps) > 5:
+                lines.append(f"│ ... │  ({len(laps)-5} more laps)  │")
+            lines.append("└─────┴──────────┴────────┘")
+        
+        return "\n".join(lines)
+    
     # =========================================================================
     # AI-BASED HANDLER ROUTING
     # =========================================================================
@@ -597,7 +675,8 @@ Son koşunu analiz edebilirim ya da haftalık durumuna bakabiliriz. Hazır oldu�
         debug_steps=None,
         entities: Dict[str, Any] = None,
         persona_modifier: str = "",
-        conv_state: ConversationState = None
+        conv_state: ConversationState = None,
+        previous_results: List[Dict] = None
     ):
         """
         Route to handler based on AI classification.
@@ -651,7 +730,7 @@ Son koşunu analiz edebilirim ya da haftalık durumuna bakabiliriz. Hazır oldu�
         if handler_type == "training_detail_handler":
             debug_steps.append({"step": 1, "name": "Handler", "status": "training_detail_handler", "description": f"Aktivite analizi (entities: {entities})"})
             # Get activity based on entities (date, activity_ref)
-            return self._handle_training_detail(request, pinned_state, debug_info, debug_steps, entities=entities)
+            return self._handle_training_detail(request, pinned_state, debug_info, debug_steps, entities=entities, previous_results=previous_results)
         
         if handler_type == "db_handler":
             debug_steps.append({"step": 1, "name": "Handler", "status": "db_handler", "description": f"SQL Agent sorgusu (entities: {entities})"})
@@ -729,7 +808,11 @@ SPORCU MESAJI: {request.message}
                     "name": "LLM Sohbet", 
                     "status": "success",
                     "description": f"LLM cevabı ({'Veri analizi' if has_data_context else 'Sohbet'})",
-                    "has_data_context": has_data_context
+                    "has_data_context": has_data_context,
+                    # Full prompt sent to LLM (no truncation - frontend scrolls)
+                    "prompt_sent": prompt,
+                    # Previous context (no truncation - frontend scrolls)
+                    "previous_context_preview": previous_context if previous_context else None
                 })
             
             return ChatResponse(
@@ -745,7 +828,7 @@ SPORCU MESAJI: {request.message}
                 debug_steps=debug_steps or []
             )
     
-    def _handle_training_detail(self, request, pinned_state, debug_info, debug_steps=None, entities: Dict[str, Any] = None):
+    def _handle_training_detail(self, request, pinned_state, debug_info, debug_steps=None, entities: Dict[str, Any] = None, previous_results: List[Dict] = None):
         """
         Handle training detail requests - fetch activity based on entities.
         
@@ -753,11 +836,53 @@ SPORCU MESAJI: {request.message}
         - date: "yesterday", "today", "last_week", or specific date
         - activity_ref: "last", "this", "previous", "today", "yesterday"
         - metric: "pace", "hr", "power" for focused analysis
+        - use_previous_activity: True - use activity_id from previous handler (lookup pattern)
         
         Returns ChatResponse and stores raw_data in debug_info for handler chaining.
         """
         if entities is None:
             entities = {}
+        if previous_results is None:
+            previous_results = []
+        
+        # CHECK FOR USE_PREVIOUS_ACTIVITY: Get activity from previous lookup handler
+        if entities.get('use_previous_activity') and previous_results:
+            # Find found_activity from previous handler results
+            for prev in reversed(previous_results):  # Check most recent first
+                raw_data = prev.get('raw_data', {})
+                if 'found_activity' in raw_data:
+                    found = raw_data['found_activity']
+                    activity_id = found.get('activity_id')
+                    if activity_id:
+                        # Fetch activity by ID
+                        import models
+                        activity = self.db.query(models.Activity).filter(
+                            models.Activity.activity_id == activity_id
+                        ).first()
+                        
+                        if debug_steps:
+                            debug_steps.append({
+                                "step": 2,
+                                "name": "Activity from Lookup",
+                                "status": "success",
+                                "description": f"Using activity from lookup: {found.get('activity_name')} ({found.get('lookup_criteria')})"
+                            })
+                        
+                        if activity:
+                            # Continue to analysis with this activity
+                            return self._process_activity_for_analysis(
+                                activity, request, debug_info, debug_steps, entities
+                            )
+                        break
+            
+            # Fallback if not found in previous results
+            if debug_steps:
+                debug_steps.append({
+                    "step": 2,
+                    "name": "Activity from Lookup",
+                    "status": "fallback",
+                    "description": "No found_activity in previous results, using last activity"
+                })
         
         # Determine which activity to fetch based on activity_ref
         activity_ref = entities.get('activity_ref', 'last')
@@ -794,6 +919,14 @@ SPORCU MESAJI: {request.message}
                 debug_metadata=debug_info
             )
         
+        # Process activity for analysis (common path)
+        return self._process_activity_for_analysis(activity, request, debug_info, debug_steps, entities)
+    
+    def _process_activity_for_analysis(self, activity, request, debug_info, debug_steps, entities):
+        """
+        Common activity analysis processing - used by both regular activity_ref path
+        and use_previous_activity path (from lookup).
+        """
         # Get activity ID (handles both Activity model and ActivityCandidate)
         act_id = getattr(activity, 'garmin_activity_id', None) or getattr(activity, 'activity_id', None)
         act_date = getattr(activity, 'local_start_date', None)
@@ -860,12 +993,37 @@ SPORCU MESAJI: {request.message}
             if hasattr(pack, 'duration') and pack.duration:
                 raw_data['activity']['duration'] = str(pack.duration)
             
-            # Lap data
+            # Lap data with full details
             if hasattr(pack, 'laps') and pack.laps:
-                raw_data['laps'] = [
-                    {'distance_km': f"{lap.get('distance', 0)/1000:.2f}", 'pace': lap.get('pace_str', '?')}
-                    for lap in pack.laps[:10]
-                ]
+                raw_data['laps'] = []
+                for lap in pack.laps[:10]:
+                    lap_data = {
+                        'distance_km': f"{lap.get('distance', 0)/1000:.2f}",
+                        'pace': lap.get('pace_str', '?'),
+                    }
+                    if lap.get('avg_hr'):
+                        lap_data['avg_hr'] = lap.get('avg_hr')
+                    if lap.get('avg_power'):
+                        lap_data['avg_power'] = lap.get('avg_power')
+                    if lap.get('cadence'):
+                        lap_data['cadence'] = lap.get('cadence')
+                    raw_data['laps'].append(lap_data)
+            
+            # Add pack tables (laps, running dynamics)
+            if hasattr(pack, 'tables') and pack.tables:
+                raw_data['tables'] = pack.tables
+            elif pack.get('tables'):
+                raw_data['tables'] = pack.get('tables')
+            
+            # Add pack facts
+            if hasattr(pack, 'facts') and pack.facts:
+                raw_data['facts'] = pack.facts
+            elif pack.get('facts'):
+                raw_data['facts'] = pack.get('facts')
+            
+            # Weather data
+            if pack.get('weather') or (hasattr(pack, 'weather') and pack.weather):
+                raw_data['weather'] = pack.get('weather') or pack.weather
         
         # Get health data for this date
         activity_date = activity.local_start_date
@@ -877,6 +1035,18 @@ SPORCU MESAJI: {request.message}
         training_load = self._get_training_load_for_user(user_id)
         if training_load:
             raw_data['training_load'] = training_load
+        
+        # Build full context string for LLM (same as _build_activity_context uses)
+        # This is the complete formatted text that goes to the LLM
+        act_id = getattr(activity, 'garmin_activity_id', None) or getattr(activity, 'activity_id', None)
+        full_context = self._build_activity_context(
+            pack, 
+            act_name, 
+            activity_date, 
+            activity_id=act_id,
+            user_id=user_id
+        )
+        raw_data['full_context_string'] = full_context
         
         return raw_data
     
@@ -1455,14 +1625,20 @@ TSB YORUMU:
         """
         Handle general questions with SQL Agent.
         
-        Uses entities for smarter query construction:
-        - metric: distance, pace, hr, power
-        - date: yesterday, last_week, last_month
-        - comparison: weekly, monthly, trend
+        Two modes based on entities:
+        1. LOOKUP: Find specific activity by criteria (entities.query_type == "lookup")
+           - Returns found_activity with activity_id for chaining to training_detail_handler
+        2. AGGREGATE: Calculate stats (default mode)
+           - Returns aggregate statistics
         """
         if entities is None:
             entities = {}
         
+        # LOOKUP MODE: Find specific activity by criteria
+        if entities.get('query_type') == 'lookup':
+            return self._handle_lookup_query(request, debug_info, incoming_debug_steps, entities)
+        
+        # AGGREGATE MODE (default): Use SQL Agent for stats
         # Enhance the question with entity context for SQL Agent
         enhanced_question = self._enhance_question_with_entities(request.message, entities)
         
@@ -1491,6 +1667,151 @@ TSB YORUMU:
         except Exception as e:
             logging.error(f"SQLAgent failed: {e}")
             return ChatResponse(message=self.NO_DATA_RESPONSE, debug_metadata=debug_info)
+    
+    def _handle_lookup_query(self, request, debug_info, incoming_debug_steps, entities: Dict[str, Any]):
+        """
+        Handle lookup queries: Find specific activity by criteria.
+        Returns found_activity in raw_data for training_detail_handler to use.
+        """
+        import models
+        
+        lookup_criteria = entities.get('lookup_criteria', 'latest')
+        order_by = entities.get('order_by', 'start_time_local DESC')
+        
+        debug_steps = incoming_debug_steps or []
+        
+        try:
+            # Build query based on lookup_criteria
+            query = self.db.query(models.Activity).filter(
+                models.Activity.user_id == request.user_id,
+                models.Activity.activity_type == 'running'
+            )
+            
+            # Apply ordering based on criteria
+            criteria_order_map = {
+                'hottest': models.Activity.weather_temp.desc(),
+                'coldest': models.Activity.weather_temp.asc(),
+                'fastest': models.Activity.avg_speed.desc(),
+                'slowest': models.Activity.avg_speed.asc(),
+                'longest': models.Activity.distance.desc(),
+                'shortest': models.Activity.distance.asc(),
+                'hardest': models.Activity.training_effect.desc(),
+                'highest_hr': models.Activity.max_hr.desc(),
+                'latest': models.Activity.start_time_local.desc(),
+            }
+            
+            order_clause = criteria_order_map.get(lookup_criteria, models.Activity.start_time_local.desc())
+            
+            # Filter out NULL values for the criteria column
+            if lookup_criteria == 'hottest' or lookup_criteria == 'coldest':
+                query = query.filter(models.Activity.weather_temp.isnot(None))
+            elif lookup_criteria == 'fastest' or lookup_criteria == 'slowest':
+                query = query.filter(models.Activity.avg_speed.isnot(None))
+            elif lookup_criteria == 'hardest':
+                query = query.filter(models.Activity.training_effect.isnot(None))
+            elif lookup_criteria == 'highest_hr':
+                query = query.filter(models.Activity.max_hr.isnot(None))
+            
+            # Get top 5 results for debug preview
+            top_5_query = query.order_by(order_clause).limit(5)
+            top_5_results = top_5_query.all()
+            
+            # Generate SQL string for debug
+            sql_str = str(query.order_by(order_clause).statement.compile(
+                compile_kwargs={"literal_binds": True}
+            ))
+            
+            # Format top 5 results for display
+            sample_results = []
+            for act in top_5_results:
+                result_dict = {
+                    'activity_name': act.activity_name,
+                    'date': str(act.local_start_date) if act.local_start_date else None,
+                }
+                # Add relevant metric
+                if lookup_criteria in ['hottest', 'coldest'] and act.weather_temp is not None:
+                    result_dict['weather_temp'] = f"{act.weather_temp}°C"
+                elif lookup_criteria in ['fastest', 'slowest'] and act.avg_speed:
+                    result_dict['avg_speed'] = f"{act.avg_speed:.2f} m/s"
+                elif lookup_criteria in ['longest', 'shortest'] and act.distance:
+                    result_dict['distance'] = f"{act.distance/1000:.2f} km"
+                elif lookup_criteria == 'hardest' and act.training_effect:
+                    result_dict['training_effect'] = act.training_effect
+                elif lookup_criteria == 'highest_hr' and act.max_hr:
+                    result_dict['max_hr'] = f"{act.max_hr} bpm"
+                sample_results.append(result_dict)
+            
+            # Get the first result as main activity
+            activity = top_5_results[0] if top_5_results else None
+            
+            if not activity:
+                debug_steps.append({
+                    "step": 1,
+                    "name": "Lookup Query",
+                    "status": "not_found",
+                    "description": f"No activity found for criteria: {lookup_criteria}",
+                    "sql": sql_str
+                })
+                return ChatResponse(
+                    message=f"'{lookup_criteria}' kriterine göre aktivite bulunamadı.",
+                    debug_metadata=debug_info,
+                    debug_steps=debug_steps
+                )
+            
+            # Build found_activity for chaining
+            found_activity = {
+                'activity_id': activity.activity_id,
+                'activity_date': str(activity.local_start_date) if activity.local_start_date else None,
+                'activity_name': activity.activity_name,
+                'lookup_criteria': lookup_criteria,
+            }
+            
+            # Add relevant metric for the criteria
+            if lookup_criteria in ['hottest', 'coldest'] and activity.weather_temp:
+                found_activity['weather_temp'] = activity.weather_temp
+            elif lookup_criteria in ['fastest', 'slowest'] and activity.avg_speed:
+                found_activity['avg_speed'] = activity.avg_speed
+            elif lookup_criteria == 'longest' and activity.distance:
+                found_activity['distance_km'] = activity.distance / 1000
+            
+            debug_steps.append({
+                "step": 1,
+                "name": "Lookup Query",
+                "status": "success",
+                "description": f"Found: {activity.activity_name} ({activity.local_start_date}) - {lookup_criteria}",
+                "found_activity": found_activity,
+                # SQL Debug Info
+                "sql": sql_str,
+                "result_count": len(top_5_results),
+                "sample_results": sample_results
+            })
+            
+            # Store in debug_info for handler chaining
+            if debug_info is not None:
+                debug_info['last_handler_data'] = {'found_activity': found_activity}
+            
+            # Return brief message (training_detail_handler will provide analysis)
+            response_msg = f"'{lookup_criteria}' kriterine göre {activity.activity_name} ({activity.local_start_date}) bulundu."
+            
+            return ChatResponse(
+                message=response_msg,
+                debug_metadata=debug_info,
+                debug_steps=debug_steps
+            )
+            
+        except Exception as e:
+            logging.error(f"Lookup query failed: {e}")
+            debug_steps.append({
+                "step": 1,
+                "name": "Lookup Query",
+                "status": "error",
+                "description": str(e)
+            })
+            return ChatResponse(
+                message="Aktivite aramasında hata oluştu.",
+                debug_metadata=debug_info,
+                debug_steps=debug_steps
+            )
     
     def _enhance_question_with_entities(self, question: str, entities: Dict[str, Any]) -> str:
         """

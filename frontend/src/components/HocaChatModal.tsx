@@ -52,6 +52,12 @@ interface DebugStep {
         entities?: any;
         depends_on?: number | number[] | null;
     }[];
+    // Enhanced debug fields
+    data_preview?: string;              // Table-style data preview
+    data_summary?: string;              // Brief data summary
+    raw_data_keys?: string[];           // Keys in raw data
+    has_data_context?: boolean;         // Whether data context was used
+    previous_context_preview?: string;  // Preview of context from previous handlers
 }
 
 interface Message {
@@ -388,18 +394,79 @@ export const HocaChatModal: React.FC<HocaChatModalProps> = ({
                                                 </View>
                                             )}
 
+                                            {/* SQL Query (from lookup handler) */}
+                                            {step.sql && (
+                                                <View style={styles.debugCode}>
+                                                    <Text style={styles.debugLabel}>🔍 Lookup SQL:</Text>
+                                                    <ScrollView style={styles.debugScrollArea} nestedScrollEnabled={true} horizontal>
+                                                        <Text style={styles.debugSql}>{step.sql}</Text>
+                                                    </ScrollView>
+                                                </View>
+                                            )}
+
                                             {/* Result count */}
                                             {step.result_count !== undefined && (
                                                 <Text style={styles.debugInfo}>📊 Results: {step.result_count} rows</Text>
+                                            )}
+
+                                            {/* Sample Results (top 5 from lookup) */}
+                                            {step.sample_results && step.sample_results.length > 0 && (
+                                                <View style={styles.debugCode}>
+                                                    <Text style={styles.debugLabelGreen}>📋 İlk 5 Sonuç:</Text>
+                                                    <ScrollView style={styles.debugScrollArea} nestedScrollEnabled={true}>
+                                                        {step.sample_results.map((result: any, idx: number) => (
+                                                            <Text key={idx} style={styles.debugInfo}>
+                                                                {idx + 1}. {result.activity_name} ({result.date})
+                                                                {result.weather_temp && ` - ${result.weather_temp}`}
+                                                                {result.avg_speed && ` - ${result.avg_speed}`}
+                                                                {result.distance && ` - ${result.distance}`}
+                                                                {result.training_effect && ` - TE: ${result.training_effect}`}
+                                                                {result.max_hr && ` - ${result.max_hr}`}
+                                                            </Text>
+                                                        ))}
+                                                    </ScrollView>
+                                                </View>
+                                            )}
+
+                                            {/* Data Summary (brief) */}
+                                            {step.data_summary && (
+                                                <View style={styles.debugCode}>
+                                                    <Text style={styles.debugLabel}>📊 Veri Özeti:</Text>
+                                                    <Text style={styles.debugInfo}>{step.data_summary}</Text>
+                                                </View>
+                                            )}
+
+                                            {/* Data Preview (detailed table) */}
+                                            {step.data_preview && (
+                                                <View style={styles.debugCode}>
+                                                    <Text style={styles.debugLabelGreen}>📋 Detaylı Veri:</Text>
+                                                    <Text style={styles.debugDataPreview}>
+                                                        {step.data_preview}
+                                                    </Text>
+                                                </View>
+                                            )}
+
+                                            {/* Previous Context Preview (what sohbet_handler received) */}
+                                            {step.previous_context_preview && (
+                                                <View style={styles.debugCode}>
+                                                    <Text style={styles.debugLabel}>📥 LLM'e Gönderilen Veri:</Text>
+                                                    <ScrollView style={styles.debugScrollArea} nestedScrollEnabled={true}>
+                                                        <Text style={styles.debugPrompt}>
+                                                            {step.previous_context_preview}
+                                                        </Text>
+                                                    </ScrollView>
+                                                </View>
                                             )}
 
                                             {/* Activity Context Data */}
                                             {step.activity_context && (
                                                 <View style={styles.debugCode}>
                                                     <Text style={styles.debugLabel}>📋 Activity Data:</Text>
-                                                    <Text style={styles.debugPrompt} numberOfLines={10}>
-                                                        {step.activity_context}
-                                                    </Text>
+                                                    <ScrollView style={styles.debugScrollArea} nestedScrollEnabled={true}>
+                                                        <Text style={styles.debugPrompt}>
+                                                            {step.activity_context}
+                                                        </Text>
+                                                    </ScrollView>
                                                 </View>
                                             )}
 
@@ -829,6 +896,22 @@ const styles = StyleSheet.create({
         color: '#7C3AED',
         fontSize: 9,
         marginLeft: 8,
+    },
+    debugDataPreview: {
+        color: '#58A6FF',
+        fontSize: 9,
+        fontFamily: 'monospace',
+        marginTop: 4,
+        backgroundColor: '#161b22',
+        padding: 8,
+        borderRadius: 4,
+        lineHeight: 14,
+    },
+    debugScrollArea: {
+        maxHeight: 300,
+        backgroundColor: '#161b22',
+        borderRadius: 4,
+        marginTop: 4,
     },
 });
 

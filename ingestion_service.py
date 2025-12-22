@@ -703,15 +703,15 @@ def sync_incremental(db: Session = Depends(get_db)):
                     if stress_data and (stress_data.get('overallStressLevel') is not None or stress_data.get('avgStressLevel') is not None):
                         crud.upsert_stress_log(db, user_id, check_date, stress_data)
                     
-                    # Sleep
+                    # Sleep - extract dailySleepDTO from response
                     sleep_data = client.get_sleep_data(date_str)
-                    if sleep_data:
-                        crud.upsert_sleep_log(db, user_id, check_date, sleep_data)
+                    if sleep_data and 'dailySleepDTO' in sleep_data:
+                        crud.upsert_sleep_log(db, user_id, check_date, sleep_data['dailySleepDTO'])
                     
-                    # HRV
+                    # HRV - extract hrvSummary from response
                     hrv_data = client.get_hrv_data(date_str)
-                    if hrv_data:
-                        crud.upsert_hrv_log(db, user_id, check_date, hrv_data)
+                    if hrv_data and 'hrvSummary' in hrv_data:
+                        crud.upsert_hrv_log(db, user_id, check_date, hrv_data['hrvSummary'])
                         
                 except Exception as e:
                     logger.warning(f"Biometric sync error for {date_str}: {e}")

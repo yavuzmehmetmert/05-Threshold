@@ -100,8 +100,10 @@ SON MESAJ: "{message}"
 
 1. Her adım bir öncekinin sonucuna bağlı olabilir (depends_on)
 2. Veri çekmeden yorum yapma - önce veri, sonra yorum
-3. Eğer anormal bir durum varsa (düşük HRV, kötü performans) kullanıcıya sor
-4. Kullanıcının cevabını memory_handler ile kaydet
+3. **LOOKUP PATTERN**: "En sıcak", "en hızlı", "en uzun" gibi sorgular için ÖNCE db_handler ile aktiviteyi bul, SONRA training_detail_handler ile analiz et
+4. db_handler iki modda çalışır:
+   - **lookup**: Belirli kritere göre aktivite bul (activity_id döndürür)
+   - **aggregate**: Toplam/ortalama istatistik çek
 5. Son adım genelde sohbet_handler ile özet/tavsiye
 
 # JSON FORMAT
@@ -118,7 +120,7 @@ Sadece aşağıdaki JSON formatını döndür, başka bir şey yazma:
 }}
 ```
 
-# ÖRNEK: "Bugünkü koşum ile bir önceki koşumu karşılaştır"
+# ÖRNEK 1: "Bugünkü koşum ile bir önceki koşumu karşılaştır"
 
 ```json
 {{
@@ -131,6 +133,58 @@ Sadece aşağıdaki JSON formatını döndür, başka bir şey yazma:
   "confidence": 0.95
 }}
 ```
+
+# ÖRNEK 2: "En sıcak havadaki koşuyu analiz et" (LOOKUP PATTERN)
+
+```json
+{{
+  "thought_process": "Önce veritabanından en yüksek sıcaklıktaki aktiviteyi bulmalıyım. Sonra o aktivitenin detaylarını çekip analiz etmeliyim.",
+  "plan": [
+    {{"handler": "db_handler", "description": "En sıcak hava koşullarındaki aktiviteyi bul", "entities": {{"query_type": "lookup", "lookup_criteria": "hottest", "order_by": "weather_temp DESC"}}, "depends_on": null}},
+    {{"handler": "training_detail_handler", "description": "Bulunan aktiviteyi analiz et", "entities": {{"use_previous_activity": true}}, "depends_on": [1]}},
+    {{"handler": "sohbet_handler", "description": "Sıcak hava koşullarında performansı yorumla", "entities": {{}}, "depends_on": [2]}}
+  ],
+  "confidence": 0.90
+}}
+```
+
+# ÖRNEK 3: "En hızlı koşum hangisi?" (LOOKUP PATTERN)
+
+```json
+{{
+  "thought_process": "En hızlı koşu = en düşük pace veya en yüksek ortalama hız. Önce bu aktiviteyi bulup sonra analiz etmeliyim.",
+  "plan": [
+    {{"handler": "db_handler", "description": "En hızlı koşuyu bul", "entities": {{"query_type": "lookup", "lookup_criteria": "fastest", "order_by": "avg_speed DESC"}}, "depends_on": null}},
+    {{"handler": "training_detail_handler", "description": "Bulunan aktiviteyi analiz et", "entities": {{"use_previous_activity": true}}, "depends_on": [1]}},
+    {{"handler": "sohbet_handler", "description": "Performansı yorumla", "entities": {{}}, "depends_on": [2]}}
+  ],
+  "confidence": 0.90
+}}
+```
+
+# ÖRNEK 4: "Bu hafta kaç km koştum?" (AGGREGATE)
+
+```json
+{{
+  "thought_process": "Haftalık toplam mesafe istatistiği isteniyor. db_handler ile aggregate çekmeliyim.",
+  "plan": [
+    {{"handler": "db_handler", "description": "Bu haftaki toplam mesafeyi hesapla", "entities": {{"query_type": "aggregate", "period": "this_week", "metric": "total_distance"}}, "depends_on": null}},
+    {{"handler": "sohbet_handler", "description": "Sonucu açıkla", "entities": {{}}, "depends_on": [1]}}
+  ],
+  "confidence": 0.95
+}}
+```
+
+# ÖNEMLİ: LOOKUP KRİTERLERİ
+
+- **hottest**: En sıcak hava (weather_temp DESC)
+- **coldest**: En soğuk hava (weather_temp ASC)
+- **fastest**: En hızlı (avg_speed DESC veya duration/distance ASC)
+- **slowest**: En yavaş (avg_speed ASC)
+- **longest**: En uzun mesafe (distance DESC)
+- **shortest**: En kısa mesafe (distance ASC)
+- **hardest**: En zor (training_effect DESC veya elevation_gain DESC)
+- **highest_hr**: En yüksek nabız (max_hr DESC)
 
 JSON:'''
     

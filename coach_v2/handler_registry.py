@@ -53,41 +53,48 @@ HANDLER_REGISTRY: Dict[str, HandlerCapability] = {
         is_static=True
     ),
     
-    # ========== DATA HANDLERS ==========
-    "training_detail_handler": HandlerCapability(
-        name="training_detail_handler",
-        description="Spesifik aktivite/koşu analizi yapar. HRV, uyku, stres, hava durumu, irtifa dahil.",
-        use_when=[
-            "koşumu analiz et", "son koşu", "bugünkü koşu", "dünkü koşu",
-            "antrenmanı analiz", "karşılaştır", "nasıl koştum", "performansım"
-        ],
-        provides=[
-            "activity_metrics",  # pace, distance, duration, hr, cadence
-            "hrv_data",          # HRV from previous night
-            "sleep_data",        # Sleep score, duration, deep sleep
-            "stress_data",       # Stress levels
-            "weather_data",      # Temperature, humidity, wind
-            "altitude_data",     # Elevation, GPS altitude
-            "training_load",     # CTL, ATL, TSB
-            "lap_data"           # Lap splits for analysis
-        ],
-        requires=["activity_ref"],  # which activity: last, today, yesterday, specific
-        can_chain=True
-    ),
+        # ========== DATA HANDLERS ==========
+        "training_detail_handler": HandlerCapability(
+            name="training_detail_handler",
+            description="Spesifik aktivite/koşu analizi yapar. HRV, uyku, stres, hava durumu, irtifa dahil.",
+            use_when=[
+                "koşumu analiz et", "son koşu", "bugünkü koşu", "dünkü koşu",
+                "antrenmanı analiz", "karşılaştır", "nasıl koştum", "performansım"
+            ],
+            provides=[
+                "activity_metrics",  # pace, distance, duration, hr, cadence
+                "hrv_data",          # HRV from previous night
+                "sleep_data",        # Sleep score, duration, deep sleep
+                "stress_data",       # Stress levels
+                "weather_data",      # Temperature, humidity, wind
+                "altitude_data",     # Elevation, GPS altitude
+                "training_load",     # CTL, ATL, TSB
+                "lap_data"           # Lap splits for analysis
+            ],
+            requires=["activity_ref"],  # which activity: last, today, yesterday, specific
+            can_chain=True
+        ),
     
     "db_handler": HandlerCapability(
         name="db_handler",
-        description="Veritabanından TOPLAM istatistik çeker. Haftalık/aylık toplamlar, ortalamalar.",
+        description="""Veritabanından veri çeker. İKİ MOD:
+        1. LOOKUP: Belirli kritere göre aktivite bul (en sıcak, en hızlı, en uzun). activity_id döndürür.
+        2. AGGREGATE: Toplam/ortalama istatistik çek (haftalık km, aylık antrenman sayısı).""",
         use_when=[
+            # Lookup triggers
+            "en sıcak", "en soğuk", "en hızlı", "en yavaş", "en uzun", "en kısa",
+            "en zor", "en kolay", "en yüksek nabız", "en düşük",
+            # Aggregate triggers
             "kaç km", "toplam mesafe", "haftalık", "aylık", "ortalama pace",
-            "toplam süre", "kaç antrenman", "en hızlı", "en uzun"
+            "toplam süre", "kaç antrenman"
         ],
         provides=[
-            "aggregate_stats",   # totals, averages
+            "found_activity",    # For lookup: {activity_id, date, name}
+            "aggregate_stats",   # For aggregate: totals, averages
             "trends",            # weekly/monthly trends
             "records"            # personal bests
         ],
-        requires=["date", "metric"],  # time period and what to measure
+        requires=["query_type"],  # "lookup" or "aggregate"
         can_chain=True
     ),
     
