@@ -133,8 +133,10 @@ class AnalysisPackBuilder:
             
             for i, lap in enumerate(laps[:20], 1):  # Max 20 laps
                 # Distance & Duration (native_laps uses different field names)
+                # PRIORITY: total_timer_time (moving time) over total_elapsed_time (includes pauses)
+                # This matches Garmin's lap display which shows moving time
                 dist = lap.get('total_distance', lap.get('distance', 0))
-                dur = lap.get('total_elapsed_time', lap.get('total_timer_time', lap.get('duration', 0)))
+                dur = lap.get('total_timer_time', lap.get('total_elapsed_time', lap.get('duration', 0)))
                 
                 # Format duration
                 if dur:
