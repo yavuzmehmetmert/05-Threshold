@@ -1473,6 +1473,30 @@ async def get_activity_metadata(activity_id: int, db: Session = Depends(get_db))
          raise HTTPException(status_code=404, detail="Activity not found")
     return act.metadata_blob or {}
 
+@router.get("/activity/{activity_id}/summary")
+async def get_activity_summary(activity_id: int, db: Session = Depends(get_db)):
+    """Get basic activity summary for navigation from chat links"""
+    act = crud.get_activity(db, activity_id)
+    if not act:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    
+    return {
+        "activity_id": act.activity_id,
+        "activity_name": act.activity_name,
+        "start_time_local": act.start_time_local,
+        "local_start_date": str(act.local_start_date) if act.local_start_date else None,
+        "distance": act.distance,
+        "duration": act.duration,
+        "average_hr": act.average_hr,
+        "max_hr": act.max_hr,
+        "calories": act.calories,
+        "elevation_gain": act.elevation_gain,
+        "avg_speed": act.avg_speed,
+        "weather_temp": act.weather_temp,
+        "weather_condition": act.weather_condition,
+        "weather_humidity": act.weather_humidity,
+        "weather_wind_speed": act.weather_wind_speed,
+    }
 
 # --- Shoe Management Endpoints ---
 

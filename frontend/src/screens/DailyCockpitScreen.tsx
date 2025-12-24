@@ -1059,6 +1059,38 @@ const DailyCockpitScreen = () => {
             <HocaChatModal
                 visible={showHocaChat}
                 onClose={() => setShowHocaChat(false)}
+                onNavigateToActivity={async (activityId) => {
+                    // Fetch activity summary first, then navigate with full object
+                    try {
+                        const response = await fetch(`http://localhost:8000/ingestion/activity/${activityId}/summary`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            // Format to match expected activity structure (same as activities list)
+                            const activity = {
+                                activityId: data.activity_id,
+                                activityName: data.activity_name,
+                                startTimeLocal: data.start_time_local,
+                                distance: data.distance,
+                                duration: data.duration,
+                                averageHR: data.average_hr,
+                                maxHR: data.max_hr,
+                                calories: data.calories,
+                                elevationGain: data.elevation_gain,
+                                avgSpeed: data.avg_speed,
+                                // Weather data
+                                weather: data.weather_temp ? {
+                                    temperature: data.weather_temp,
+                                    condition: data.weather_condition,
+                                    humidity: data.weather_humidity,
+                                    windSpeed: data.weather_wind_speed,
+                                } : null,
+                            };
+                            navigation.navigate('ActivityDetail', { activity });
+                        }
+                    } catch (error) {
+                        console.error('Failed to navigate to activity:', error);
+                    }
+                }}
             />
         </View>
     );

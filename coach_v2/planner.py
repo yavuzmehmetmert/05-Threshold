@@ -185,6 +185,22 @@ Sadece aşağıdaki JSON formatını döndür, başka bir şey yazma:
 - **shortest**: En kısa mesafe (distance ASC)
 - **hardest**: En zor (training_effect DESC veya elevation_gain DESC)
 - **highest_hr**: En yüksek nabız (max_hr DESC)
+- **best**: En iyi koşu (training_effect DESC, vo2_max DESC gibi composite)
+- **year_best**: Belirli yılın en iyi koşusu (EXTRACT(YEAR) filtresi ile)
+
+# ÖRNEK 5: "2024'teki en iyi koşum hangisi?" (YEAR FILTER + LOOKUP)
+
+```json
+{{{{
+  "thought_process": "Kullanıcı 2024 yılındaki en iyi koşuyu soruyor. Önce db_handler ile 2024 yılındaki koşuları filtreleyip en iyi performansı bulmalıyım. 'koşum' kelimesi olduğu için activity_type running olmalı. training_effect veya vo2_max'a göre sıralayıp bulmam lazım.",
+  "plan": [
+    {{{{"handler": "db_handler", "description": "2024 yılındaki en iyi koşuyu bul", "entities": {{{{"query_type": "lookup", "lookup_criteria": "year_best", "description": "2024 yılındaki en yüksek training_effect'e sahip koşuyu bul"}}}}, "depends_on": null}}}},
+    {{{{"handler": "training_detail_handler", "description": "Bulunan aktiviteyi detaylı analiz et", "entities": {{{{"use_previous_activity": true}}}}, "depends_on": [1]}}}},
+    {{{{"handler": "sohbet_handler", "description": "Neden bu koşunun en iyi olduğunu açıkla", "entities": {{{{}}}}, "depends_on": [2]}}}}
+  ],
+  "confidence": 0.90
+}}}}
+```
 
 JSON:'''
     
@@ -226,7 +242,7 @@ class Planner:
         self.api_key = api_key or get_api_key_from_db() or os.getenv("GOOGLE_API_KEY")
         if self.api_key:
             genai.configure(api_key=self.api_key)
-            self.model = genai.GenerativeModel("gemini-2.0-flash-lite")
+            self.model = genai.GenerativeModel("gemini-2.0-flash")
         else:
             self.model = None
     
@@ -250,7 +266,7 @@ class Planner:
             ExecutionPlan or tuple (ExecutionPlan, debug_dict)
         """
         debug_info = {
-            "model": "gemini-2.0-flash-lite",
+            "model": "gemini-2.0-flash",
             "prompt": None,
             "raw_response": None,
             "parsed_plan": None

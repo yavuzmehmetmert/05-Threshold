@@ -178,11 +178,30 @@ KİMLİK VE TON (Domenico Tedesco Tarzı):
 - Soru Sorma: Sadece gerçekten cevaba ihtiyacın varsa (sakatlık şüphesi vb.) soru sor. Her mesajı soruyla bitirme hastalığını bırak.
 - Hikayeleştirme: Sayıları ezberletme. O sayıların koşucunun hissettiği acı veya başarıyla bağlantısını kur.
 
+ZAMAN FARKINDALIĞI (ÖNEMLİ):
+- Bugünün tarihi prompt başında verilecek. Bu bilgiyi kullan.
+- Aktiviteden bahsederken MUTLAKA hem isim hem tarih kullan.
+- Relative zaman ifadeleri kullan:
+  * Bugün yapılan aktivite için: "bugün yaptığın"
+  * Dün yapılan için: "dün yaptığın"  
+  * 2-6 gün önce: "X gün önce yaptığın"
+  * 7-13 gün önce: "geçen hafta yaptığın"
+  * 14-30 gün önce: "2 hafta önce / 3 hafta önce yaptığın"
+  * 30+ gün önce: "X ay önce yaptığın"
+
+AKTİVİTE LİNKLEME (ZORUNLU):
+- Bir aktiviteden bahsederken MUTLAKA link formatı kullan:
+- Format: [İsim (Gün Ay)](activity://ACTIVITY_ID)
+- Örnek: [Maltepe Koşusu (3 Aralık)](activity://21230575987)
+- Bu sayede kullanıcı tıklayarak aktivite detayına gidebilir.
+- Aynı lokasyonda birden fazla koşu olabilir, tarih İLE BERABER yaz.
+
 ASLA YAPMA (KESİN KURALLAR):
 - Robotik Başlıklar: Asla "VERİ ANALİZİ:", "ÖNERİLER:" gibi başlıklar kullanma. Akıcı bir sohbet gibi yaz.
 - Hatalı Veri Yorumu: Uyku, HRV veya Stress verisi "0", "Null" veya "None" ise; sporcuyu eleştirme. Teknik hata olduğunu varsay ve o veriyi pas geç.
 - Boş Övgü: "Harika koşmuşsun" deme. Neden harika olduğunu veriye dayanarak kanıtla.
 - Gereksiz Soru: Mesaj sonunda "Başka sorun var mı?", "Devam edelim mi?" gibi klişeler kullanma.
+- Sadece İsim: Aktiviteden bahsederken sadece "Maltepe Koşusu" deme. MUTLAKA tarih ve link ekle.
 """
 
     RUNNING_EXPERTISE = """
@@ -1083,11 +1102,11 @@ SPORCU MESAJI: {request.message}
                 models.SleepLog.calendar_date == activity_date
             ).first()
             if sleep:
-                if sleep.overall_score:
-                    health['sleep_score'] = sleep.overall_score
-                if sleep.sleep_time_seconds:
-                    hours = sleep.sleep_time_seconds // 3600
-                    mins = (sleep.sleep_time_seconds % 3600) // 60
+                if sleep.sleep_score:
+                    health['sleep_score'] = sleep.sleep_score
+                if sleep.duration_seconds:
+                    hours = sleep.duration_seconds // 3600
+                    mins = (sleep.duration_seconds % 3600) // 60
                     health['sleep_duration'] = f"{hours}h {mins}m"
             
             # Stress  
@@ -1095,8 +1114,8 @@ SPORCU MESAJI: {request.message}
                 models.StressLog.user_id == user_id,
                 models.StressLog.calendar_date == activity_date
             ).first()
-            if stress and stress.overall_stress_avg:
-                health['stress'] = stress.overall_stress_avg
+            if stress and stress.avg_stress:
+                health['stress'] = stress.avg_stress
             
             return health if health else None
         except Exception as e:
@@ -1681,119 +1700,153 @@ TSB YORUMU:
     
     def _handle_lookup_query(self, request, debug_info, incoming_debug_steps, entities: Dict[str, Any]):
         """
-        Handle lookup queries: Find specific activity by criteria.
+        Handle lookup queries: Find specific activity by criteria using SQL Agent dynamically.
+        
+        Instead of hardcoded criteria, uses SQL Agent to generate the appropriate query
+        based on the description. This supports any metric (elevation_gain, avg_hr, etc.)
+        
         Returns found_activity in raw_data for training_detail_handler to use.
         """
         import models
+        from sqlalchemy import text
         
-        lookup_criteria = entities.get('lookup_criteria', 'latest')
-        order_by = entities.get('order_by', 'start_time_local DESC')
+        description = entities.get('description', '')
+        lookup_criteria = entities.get('lookup_criteria', 'custom')
         
         debug_steps = incoming_debug_steps or []
         
+        # Build a lookup prompt for SQL Agent
+        # Ask it to find the activity_id of the activity matching the criteria
+        lookup_prompt = f"""
+DATABASE: PostgreSQL (strftime() KULLANMA! DATE_TRUNC, EXTRACT, TO_CHAR kullan)
+
+TABLOLAR:
+1. activities - Aktivite verileri
+   - activity_id, activity_name, local_start_date, start_time_local
+   - elevation_gain, distance, average_hr, max_hr, avg_speed, training_effect, weather_temp
+   - user_id, activity_type
+
+2. hrv_logs - HRV verileri (aktivite günü ile JOIN et)
+   - calendar_date, last_night_avg (HRV değeri), weekly_avg
+   - user_id
+
+3. sleep_logs - Uyku verileri (aktivite günü ile JOIN et)
+   - calendar_date, sleep_score, sleep_time_seconds
+   - user_id
+
+Kullanıcı şunu soruyor: "{description}"
+
+GÖREV: Bu kritere uyan TEK BİR aktivitenin activity_id'sini bul.
+
+KURALLAR:
+1. SELECT activity_id, activity_name, local_start_date ve ilgili metriği seç
+2. activities tablosundan sorgula (HRV/uyku için JOIN yap)
+3. user_id = :user_id filtresini MUTLAKA ekle
+4. activity_type = 'running' filtresini ekle
+5. İlgili metriğin NULL olmadığından emin ol
+6. Doğru ORDER BY kullan (DESC veya ASC)
+7. LIMIT 5 kullan
+
+ÖRNEKLER:
+- "En yüksek elevation gain": ORDER BY elevation_gain DESC
+- "En düşük HRV ile çıktığım antrenman":
+  SELECT a.activity_id, a.activity_name, a.local_start_date, h.last_night_avg
+  FROM activities a
+  JOIN hrv_logs h ON a.local_start_date = h.calendar_date AND a.user_id = h.user_id
+  WHERE a.user_id = :user_id AND a.activity_type = 'running' AND h.last_night_avg IS NOT NULL
+  ORDER BY h.last_night_avg ASC LIMIT 5
+
+- "En kötü uyku sonrası koşu":
+  SELECT a.activity_id, a.activity_name, a.local_start_date, s.sleep_score
+  FROM activities a
+  JOIN sleep_logs s ON a.local_start_date = s.calendar_date AND a.user_id = s.user_id
+  WHERE a.user_id = :user_id AND a.activity_type = 'running' AND s.sleep_score IS NOT NULL
+  ORDER BY s.sleep_score ASC LIMIT 5
+
+SQL:
+"""
+        
         try:
-            # Build query based on lookup_criteria
-            query = self.db.query(models.Activity).filter(
-                models.Activity.user_id == request.user_id,
-                models.Activity.activity_type == 'running'
+            # Use SQL Agent's LLM to generate the query
+            sql_response = self.llm.generate(lookup_prompt, max_tokens=400)
+            sql_text = sql_response.text.strip()
+            
+            # Extract SQL from response
+            if "```sql" in sql_text:
+                sql_text = sql_text.split("```sql")[1].split("```")[0].strip()
+            elif "```" in sql_text:
+                sql_text = sql_text.split("```")[1].split("```")[0].strip()
+            
+            # Ensure it's a SELECT query
+            if not sql_text.upper().startswith("SELECT"):
+                raise ValueError(f"Invalid SQL generated: {sql_text[:100]}")
+            
+            debug_steps.append({
+                "step": 1,
+                "name": "Lookup Query Generation",
+                "status": "success",
+                "description": f"SQL Agent generated query for: {description}",
+                "sql": sql_text,
+                "prompt_sent": lookup_prompt[:500] + "..." if len(lookup_prompt) > 500 else lookup_prompt
+            })
+            
+            # Execute the query
+            result = self.db.execute(
+                text(sql_text),
+                {"user_id": request.user_id}
             )
+            rows = result.fetchall()
+            columns = result.keys()
             
-            # Apply ordering based on criteria
-            criteria_order_map = {
-                'hottest': models.Activity.weather_temp.desc(),
-                'coldest': models.Activity.weather_temp.asc(),
-                'fastest': models.Activity.avg_speed.desc(),
-                'slowest': models.Activity.avg_speed.asc(),
-                'longest': models.Activity.distance.desc(),
-                'shortest': models.Activity.distance.asc(),
-                'hardest': models.Activity.training_effect.desc(),
-                'highest_hr': models.Activity.max_hr.desc(),
-                'latest': models.Activity.start_time_local.desc(),
-            }
-            
-            order_clause = criteria_order_map.get(lookup_criteria, models.Activity.start_time_local.desc())
-            
-            # Filter out NULL values for the criteria column
-            if lookup_criteria == 'hottest' or lookup_criteria == 'coldest':
-                query = query.filter(models.Activity.weather_temp.isnot(None))
-            elif lookup_criteria == 'fastest' or lookup_criteria == 'slowest':
-                query = query.filter(models.Activity.avg_speed.isnot(None))
-            elif lookup_criteria == 'hardest':
-                query = query.filter(models.Activity.training_effect.isnot(None))
-            elif lookup_criteria == 'highest_hr':
-                query = query.filter(models.Activity.max_hr.isnot(None))
-            
-            # Get top 5 results for debug preview
-            top_5_query = query.order_by(order_clause).limit(5)
-            top_5_results = top_5_query.all()
-            
-            # Generate SQL string for debug
-            sql_str = str(query.order_by(order_clause).statement.compile(
-                compile_kwargs={"literal_binds": True}
-            ))
-            
-            # Format top 5 results for display
-            sample_results = []
-            for act in top_5_results:
-                result_dict = {
-                    'activity_name': act.activity_name,
-                    'date': str(act.local_start_date) if act.local_start_date else None,
-                }
-                # Add relevant metric
-                if lookup_criteria in ['hottest', 'coldest'] and act.weather_temp is not None:
-                    result_dict['weather_temp'] = f"{act.weather_temp}°C"
-                elif lookup_criteria in ['fastest', 'slowest'] and act.avg_speed:
-                    result_dict['avg_speed'] = f"{act.avg_speed:.2f} m/s"
-                elif lookup_criteria in ['longest', 'shortest'] and act.distance:
-                    result_dict['distance'] = f"{act.distance/1000:.2f} km"
-                elif lookup_criteria == 'hardest' and act.training_effect:
-                    result_dict['training_effect'] = act.training_effect
-                elif lookup_criteria == 'highest_hr' and act.max_hr:
-                    result_dict['max_hr'] = f"{act.max_hr} bpm"
-                sample_results.append(result_dict)
-            
-            # Get the first result as main activity
-            activity = top_5_results[0] if top_5_results else None
-            
-            if not activity:
+            if not rows:
                 debug_steps.append({
-                    "step": 1,
+                    "step": 2,
                     "name": "Lookup Query",
                     "status": "not_found",
-                    "description": f"No activity found for criteria: {lookup_criteria}",
-                    "sql": sql_str
+                    "description": f"No activity found for: {description}",
+                    "sql": sql_text
                 })
                 return ChatResponse(
-                    message=f"'{lookup_criteria}' kriterine göre aktivite bulunamadı.",
+                    message=f"'{description}' kriterine göre aktivite bulunamadı.",
                     debug_metadata=debug_info,
                     debug_steps=debug_steps
                 )
             
+            # Format sample results for debug
+            sample_results = []
+            for row in rows[:5]:
+                row_dict = dict(zip(columns, row))
+                sample_results.append({
+                    'activity_name': row_dict.get('activity_name', 'Unknown'),
+                    'date': str(row_dict.get('local_start_date', '')),
+                    **{k: v for k, v in row_dict.items() if k not in ['activity_id', 'activity_name', 'local_start_date', 'user_id']}
+                })
+            
+            # Get the first result
+            first_row = dict(zip(columns, rows[0]))
+            activity_id = first_row.get('activity_id')
+            activity_name = first_row.get('activity_name', 'Unknown')
+            activity_date = first_row.get('local_start_date', '')
+            
             # Build found_activity for chaining
             found_activity = {
-                'activity_id': activity.activity_id,
-                'activity_date': str(activity.local_start_date) if activity.local_start_date else None,
-                'activity_name': activity.activity_name,
+                'activity_id': activity_id,
+                'activity_date': str(activity_date) if activity_date else None,
+                'activity_name': activity_name,
                 'lookup_criteria': lookup_criteria,
+                'description': description,
+                # Include all metrics from the query
+                **{k: v for k, v in first_row.items() if k not in ['activity_id', 'user_id']}
             }
             
-            # Add relevant metric for the criteria
-            if lookup_criteria in ['hottest', 'coldest'] and activity.weather_temp:
-                found_activity['weather_temp'] = activity.weather_temp
-            elif lookup_criteria in ['fastest', 'slowest'] and activity.avg_speed:
-                found_activity['avg_speed'] = activity.avg_speed
-            elif lookup_criteria == 'longest' and activity.distance:
-                found_activity['distance_km'] = activity.distance / 1000
-            
             debug_steps.append({
-                "step": 1,
+                "step": 2,
                 "name": "Lookup Query",
                 "status": "success",
-                "description": f"Found: {activity.activity_name} ({activity.local_start_date}) - {lookup_criteria}",
+                "description": f"Found: {activity_name} ({activity_date})",
                 "found_activity": found_activity,
-                # SQL Debug Info
-                "sql": sql_str,
-                "result_count": len(top_5_results),
+                "sql": sql_text,
+                "result_count": len(rows),
                 "sample_results": sample_results
             })
             
@@ -1802,7 +1855,7 @@ TSB YORUMU:
                 debug_info['last_handler_data'] = {'found_activity': found_activity}
             
             # Return brief message (training_detail_handler will provide analysis)
-            response_msg = f"'{lookup_criteria}' kriterine göre {activity.activity_name} ({activity.local_start_date}) bulundu."
+            response_msg = f"'{description}' kriterine göre {activity_name} ({activity_date}) bulundu."
             
             return ChatResponse(
                 message=response_msg,
@@ -1819,7 +1872,7 @@ TSB YORUMU:
                 "description": str(e)
             })
             return ChatResponse(
-                message="Aktivite aramasında hata oluştu.",
+                message=f"Aktivite aramasında hata: {str(e)[:100]}",
                 debug_metadata=debug_info,
                 debug_steps=debug_steps
             )
@@ -2045,11 +2098,60 @@ TSB YORUMU:
         """Build rich context from activity pack including real elevation, weather, and health data."""
         import models
         from sqlalchemy import func
-        from datetime import date as date_type, timedelta
+        from datetime import date as date_type, datetime, timedelta
         
-        lines = [f"Aktivite: {activity_name}"]
+        # Calculate relative time
+        today = date_type.today()
+        relative_time = ""
+        activity_date_obj = None
+        
         if activity_date:
-            lines.append(f"Tarih: {activity_date}")
+            if isinstance(activity_date, str):
+                try:
+                    activity_date_obj = datetime.strptime(activity_date.split('T')[0], '%Y-%m-%d').date()
+                except:
+                    activity_date_obj = None
+            elif isinstance(activity_date, (date_type, datetime)):
+                activity_date_obj = activity_date if isinstance(activity_date, date_type) else activity_date.date()
+            
+            if activity_date_obj:
+                days_ago = (today - activity_date_obj).days
+                if days_ago == 0:
+                    relative_time = "bugün"
+                elif days_ago == 1:
+                    relative_time = "dün"
+                elif days_ago <= 6:
+                    relative_time = f"{days_ago} gün önce"
+                elif days_ago <= 13:
+                    relative_time = "geçen hafta"
+                elif days_ago <= 30:
+                    weeks = days_ago // 7
+                    relative_time = f"{weeks} hafta önce"
+                else:
+                    months = days_ago // 30
+                    relative_time = f"{months} ay önce"
+        
+        # Format date for display (Turkish)
+        date_display = ""
+        if activity_date_obj:
+            months_tr = ['', 'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 
+                        'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık']
+            date_display = f"{activity_date_obj.day} {months_tr[activity_date_obj.month]}"
+        
+        # Build activity link
+        activity_link = ""
+        if activity_id:
+            activity_link = f"[{activity_name} ({date_display})](activity://{activity_id})"
+        else:
+            activity_link = f"{activity_name} ({date_display})"
+        
+        lines = [f"📅 BUGÜNÜN TARİHİ: {today.day} {months_tr[today.month]} {today.year}"]
+        lines.append(f"\n🏃 AKTİVİTE: {activity_link}")
+        lines.append(f"   activity_id: {activity_id}")
+        if relative_time:
+            lines.append(f"   Zaman: {relative_time}")
+        if activity_date:
+            lines.append(f"   Tarih: {activity_date}")
         
         if pack.get('facts'):
             facts = pack['facts']

@@ -72,6 +72,7 @@ interface HocaChatModalProps {
     onClose: () => void;
     activityId?: number; // If opened from activity detail
     initialMessage?: string;
+    onNavigateToActivity?: (activityId: number) => void; // Callback for activity link clicks
 }
 
 export const HocaChatModal: React.FC<HocaChatModalProps> = ({
@@ -79,6 +80,7 @@ export const HocaChatModal: React.FC<HocaChatModalProps> = ({
     onClose,
     activityId,
     initialMessage,
+    onNavigateToActivity,
 }) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputText, setInputText] = useState('');
@@ -87,6 +89,49 @@ export const HocaChatModal: React.FC<HocaChatModalProps> = ({
     const [deepLearning, setDeepLearning] = useState(false);
     const [showDebug, setShowDebug] = useState(false);
     const scrollViewRef = useRef<ScrollView>(null);
+
+    // Parse activity links [text](activity://ID) and make them clickable
+    const renderLinkifiedText = (text: string) => {
+        // Regex to match [link text](activity://activityId)
+        const linkRegex = /\[([^\]]+)\]\(activity:\/\/(\d+)\)/g;
+        const parts: React.ReactNode[] = [];
+        let lastIndex = 0;
+        let match;
+
+        while ((match = linkRegex.exec(text)) !== null) {
+            // Add text before the link
+            if (match.index > lastIndex) {
+                parts.push(text.substring(lastIndex, match.index));
+            }
+
+            // Add the clickable link
+            const linkText = match[1];
+            const actId = parseInt(match[2], 10);
+            parts.push(
+                <Text
+                    key={match.index}
+                    style={styles.activityLink}
+                    onPress={() => {
+                        if (onNavigateToActivity) {
+                            onClose(); // Close modal first
+                            onNavigateToActivity(actId);
+                        }
+                    }}
+                >
+                    {linkText}
+                </Text>
+            );
+
+            lastIndex = match.index + match[0].length;
+        }
+
+        // Add remaining text after last link
+        if (lastIndex < text.length) {
+            parts.push(text.substring(lastIndex));
+        }
+
+        return parts.length > 0 ? parts : text;
+    };
 
     // Deep Learning - Analyze all training history
     const runDeepLearning = async () => {
@@ -297,7 +342,9 @@ export const HocaChatModal: React.FC<HocaChatModalProps> = ({
                                         msg.role === 'user' && styles.userMessageText,
                                     ]}
                                 >
-                                    {msg.content}
+                                    {msg.role === 'assistant'
+                                        ? renderLinkifiedText(msg.content)
+                                        : msg.content}
                                 </Text>
                             </View>
 
@@ -912,6 +959,11 @@ const styles = StyleSheet.create({
         backgroundColor: '#161b22',
         borderRadius: 4,
         marginTop: 4,
+    },
+    activityLink: {
+        color: '#CCFF00',
+        textDecorationLine: 'underline' as const,
+        fontWeight: 'bold' as const,
     },
 });
 

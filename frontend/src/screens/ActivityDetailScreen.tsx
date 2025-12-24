@@ -485,9 +485,40 @@ const ActivityContextCard = ({ activity, activityId, nativeRpe }: { activity: an
 const ActivityDetailScreen = () => {
     const navigation = useNavigation();
     const route = useRoute<any>();
-    const activity = route.params?.activity;
+    const [activity, setActivity] = useState<any>(route.params?.activity || null);
+    const activityIdParam = route.params?.activityId;
 
-    // Guard: if activity is not provided, show loading or error
+    // Fetch activity if only activityId is provided (e.g., from chat link)
+    useEffect(() => {
+        const fetchActivityById = async () => {
+            if (!activity && activityIdParam) {
+                try {
+                    // Fetch activity summary by ID
+                    const response = await fetch(`http://localhost:8000/ingestion/activity/${activityIdParam}/summary`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Transform to expected activity format
+                        setActivity({
+                            activityId: data.activity_id || activityIdParam,
+                            activityName: data.activity_name || 'Loading...',
+                            startTimeLocal: data.start_time_local || '',
+                            distance: data.distance || 0,
+                            duration: data.duration || 0,
+                            averageHR: data.average_hr,
+                            maxHR: data.max_hr,
+                            calories: data.calories,
+                            ...data
+                        });
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch activity by ID:', error);
+                }
+            }
+        };
+        fetchActivityById();
+    }, [activityIdParam]);
+
+    // Guard: if activity is not provided, show loading
     if (!activity) {
         return (
             <View style={{ flex: 1, backgroundColor: '#050505', justifyContent: 'center', alignItems: 'center' }}>

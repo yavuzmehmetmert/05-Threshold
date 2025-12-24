@@ -119,7 +119,7 @@ class IntentClassifier:
         self.api_key = api_key or get_api_key_from_db() or os.getenv("GOOGLE_API_KEY")
         if self.api_key:
             genai.configure(api_key=self.api_key)
-            self.model = genai.GenerativeModel("gemini-2.0-flash-lite")
+            self.model = genai.GenerativeModel("gemini-2.0-flash")
         else:
             self.model = None
     
@@ -141,7 +141,7 @@ class IntentClassifier:
             IntentResult, or tuple (IntentResult, debug_dict) if return_debug=True
         """
         debug_info = {
-            "model": "gemini-2.0-flash-lite",
+            "model": "gemini-2.0-flash",
             "prompt": None,
             "raw_response": None,
             "parsed_json": None,
