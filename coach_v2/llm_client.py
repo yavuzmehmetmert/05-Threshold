@@ -58,7 +58,29 @@ class GeminiClient:
             temperature=temperature
         )
         
-        response = self.model.generate_content(prompt, generation_config=config)
+        # Disable safety filters for athletic/coaching context
+        safety_settings = [
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+        ]
+        
+        response = self.model.generate_content(
+            prompt, 
+            generation_config=config,
+            safety_settings=safety_settings
+        )
+        
+        # Handle blocked responses
+        if not response.candidates or not response.candidates[0].content.parts:
+            finish_reason = response.candidates[0].finish_reason if response.candidates else "UNKNOWN"
+            return LLMResponse(
+                text=f"[Model yanıt veremedi - finish_reason: {finish_reason}]",
+                input_tokens=0,
+                output_tokens=0,
+                model=self.model_name
+            )
         
         # Extract token counts if available
         input_tokens = 0
