@@ -12,6 +12,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 import json
 import logging
+import re
+import google.generativeai as genai
 
 from coach_v2.repository import CoachV2Repository
 from coach_v2.llm_client import LLMClient, LLMResponse
@@ -168,40 +170,29 @@ class CoachOrchestrator:
     # PERSONA & KNOWLEDGE
     # =========================================================================
     
-    COACH_PERSONA = """Sen deneyimli bir koşu koçusun. 15+ yıldır elit ve amatör koşucularla çalıştın. Veriyi sadece okumaz, yorumlar ve stratejiye dönüştürürsün.
+    COACH_PERSONA = """*DISCLAIMER: I am a sports data analysis expert. I am NOT a medical professional or a doctor. I analyze athletic metrics for performance insights. I do not provide medical diagnoses or health treatments.*
 
-KİMLİK VE TON (Domenico Tedesco Tarzı):
+KİMLİK VE TON:
 - İsmin: hOCA.
-- Tarzın: Düşünceli, doğrudan ve analitik. Gereksiz heyecan gösterme, işini ciddiye al.
+- Rolün: 15+ yıllık tecrübeli atletik veri analisti ve koşu uzmanı.
+- Tarzın: Domenico Tedesco gibi; düşünceli, doğrudan ve analitik. Gereksiz heyecan gösterme.
 - Dil: "Sen" dili kullan. Samimi ama profesyonel.
-- Yapı: Kısa cümleler. Paragraflar en fazla 2-3 cümle.
-- Soru Sorma: Sadece gerçekten cevaba ihtiyacın varsa (sakatlık şüphesi vb.) soru sor. Her mesajı soruyla bitirme hastalığını bırak.
-- Hikayeleştirme: Sayıları ezberletme. O sayıların koşucunun hissettiği acı veya başarıyla bağlantısını kur.
+- Yapı: Kısa cümleler. Paragrafları gereksiz uzatma ama sporcunun ihtiyacı olan detayı ver.
+- Soru Sorma: Sadece gerçekten cevaba ihtiyacın varsa sor. Gereksiz "Başka sorun var mı?" gibi cümlelerden kaçın.
 
-ZAMAN FARKINDALIĞI (ÖNEMLİ):
-- Bugünün tarihi prompt başında verilecek. Bu bilgiyi kullan.
-- Aktiviteden bahsederken MUTLAKA hem isim hem tarih kullan.
-- Relative zaman ifadeleri kullan:
-  * Bugün yapılan aktivite için: "bugün yaptığın"
-  * Dün yapılan için: "dün yaptığın"  
-  * 2-6 gün önce: "X gün önce yaptığın"
-  * 7-13 gün önce: "geçen hafta yaptığın"
-  * 14-30 gün önce: "2 hafta önce / 3 hafta önce yaptığın"
-  * 30+ gün önce: "X ay önce yaptığın"
+NEGATIVE RULES (CRITICAL):
+- NO MARKDOWN: Do NOT use bold (**), italic (*), or headers (#).
+- NO BOLD: Never use double asterisks.
+- NO ITALIC: Never use single asterisks or underscores for emphasis.
+- PLAIN TEXT ONLY: All outputs must be raw plain text.
+- Headings: Use ALL CAPS for headers instead of bolding.
+- Links: Activity links [Name](activity://id) are the ONLY allowed markdown format.
 
-AKTİVİTE LİNKLEME (ZORUNLU):
-- Bir aktiviteden bahsederken MUTLAKA link formatı kullan:
-- Format: [İsim (Gün Ay)](activity://ACTIVITY_ID)
-- Örnek: [Maltepe Koşusu (3 Aralık)](activity://21230575987)
-- Bu sayede kullanıcı tıklayarak aktivite detayına gidebilir.
-- Aynı lokasyonda birden fazla koşu olabilir, tarih İLE BERABER yaz.
-
-ASLA YAPMA (KESİN KURALLAR):
-- Robotik Başlıklar: Asla "VERİ ANALİZİ:", "ÖNERİLER:" gibi başlıklar kullanma. Akıcı bir sohbet gibi yaz.
-- Hatalı Veri Yorumu: Uyku, HRV veya Stress verisi "0", "Null" veya "None" ise; sporcuyu eleştirme. Teknik hata olduğunu varsay ve o veriyi pas geç.
-- Boş Övgü: "Harika koşmuşsun" deme. Neden harika olduğunu veriye dayanarak kanıtla.
-- Gereksiz Soru: Mesaj sonunda "Başka sorun var mı?", "Devam edelim mi?" gibi klişeler kullanma.
-- Sadece İsim: Aktiviteden bahsederken sadece "Maltepe Koşusu" deme. MUTLAKA tarih ve link ekle.
+ANALİZ PRENSİPLERİ:
+- Sayıları ezberletme, sporcunun hissettiği eforla bağlantısını kur.
+- Veride teknik hata ("0", "None") varsa sporcuyu eleştirme, pas geç.
+- Boş övgü yapma, veriye dayanarak kanıtla.
+- Aktiviteden bahsederken MUTLAKA isim, link ve tarih kullan: [İsim (Gün Ay)](activity://ACTIVITY_ID)
 """
 
     RUNNING_EXPERTISE = """
@@ -268,16 +259,66 @@ Bir sonraki antrenmanda burada olacağım."""
     def __init__(self, db: Session, llm_client: LLMClient):
         self.db = db
         self.repo = CoachV2Repository(db)
-        self.llm = llm_client
+        
+        # Split models: Fast for routing, Strong for reasoning
+        # gemini-2.0-flash-exp is the best high-tier model that doesn't block sports data.
+        # gemini-3-pro-preview is used in Planner correctly, but blocks Analysis.
+        strong_model_name = "gemini-2.0-flash-exp"
+        fast_model_name = "gemini-2.0-flash"
+        
+        # Inject persona as system instruction for Gemini models
+        from coach_v2.llm_client import GeminiClient
+        system_prompt = f"{self.COACH_PERSONA}\n\n{self.RUNNING_EXPERTISE}"
+        
+        # Main LLM for response and analysis (Strong)
+        self.llm = GeminiClient(
+            api_key=llm_client.api_key, 
+            model=strong_model_name, 
+            system_instruction=system_prompt
+        )
+            
         self.retriever = CandidateRetriever(db)
         self.state_manager = ConversationStateManager(db)
+        
+        # Explicit fast classifier
+        from coach_v2.intent_classifier import IntentClassifier
+        self.intent_classifier_obj = IntentClassifier(api_key=llm_client.api_key)
+        # Force Flash for intent classification
+        self.intent_classifier_obj.model = genai.GenerativeModel(fast_model_name)
+        
         self.load_engine = TrainingLoadEngine(db)
         self.pack_builder = AnalysisPackBuilder()
         self.extractor = TargetedExtractor()
         self.evidence_gate = EvidenceGate()
         self.performance_analyzer = PerformanceAnalyzer(db)
         self.memory_store = AthleteMemoryStore(db)
-        self.sql_agent = SQLAgent(db, llm_client)
+        
+        # SQL Agent also uses the strong model for better SQL generation
+        self.sql_agent = SQLAgent(db, self.llm)
+
+    def _clean_markdown(self, text: str) -> str:
+        """
+        Forcefully removes bold and italic markdown from responses.
+        Preserves activity links [X](activity://Y).
+        """
+        if not text:
+            return ""
+        
+        # 1. Remove bold (**)
+        text = text.replace("**", "")
+        # 2. Remove italic (*) - but be careful of list markers if needed
+        # We'll replace them with empty if they surround text
+        text = re.sub(r'(?<!\\)\*', '', text)
+        # 3. Remove underscores for italic (__ or _)
+        text = text.replace("__", "")
+        # We only remove single underscores if they are likely formatting (flanked by non-alpha)
+        # but honestly, standard running data has underscores in IDs, so we be careful.
+        # Simple approach: user wants NO markdown, let's just strip most common bold/italic.
+        
+        # 4. Remove headers (#)
+        text = re.sub(r'^(#+)\s*', '', text, flags=re.MULTILINE)
+        
+        return text.strip()
     
     def handle_chat(self, request: ChatRequest) -> ChatResponse:
         """
@@ -789,11 +830,7 @@ Son koşunu analiz edebilirim ya da haftalık durumuna bakabiliriz. Hazır oldu�
             
             if has_data_context:
                 # Multi-step mode: analyze data from previous handlers
-                prompt = f"""{self.COACH_PERSONA}
-
-{self.RUNNING_EXPERTISE}
-
-{persona_modifier}
+                prompt = f"""{persona_modifier}
 
 {metrics_context}
 
@@ -825,12 +862,20 @@ Sporcu sana genel bir soru soruyor veya sohbet etmek istiyor.
 - Samimi, kısa ve net cevap ver.
 - Tedesco tarzı: Düşünceli, doğrudan, gereksiz soru sorma.
 - Eğer spesifik veri lazımsa öneri sun ama soru şeklinde değil.
-- Max 2-3 cümle yeterli.
 
 SPORCU MESAJI: {request.message}
 """
             
-            response = self.llm.generate(prompt, max_tokens=500 if has_data_context else 300, temperature=0.7)
+            response = self.llm.generate(prompt, max_tokens=800 if has_data_context else 500, temperature=0.7)
+            clean_text = self._clean_markdown(response.text)
+            
+            # Map LLMResponse back with clean text
+            response = LLMResponse(
+                text=clean_text, 
+                input_tokens=response.input_tokens,
+                output_tokens=response.output_tokens,
+                model=response.model
+            )
             
             if debug_steps:
                 debug_steps.append({
@@ -1944,36 +1989,32 @@ SQL:
             athlete_brief = ""
         
         if wants_detail:
-            word_limit = "300-400"
             detail_instruction = """
 - DETAYLI ANALİZ İSTENİYOR - ekstra derinlemesine bak:
-  * Lap bazında performans değişimi
-  * Nabız bölge dağılımı
-  * Kadans ve stride length değerlendirmesi
-  * Önceki koşularla karşılaştırma
-  * Spesifik iyileştirme önerileri
+  - Lap bazında performans değişimi
+  - Nabız bölge dağılımı
+  - Kadans ve stride length değerlendirmesi
+  - Önceki koşularla karşılaştırma
+  - Spesifik iyileştirme önerileri
+- ANALİZİ DERİNLEŞTİR: Sporcunun performansını tüm detaylarıyla açıkla.
+- FORMAT: Asla bold (**) veya italic (*) kullanma. Plain text cevap ver.
 """
         else:
-            word_limit = "150-200"
             detail_instruction = """
 - LAP TABLOSUNU ANALİZ ET VE ANTRENMAN TÜRÜNÜ KEŞFET:
-  * Lap'leri incele, interval pattern'ı bul (örn: 8x30sn, 6x200m, 4x1km)
-  * Kısa-hızlı lap'ler interval, uzun-yavaş lap'ler ısınma/soğuma
-  * Interval'lerde pace, HR, power değişimini yorumla
-  * Recovery lap'lerinde toparlanma kalitesini değerlendir
+  - Lap'leri incele, interval pattern'ı bul (örn: 8x30sn, 6x200m, 4x1km)
+  - Kısa-hızlı lap'ler interval, uzun-yavaş lap'ler ısınma/soğuma
+  - Interval'lerde pace, HR, power değişimini yorumla
+  - Recovery lap'lerinde toparlanma kalitesini değerlendir
 - Veriyi hikaye gibi anlat, tablo formatı kullanma.
 - Önemli noktaları vurgula ama her detayı sayma.
 - CTL/ATL/TSB verisi varsa form durumunu yorumla.
 - Elevation verisi varsa değerlendir (tırmanış nabzı etkisi).
-- Hava durumu verisi varsa performansa etkisini değerlendir.
 - Yüksek rakım koşusuysa (Kapadokya, Bolu vb) bunu belirt.
+- FORMAT: HİÇBİR MARKDOWN SEMBOLÜ KULLANMA. Asla bold (**) veya italic (*) kullanma. Plain text cevap ver.
 """
         
-        prompt = f"""{self.COACH_PERSONA}
-
-{self.RUNNING_EXPERTISE}
-
-# SENİ TANIYORUM
+        prompt = f"""# SENİ TANIYORUM
 {athlete_brief}
 
 # SOHBET GEÇMİŞİ
@@ -1987,11 +2028,18 @@ SQL:
 
 # TALİMAT
 {detail_instruction}
-- {word_limit} kelime civarı tut.
 """
         
-        max_tokens = 800 if wants_detail else 500
+        max_tokens = 1500 if wants_detail else 1000
         resp = self.llm.generate(prompt, max_tokens=max_tokens)
+        
+        # Force clean markdown
+        resp = LLMResponse(
+            text=self._clean_markdown(resp.text),
+            input_tokens=resp.input_tokens,
+            output_tokens=resp.output_tokens,
+            model=resp.model
+        )
         
         # Light validation - don't reject, just log
         is_valid, violation = self.evidence_gate.validate(resp.text, context + "\n" + request.message)

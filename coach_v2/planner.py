@@ -242,9 +242,11 @@ class Planner:
         self.api_key = api_key or get_api_key_from_db() or os.getenv("GOOGLE_API_KEY")
         if self.api_key:
             genai.configure(api_key=self.api_key)
-            self.model = genai.GenerativeModel("gemini-2.0-flash")
+            # Use Gemini 3 Pro for complex plan reasoning
+            # We will use system_instruction in create_plan to avoid safety blocks
+            self.model_name = "gemini-3-pro-preview"
         else:
-            self.model = None
+            self.model_name = None
     
     def create_plan(
         self, 
@@ -272,29 +274,51 @@ class Planner:
             "parsed_plan": None
         }
         
-        if not self.model:
+        if not self.model_name:
             plan = self._fallback_plan(message)
             debug_info["model"] = "fallback_regex"
             debug_info["parsed_plan"] = plan.to_dict()
             return (plan, debug_info) if return_debug else plan
         
         try:
-            prompt = PLANNER_PROMPT.format(
+            prompt_main = PLANNER_PROMPT.format(
                 message=message,
                 conversation_history=conversation_history or "Yeni konuşma",
                 metrics_context=metrics_context or ""
             )
-            debug_info["prompt"] = prompt
             
-            response = self.model.generate_content(
-                prompt,
-                generation_config=genai.GenerationConfig(
-                    max_output_tokens=500,
-                    temperature=0.1  # Low temp for structured output
-                )
+            # Use Gemini 3 with system_instruction for better safety bypass
+            model = genai.GenerativeModel(
+                model_name=self.model_name,
+                system_instruction=prompt_main
             )
             
+            # BLOCK_NONE to be as flexible as possible
+            safety_settings = [
+                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+            ]
+            
+            response = model.generate_content(
+                f"SON MESAJ: \"{message}\"\n\nLütfen sadece JSON formatında yürütme planını oluştur.",
+                generation_config=genai.GenerationConfig(
+                    max_output_tokens=1000,
+                    temperature=0.1,
+                ),
+                safety_settings=safety_settings
+            )
+            
+            # Handle empty/blocked response
+            if not response.candidates or not response.candidates[0].content.parts:
+                finish_reason = response.candidates[0].finish_reason if response.candidates else "UNKNOWN"
+                debug_info["error"] = f"Planner blocked: {finish_reason}"
+                plan = self._fallback_plan(message)
+                return (plan, debug_info) if return_debug else plan
+                
             raw_response = response.text.strip()
+            debug_info["model"] = self.model_name
             debug_info["raw_response"] = raw_response
             
             # Parse JSON response
