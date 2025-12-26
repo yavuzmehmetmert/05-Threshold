@@ -126,9 +126,16 @@ class AnalysisPackBuilder:
         laps = data.get('native_laps', data.get('laps', []))
         
         if laps:
-            # Columns: Lap #, Time, Dist, Pace, HR, MaxHR, Elev+/-, Kadans, Power
-            headers = "| # | Süre | Mesafe | Pace | HR | MaxHR | Elev | Kadans | Power |"
-            sep = "|---|---|---|---|---|---|---|---|---|"
+            # First, analyze laps to detect interval patterns
+            lap_analysis = self._analyze_lap_patterns(laps)
+            
+            # Add interval structure summary if detected
+            if lap_analysis.get('structure_summary'):
+                sections.append(f"\n🎯 ANTRENMAN YAPISI TESPİTİ:\n{lap_analysis['structure_summary']}")
+            
+            # Columns: Lap #, Time, Dist, Pace, HR, MaxHR, Elev+/-, Kadans, Power, Tip
+            headers = "| # | Süre | Mesafe | Pace | HR | MaxHR | Elev | Kadans | Power | TİP |"
+            sep = "|---|---|---|---|---|---|---|---|---|---|"
             rows = ["\n📊 LAP TABLOSU:", headers, sep]
             
             for i, lap in enumerate(laps[:20], 1):  # Max 20 laps
@@ -187,10 +194,13 @@ class AnalysisPackBuilder:
                 power = lap.get('avg_power', lap.get('averagePower'))
                 power_str = f"{int(power)}W" if power else "-"
                 
-                rows.append(f"| {i} | {dur_str} | {dist_str} | {pace_str} | {hr_str} | {max_hr_str} | {elev_str} | {cadence_str} | {power_str} |")
+                # Lap type classification
+                lap_type = lap_analysis.get('lap_types', {}).get(i, '-')
+                
+                rows.append(f"| {i} | {dur_str} | {dist_str} | {pace_str} | {hr_str} | {max_hr_str} | {elev_str} | {cadence_str} | {power_str} | {lap_type} |")
                 
             if len(laps) > 20:
-                rows.append(f"| ... | ({len(laps)-20} more) | ... | ... | ... | ... | ... | ... | ... |")
+                rows.append(f"| ... | ({len(laps)-20} more) | ... | ... | ... | ... | ... | ... | ... | ... |")
             
             sections.append("\n".join(rows))
         else:
@@ -400,3 +410,156 @@ class AnalysisPackBuilder:
         mins = int(pace_sec // 60)
         secs = int(pace_sec % 60)
         return f"{mins}:{secs:02d}"
+
+    def _analyze_lap_patterns(self, laps: list) -> dict:
+        """
+        Analyze lap data to detect interval patterns.
+        
+        Returns:
+            Dict with 'lap_types' (dict of lap# -> type) and 'structure_summary' (str)
+        """
+        if not laps or len(laps) < 3:
+            return {'lap_types': {}, 'structure_summary': ''}
+        
+        # Extract pace and distance/duration for each lap
+        lap_data = []
+        for i, lap in enumerate(laps, 1):
+            dist = lap.get('total_distance', lap.get('distance', 0)) or 0
+            dur = lap.get('total_timer_time', lap.get('total_elapsed_time', lap.get('duration', 0))) or 0
+            
+            # Calculate pace (min/km)
+            if dist > 0 and dur > 0:
+                pace = (dur / 60) / (dist / 1000)
+            else:
+                pace = 0
+            
+            lap_data.append({
+                'num': i,
+                'dist': dist,
+                'dur': dur,
+                'pace': pace,
+                'dist_m': int(dist),
+                'dur_sec': int(dur)
+            })
+        
+        # Filter out very short laps (< 50m or < 15s) - these are often GPS artifacts or button presses
+        valid_laps = [l for l in lap_data if l['dist'] > 50 and l['dur'] > 15]
+        
+        if len(valid_laps) < 3:
+            return {'lap_types': {}, 'structure_summary': ''}
+        
+        # Calculate average pace to determine fast/slow threshold
+        avg_pace = sum(l['pace'] for l in valid_laps if l['pace'] > 0) / len([l for l in valid_laps if l['pace'] > 0])
+        
+        # Thresholds: Fast = 15%+ faster than average, Slow = 15%+ slower than average
+        fast_threshold = avg_pace * 0.85  # 15% faster
+        slow_threshold = avg_pace * 1.15  # 15% slower
+        
+        # Classify each lap
+        lap_types = {}
+        for l in lap_data:
+            if l['pace'] == 0:
+                lap_types[l['num']] = '-'
+            elif l['num'] <= 2 and l['pace'] > avg_pace:  # First 2 slow laps = warmup
+                lap_types[l['num']] = 'ISINMA'
+            elif l['num'] >= len(lap_data) - 1 and l['pace'] > avg_pace:  # Last 1-2 slow laps = cooldown
+                lap_types[l['num']] = 'SOĞUMA'
+            elif l['pace'] < fast_threshold:
+                lap_types[l['num']] = 'HIZLI'
+            elif l['pace'] > slow_threshold:
+                lap_types[l['num']] = 'YAVAŞ'
+            else:
+                lap_types[l['num']] = 'TEMPO'
+        
+        # Detect structured patterns
+        structure_summary = self._detect_interval_structure(valid_laps, lap_types)
+        
+        return {
+            'lap_types': lap_types,
+            'structure_summary': structure_summary
+        }
+    
+    def _detect_interval_structure(self, laps: list, lap_types: dict) -> str:
+        """Detect and describe the interval structure."""
+        if not laps:
+            return ''
+        
+        # Check if distances are "round" numbers (200, 400, 600, 800, 1000, etc.)
+        def is_round_distance(d):
+            return d > 0 and (d % 100 == 0 or d % 200 == 0 or abs(d - round(d/100)*100) < 30)
+        
+        # Check if durations are "round" numbers (30s, 60s, 90s, 120s, etc.)
+        def is_round_duration(d):
+            return d > 0 and (d % 30 == 0 or abs(d - round(d/30)*30) < 5)
+        
+        # Count how many laps have round distance vs round duration
+        round_dist_count = sum(1 for l in laps if is_round_distance(l['dist']))
+        round_dur_count = sum(1 for l in laps if is_round_duration(l['dur']))
+        
+        # Determine primary metric
+        if round_dist_count > round_dur_count:
+            metric = 'distance'
+            metric_label = 'm'
+        else:
+            metric = 'duration'
+            metric_label = 'sn'
+        
+        # Group consecutive fast laps
+        fast_laps = [l for l in laps if lap_types.get(l['num']) == 'HIZLI']
+        
+        if not fast_laps:
+            return 'Düz tempo koşusu (interval yok)'
+        
+        # Build structure description
+        parts = []
+        
+        # Group fast laps by similar distance/duration
+        groups = []
+        current_group = []
+        
+        for lap in fast_laps:
+            if not current_group:
+                current_group = [lap]
+            else:
+                # Check if this lap is similar to the previous
+                prev = current_group[-1]
+                if metric == 'distance':
+                    similar = abs(lap['dist'] - prev['dist']) < 100  # Within 100m
+                else:
+                    similar = abs(lap['dur'] - prev['dur']) < 10  # Within 10s
+                
+                if similar:
+                    current_group.append(lap)
+                else:
+                    groups.append(current_group)
+                    current_group = [lap]
+        
+        if current_group:
+            groups.append(current_group)
+        
+        # Format each group
+        for group in groups:
+            count = len(group)
+            if metric == 'distance':
+                avg_val = sum(l['dist'] for l in group) / count
+                # Round to nearest 100m
+                rounded_val = round(avg_val / 100) * 100
+                parts.append(f"{count}x{int(rounded_val)}m")
+            else:
+                avg_val = sum(l['dur'] for l in group) / count
+                # Round to nearest 30s
+                rounded_val = round(avg_val / 30) * 30
+                if rounded_val >= 60:
+                    mins = int(rounded_val // 60)
+                    secs = int(rounded_val % 60)
+                    if secs > 0:
+                        parts.append(f"{count}x{mins}dk{secs}sn")
+                    else:
+                        parts.append(f"{count}x{mins}dk")
+                else:
+                    parts.append(f"{count}x{int(rounded_val)}sn")
+        
+        if parts:
+            return " + ".join(parts)
+        else:
+            return ''

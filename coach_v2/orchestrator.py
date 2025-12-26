@@ -221,6 +221,33 @@ GELİŞMİŞ ANALİZ MANTIĞI (BU SIRAYI İZLE):
    - TSB negatifse (-10, -20) ve performans kötüyse: "Yorgun bacaklarla savaşıyorsun, normaldir."
    - TSB pozitifse (+5, +15) ve performans iyiyse: "Taper işe yaramış, bacakların taze."
 
+6. INTERVAL ANALİZİ (VERİ ODAKLI - KRİTİK):
+   ⚠️ ASLA HARDCODED PATTERN UYDURMA! Veriyi oku ve oradan çıkar.
+   
+   A) PATTERN TESPİTİ (SÜRE vs MESAFE):
+      - Her lap için HEM süreyi HEM mesafeyi kontrol et.
+      - Hangisi daha "yuvarlak" ve tutarlıysa, o metriği kullan:
+        * Mesafeler 200m, 400m, 600m gibi yuvarlak sayılardaysa → MESAFE BAZLI interval (örn: "3x600m + 3x400m + 3x200m")
+        * Süreler 30sn, 1dk, 2dk gibi yuvarlak sayılardaysa → SÜRE BAZLI interval (örn: "5x30sn arttırma")
+      - Eğer ne mesafe ne süre tutarlıysa → bu düzensiz bir fartlek olabilir, "yapılandırılmamış hız çalışması" de.
+   
+   B) ÇOK FAZLI ANTRENMAN TESPİTİ:
+      - Bir antrenmanda birden fazla farklı interval bloğu olabilir.
+      - Örnek: "Isınma → 5x30sn arttırma (1dk dinlenme) → 3x(600m+400m+200m) piramit (1:30 dinlenme) → Soğuma"
+      - Her bloğu AYRI AYRI tanımla ve analiz et.
+   
+   C) RECOVERY ANALİZİ:
+      - Dinlenme sürelerini de kontrol et (yuvarlak mı? 1dk, 1:30, 2dk?)
+      - Nabız düşüşünü her recovery'de ölç: "Recovery 1'de 170→140, Recovery 3'te 175→155. Toparlanma kalitesi düşüyor."
+   
+   D) SET TUTARLILIĞI:
+      - Aynı mesafe/süredeki tekrarları karşılaştır.
+      - "600m setlerinde: 1. set 2:24, 2. set 2:28, 3. set 2:35. Sonlara doğru 11sn yavaşlama var."
+   
+   E) HATALI YORUMLARDAN KAÇIN:
+      - ❌ YANLIŞ: "4x(1dk Hızlı + 1dk Yavaş)" (veri desteklemiyorsa)
+      - ✅ DOĞRU: Lap verisini olduğu gibi oku ve grupla.
+
 REFERANS BİLGİLERİ:
 
 Nabız Bölgeleri:
