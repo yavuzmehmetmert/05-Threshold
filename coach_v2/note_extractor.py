@@ -190,6 +190,21 @@ Eğer mesajda önemli bir durum YOKSA:
    - ✓ "İyi geçti ama biraz yorgunum" → detected: false
 
 
+0. ⛔ BASİT SOHBET MESAJLARI = KESİNLİKLE TESPİT ETME (EN ÖNCELİKLİ!):
+   - Bu kural TÜM diğer kurallardan önce gelir!
+   - Mesaj sağlık/sakatlık bilgisi İÇERMİYORSA → detected: false
+   - Aşağıdaki mesaj türlerinde ASLA not çıkarma:
+     → Sorular: "önerin var mı?", "ne dersin?", "başka?", "peki?"
+     → Teşekkürler: "teşekkürler", "sağol", "tşk"
+     → Onaylar: "tamam", "ok", "anladım", "evet", "hayır"
+     → Kısa cevaplar: 10 kelimeden az basit mesajlar
+   - ⚠️ ÖNCEKİ KONUŞMADAN VEYA CONTEXT'TEN NOT ÇIKARMA! Sadece MEVCUT MESAJI değerlendir!
+   - ✓ "Onun dışında bi önerin var mı?" → detected: false
+   - ✓ "Teşekkürler!" → detected: false
+   - ✓ "Tamam anladım" → detected: false
+   - ✓ "Peki başka?" → detected: false
+   - ✓ "Evet kaydet" → detected: false (bu sadece confirmation, yeni not değil!)
+
 2. ✅ "İYİLEŞİYORUM" = UPDATE:
    - Mesajda "iyileşiyorum", "geçiyor", "daha iyi", "azaldı" ifadeleri varsa → event_type: "update" (onset DEĞİL!)
    - Örnek: "Grip oldum ama iyileşiyorum" → event_type: "update"
