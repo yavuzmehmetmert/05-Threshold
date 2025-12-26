@@ -322,6 +322,11 @@ Bir sonraki antrenmanda burada olacağım."""
         
         # SQL Agent also uses the strong model for better SQL generation
         self.sql_agent = SQLAgent(db, self.llm)
+        
+        # Note Extractor for athlete knowledge system
+        from coach_v2.note_extractor import NoteExtractor
+        self.note_extractor = NoteExtractor(db, self.llm)
+
 
     def _clean_markdown(self, text: str) -> str:
         """
@@ -352,10 +357,13 @@ Bir sonraki antrenmanda burada olacağım."""
         Handle chat request with AI Planner for multi-action execution.
         
         Flow:
-        1. Create ExecutionPlan (list of actions)
-        2. Execute each action in sequence
-        3. Pass results between handlers
-        4. Return final combined response
+        1. Check for pending confirmation (user responding to note extraction)
+        2. Extract notes from user message
+        3. Get active conditions for context
+        4. Create ExecutionPlan (list of actions)
+        5. Execute each action in sequence
+        6. Pass results between handlers
+        7. Return final combined response
         """
         debug_info = {} if request.debug else None
         debug_steps = [] if request.debug else None
@@ -363,8 +371,54 @@ Bir sonraki antrenmanda burada olacağım."""
         # 0. Get or create conversation state for this user
         conv_state = conversation_state_manager.get_or_create(request.user_id, self.db)
         
+        # 0.1 Check if user is responding to a confirmation request
+        pending_notes = getattr(conv_state, 'pending_notes', None)
+        if pending_notes and self._is_confirmation_response(request.message):
+            return self._handle_note_confirmation(request, pending_notes, conv_state, debug_info)
+        
         # Add user message to history
         conv_state.add_turn("user", request.message)
+        
+        # 0.2 Extract notes from user message (background - non-blocking)
+        extracted_notes = []
+        try:
+            # Get pinned activity from in-memory conversation state
+            pinned_date = conv_state.pinned_activity.activity_date if conv_state.pinned_activity.is_valid else None
+            pinned_activity_name = conv_state.pinned_activity.activity_name if conv_state.pinned_activity.is_valid else None
+            
+            extracted_notes = self.note_extractor.extract_notes(
+                request.message, 
+                context=conv_state.get_history_for_prompt(),
+                user_id=request.user_id,
+                discussed_activity_date=pinned_date,
+                discussed_activity_name=pinned_activity_name
+            )
+
+        except Exception as e:
+            logging.warning(f"Note extraction failed: {e}")
+
+
+        
+        # 0.3 Get active conditions for this athlete (for LLM context)
+        active_conditions = []
+        conditions_context = ""
+        followup_prompt = ""
+        try:
+            active_conditions = self.note_extractor.get_active_conditions(request.user_id)
+            conditions_context = self.note_extractor.format_conditions_for_context(active_conditions)
+            
+            # Check for conditions needing follow-up
+            if not extracted_notes:  # Don't overwhelm with follow-ups if already extracting
+                followup_conditions = self.note_extractor.get_conditions_needing_followup(request.user_id)
+                if followup_conditions:
+                    # Add first one as a gentle prompt
+                    fc = followup_conditions[0]
+                    if fc['followup_reason'] == 'resolved_verification':
+                        followup_prompt = f"\n\n💭 HATIRLATMA: {fc['days_since']} gün önce '{fc['description']}' için 'iyileştim' demiştin. Durumu sor."
+                    elif fc['followup_reason'] in ['scheduled_followup', 'overdue_check']:
+                        followup_prompt = f"\n\n💭 TAKİP: {fc['days_since']} gündür '{fc['description']}' hakkında haber almadın. Durumu sor."
+        except Exception as e:
+            logging.warning(f"Failed to get active conditions: {e}")
         
         # Update metrics if stale (more than 5 min old)
         if (conv_state.metrics.last_updated is None or 
@@ -374,6 +428,10 @@ Bir sonraki antrenmanda burada olacağım."""
         # 1. Create Execution Plan (AI Planner)
         history_for_planner = conv_state.get_history_for_prompt()
         metrics_context = conv_state.get_metrics_summary()
+        
+        # Add conditions context to metrics for planner awareness
+        if conditions_context:
+            metrics_context = f"{metrics_context}\n\n{conditions_context}"
         
         plan, planner_debug = create_execution_plan_with_debug(
             request.message, 
@@ -385,6 +443,10 @@ Bir sonraki antrenmanda burada olacağım."""
         tsb = conv_state.metrics.tsb
         persona_modifier = get_persona_modifier(tsb)
         
+        # Add follow-up prompt to persona if needed
+        if followup_prompt:
+            persona_modifier = f"{persona_modifier}{followup_prompt}"
+        
         if request.debug:
             debug_info['planner_thought'] = plan.thought_process
             debug_info['planner_debug'] = planner_debug
@@ -393,6 +455,8 @@ Bir sonraki antrenmanda burada olacağım."""
             debug_info['conversation_history_count'] = len(conv_state.history)
             debug_info['user_tsb'] = tsb
             debug_info['persona_modifier'] = 'YORGUN' if tsb < -20 else ('DİNLENMİŞ' if tsb > 10 else 'NORMAL')
+            debug_info['active_conditions_count'] = len(active_conditions)
+            debug_info['extracted_notes_count'] = len(extracted_notes)
             
             # Show planner output
             model_used = planner_debug.get('model', 'unknown')
@@ -423,7 +487,8 @@ Bir sonraki antrenmanda burada olacağım."""
                 "description": source_description,
                 "thought_process": plan.thought_process,
                 "plan": plan_visualization,
-                "persona_mode": debug_info.get('persona_modifier')
+                "persona_mode": debug_info.get('persona_modifier'),
+                "active_conditions": [c['condition_name'] for c in active_conditions] if active_conditions else []
             })
         
         # 3. Get pinned state for activity context
@@ -433,16 +498,71 @@ Bir sonraki antrenmanda burada olacağım."""
             debug_info['pinned_activity_id'] = pinned_state.garmin_activity_id if pinned_state else None
         
         # 4. Execute plan (sequential handler execution)
+        # Pass conditions context for handlers to use
         response = self._execute_plan(
             request, plan, pinned_state, debug_info, debug_steps,
-            persona_modifier=persona_modifier, conv_state=conv_state
+            persona_modifier=persona_modifier, conv_state=conv_state,
+            conditions_context=conditions_context
         )
         
-        # 5. Add assistant response to conversation history
+        # 5. If notes were extracted, ask for confirmation
+        if extracted_notes:
+            confirmation_msg = self.note_extractor.generate_confirmation_prompt(extracted_notes)
+            if confirmation_msg:
+                # Store pending notes in conversation state
+                conv_state.pending_notes = extracted_notes
+                # Append confirmation to response
+                response.message = f"{response.message}\n\n---\n{confirmation_msg}"
+        
+        # 6. Add assistant response to conversation history
         final_handler = plan.steps[-1].handler if plan.steps else "unknown"
         conv_state.add_turn("assistant", response.message, handler_type=final_handler)
         
         return response
+    
+    def _is_confirmation_response(self, message: str) -> bool:
+        """Check if message is a yes/no response to confirmation."""
+        message_lower = message.lower().strip()
+        confirmations = ['evet', 'yes', 'tamam', 'ok', 'olur', 'kaydet', 'hatırla']
+        rejections = ['hayır', 'no', 'yok', 'istemem', 'gerek yok', 'boşver']
+        return any(c in message_lower for c in confirmations + rejections)
+    
+    def _handle_note_confirmation(
+        self, 
+        request: ChatRequest, 
+        pending_notes: list,
+        conv_state,
+        debug_info
+    ) -> ChatResponse:
+        """Handle user's response to note confirmation."""
+        message_lower = request.message.lower().strip()
+        confirmations = ['evet', 'yes', 'tamam', 'ok', 'olur', 'kaydet', 'hatırla']
+        
+        if any(c in message_lower for c in confirmations):
+            # Save the notes
+            saved_count = 0
+            for note in pending_notes:
+                if self.note_extractor.save_note(request.user_id, note):
+                    saved_count += 1
+            
+            # Clear pending notes
+            conv_state.pending_notes = None
+            conv_state.add_turn("user", request.message)
+            
+            response_msg = f"Tamam, {saved_count} durumu kaydettim. Seni takip edeceğim. 📝"
+            if saved_count > 0:
+                response_msg += "\n\nBirkaç gün sonra durumunu soracağım."
+            
+            conv_state.add_turn("assistant", response_msg, handler_type="confirmation")
+            return ChatResponse(message=response_msg, debug_metadata=debug_info)
+        else:
+            # User declined
+            conv_state.pending_notes = None
+            conv_state.add_turn("user", request.message)
+            response_msg = "Anladım, kaydetmiyorum. Devam edelim!"
+            conv_state.add_turn("assistant", response_msg, handler_type="confirmation")
+            return ChatResponse(message=response_msg, debug_metadata=debug_info)
+
     
     def _execute_plan(
         self, 
@@ -452,8 +572,10 @@ Bir sonraki antrenmanda burada olacağım."""
         debug_info,
         debug_steps,
         persona_modifier: str = "",
-        conv_state: ConversationState = None
+        conv_state: ConversationState = None,
+        conditions_context: str = ""
     ) -> ChatResponse:
+
         """
         Execute an ExecutionPlan sequentially.
         
@@ -486,8 +608,10 @@ Bir sonraki antrenmanda burada olacağım."""
                 debug_steps=debug_steps,
                 persona_modifier=persona_modifier,
                 conv_state=conv_state,
-                previous_results=execution_results
+                previous_results=execution_results,
+                conditions_context=conditions_context
             )
+
             
             # Store both message and raw data for next handlers
             step_result = {
@@ -551,8 +675,10 @@ Bir sonraki antrenmanda burada olacağım."""
         debug_steps,
         persona_modifier: str,
         conv_state: ConversationState,
-        previous_results: List[Dict] = None
+        previous_results: List[Dict] = None,
+        conditions_context: str = ""
     ) -> Tuple[ChatResponse, Optional[Dict]]:
+
         """
         Execute a single handler with context from previous results.
         
@@ -851,6 +977,32 @@ Son koşunu analiz edebilirim ya da haftalık durumuna bakabiliriz. Hazır oldu�
             if conv_state and conv_state.metrics.last_updated:
                 metrics_context = conv_state.get_metrics_summary()
             
+            # Get pinned activity context for date references
+            pinned_context = ""
+            if conv_state:
+                pinned_context = conv_state.get_pinned_context()
+            
+            # ⭐ Get health conditions around pinned activity date (DYNAMIC DURATION)
+            health_context = ""
+            if conv_state and conv_state.pinned_activity.is_valid:
+                try:
+                    activity_date = conv_state.pinned_activity.activity_date
+                    # Use dynamic duration based on category and severity
+                    conditions = self.note_extractor.get_relevant_conditions_for_activity(
+                        request.user_id, activity_date
+                    )
+                    if conditions:
+                        health_lines = ["⚠️ SPORCU DURUMU (Bu aktivite ile ilgili):"]
+                        for c in conditions:
+                            chronic_tag = " [KRONİK]" if c.get('is_chronic') else ""
+                            health_lines.append(f"  - {c['description']} ({c.get('time_ref', '')}){chronic_tag}")
+                        health_lines.append("")
+                        health_lines.append("⚡ ANALİZDE KULLAN: Bu durumların performansa etkisini yorumla!")
+                        health_context = "\n".join(health_lines)
+
+                except Exception as e:
+                    logging.warning(f"Failed to get health context for sohbet: {e}")
+            
             # Get previous handler results (multi-step execution context)
             previous_context = entities.get('previous_context', '')
             has_data_context = bool(previous_context)
@@ -860,6 +1012,10 @@ Son koşunu analiz edebilirim ya da haftalık durumuna bakabiliriz. Hazır oldu�
                 prompt = f"""{persona_modifier}
 
 {metrics_context}
+
+{pinned_context}
+
+{health_context}
 
 # ÖNCEKİ ADIMLARDAN GELEN VERİLER
 Aşağıdaki veriler veritabanından çekildi:
@@ -871,9 +1027,16 @@ Yukarıdaki verileri analiz edip sporcuya açıkla.
 - Verileri karşılaştır, önemli farkları vurgula.
 - Koçluk tavsiyesi ver.
 - Tedesco tarzı: Net, doğrudan, gerekçeli.
+- ⚠️ SPORCU DURUMU varsa, bunların performansa etkisini mutlaka yorumla! (alkol, uyku bozukluğu, stres vb.)
+- ⚠️ TARİH HALÜSINASYONU YAPMA! Yukarıda KONUŞULAN AKTİVİTE varsa O tarihi kullan.
+
+📅 BUGÜNÜN TARİHİ: {date.today().strftime('%d %B %Y')}
 
 SPORCU SORUSU: {request.message}
 """
+
+
+
             else:
                 # Simple sohbet mode: no data context
                 prompt = f"""{self.COACH_PERSONA}
@@ -989,12 +1152,22 @@ SPORCU MESAJI: {request.message}
         # Determine which activity to fetch based on activity_ref
         activity_ref = entities.get('activity_ref', 'last')
         
+        # 🔍 DIAGNOSTIC LOGGING - REMOVE AFTER DEBUG
+        logging.warning(f"🔍 ACTIVITY_REF DEBUG: activity_ref='{activity_ref}' (type={type(activity_ref).__name__})")
+        logging.warning(f"🔍 ENTITIES: {entities}")
+        logging.warning(f"🔍 _is_date_ref('{activity_ref}'): {self._is_date_ref(activity_ref)}")
+        if self._is_date_ref(activity_ref):
+            logging.warning(f"🔍 _parse_date_ref('{activity_ref}'): {self._parse_date_ref(activity_ref)}")
+        
         # Get activity based on reference
         activity = None
+        resolved_via = ""
         if activity_ref in ['today', 'yesterday']:
+            resolved_via = "today/yesterday"
             target_date = self._resolve_date_from_entities({'date': activity_ref})
             activity = self._get_activity_by_date(request.user_id, target_date)
         elif activity_ref == 'previous':
+            resolved_via = "previous"
             # Get the second most recent activity using direct DB query
             import models
             activities = self.db.query(models.Activity).filter(
@@ -1004,8 +1177,27 @@ SPORCU MESAJI: {request.message}
                 activity = activities[1]  # Second most recent
             elif len(activities) == 1:
                 activity = activities[0]
+        elif self._is_day_of_week_ref(activity_ref):
+            resolved_via = "day_of_week"
+            # Handle day-of-week references like 'last sunday', 'geçen pazar'
+            target_date = self._resolve_day_of_week(activity_ref)
+            if target_date:
+                activity = self._get_activity_by_date(request.user_id, target_date)
+        elif self._is_date_ref(activity_ref):
+            resolved_via = "specific_date"
+            # Handle specific date references like '2025-12-21', '21 Aralık'
+            target_date = self._parse_date_ref(activity_ref)
+            logging.warning(f"🔍 SPECIFIC DATE: Parsed '{activity_ref}' to {target_date}")
+            if target_date:
+                activity = self._get_activity_by_date(request.user_id, target_date)
         else:  # 'last' or default
+            resolved_via = "FALLBACK (last_activity)"
             activity = self.retriever.get_last_activity(request.user_id)
+        
+        logging.warning(f"🔍 RESOLVED VIA: {resolved_via} → Activity: {getattr(activity, 'activity_name', 'None')} ({getattr(activity, 'local_start_date', 'N/A')})")
+
+
+
         
         if debug_steps:
             debug_steps.append({
@@ -1044,7 +1236,7 @@ SPORCU MESAJI: {request.message}
         if debug_info is not None:
             debug_info['last_handler_data'] = raw_data
         
-        # Pin this activity
+        # Pin this activity (in DB for persistence)
         self.state_manager.pin_activity(
             request.user_id, 
             act_id, 
@@ -1052,6 +1244,11 @@ SPORCU MESAJI: {request.message}
             act_name, 
             'training_detail'
         )
+        
+        # Also update in-memory conversation state for handler access
+        conv_state = conversation_state_manager.get_or_create(request.user_id, self.db)
+        conv_state.set_pinned_activity(act_id, act_date, act_name)
+
         
         return self._generate_activity_analysis(
             request, pack, act_name, debug_info, 
@@ -1225,6 +1422,167 @@ SPORCU MESAJI: {request.message}
         
         return activity
     
+    def _is_day_of_week_ref(self, activity_ref: str) -> bool:
+        """Check if activity_ref contains a day-of-week reference."""
+        if not activity_ref:
+            return False
+        
+        ref_lower = activity_ref.lower()
+        
+        # Turkish day names
+        turkish_days = ['pazartesi', 'salı', 'çarşamba', 'perşembe', 'cuma', 'cumartesi', 'pazar']
+        # English day names  
+        english_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+        
+        all_days = turkish_days + english_days
+        
+        return any(day in ref_lower for day in all_days)
+    
+    def _resolve_day_of_week(self, activity_ref: str):
+        """
+        Resolve a day-of-week reference to an actual date.
+        
+        Examples:
+            'last sunday' -> date of last Sunday
+            'geçen pazar' -> date of last Sunday
+            'pazar' -> date of most recent Sunday
+        """
+        from datetime import date, timedelta
+        
+        if not activity_ref:
+            return None
+        
+        ref_lower = activity_ref.lower()
+        
+        # Day name to weekday number mapping (Monday=0, Sunday=6)
+        day_mapping = {
+            # Turkish
+            'pazartesi': 0, 'salı': 1, 'çarşamba': 2, 'perşembe': 3,
+            'cuma': 4, 'cumartesi': 5, 'pazar': 6,
+            # English
+            'monday': 0, 'tuesday': 1, 'wednesday': 2, 'thursday': 3,
+            'friday': 4, 'saturday': 5, 'sunday': 6
+        }
+        
+        # Find which day is being referenced
+        target_weekday = None
+        for day_name, weekday in day_mapping.items():
+            if day_name in ref_lower:
+                target_weekday = weekday
+                break
+        
+        if target_weekday is None:
+            return None
+        
+        today = date.today()
+        today_weekday = today.weekday()
+        
+        # Calculate how many days ago was the most recent occurrence of target day
+        # If today is Friday (4) and target is Sunday (6):
+        #   (4 - 6) % 7 = -2 % 7 = 5 days ago
+        days_back = (today_weekday - target_weekday) % 7
+        if days_back == 0:
+            days_back = 7  # If today is the target day, go to last week
+        
+        target_date = today - timedelta(days=days_back)
+        
+        logging.info(f"Resolved '{activity_ref}' to {target_date} (today={today}, today_weekday={today_weekday}, target_weekday={target_weekday}, days_back={days_back})")
+        
+        return target_date
+
+    def _is_date_ref(self, activity_ref: str) -> bool:
+        """Check if activity_ref is a specific date reference."""
+        if not activity_ref:
+            return False
+        
+        import re
+        
+        # Check for ISO format: 2025-12-21
+        if re.match(r'\d{4}-\d{2}-\d{2}', activity_ref):
+            return True
+        
+        ref_lower = activity_ref.lower()
+        
+        # Check for Turkish and English month names
+        all_months = [
+            # Turkish
+            'ocak', 'şubat', 'mart', 'nisan', 'mayıs', 'haziran',
+            'temmuz', 'ağustos', 'eylül', 'ekim', 'kasım', 'aralık',
+            # English
+            'january', 'february', 'march', 'april', 'may', 'june',
+            'july', 'august', 'september', 'october', 'november', 'december'
+        ]
+        
+        if any(month in ref_lower for month in all_months):
+            return True
+        
+        # Check for numeric day + month pattern: "21 aralık", "December 21"
+        if re.search(r'\d{1,2}\s*\w+', ref_lower) or re.search(r'\w+\s*\d{1,2}', ref_lower):
+            if any(month in ref_lower for month in all_months):
+
+                return True
+        
+        return False
+    
+    def _parse_date_ref(self, activity_ref: str):
+        """Parse a specific date reference to a date object."""
+        import re
+        from datetime import date
+        
+        if not activity_ref:
+            return None
+        
+        # Try ISO format first: 2025-12-21
+        iso_match = re.match(r'(\d{4})-(\d{2})-(\d{2})', activity_ref)
+        if iso_match:
+            try:
+                return date(int(iso_match.group(1)), int(iso_match.group(2)), int(iso_match.group(3)))
+            except ValueError:
+                pass
+        
+        # Month mapping - Turkish AND English
+        month_map = {
+            # Turkish
+            'ocak': 1, 'şubat': 2, 'mart': 3, 'nisan': 4, 'mayıs': 5, 'haziran': 6,
+            'temmuz': 7, 'ağustos': 8, 'eylül': 9, 'ekim': 10, 'kasım': 11, 'aralık': 12,
+            # English
+            'january': 1, 'february': 2, 'march': 3, 'april': 4, 'may': 5, 'june': 6,
+            'july': 7, 'august': 8, 'september': 9, 'october': 10, 'november': 11, 'december': 12
+        }
+
+        
+        ref_lower = activity_ref.lower()
+        
+        # Find month and day
+        found_month = None
+        found_day = None
+        
+        for month_name, month_num in month_map.items():
+            if month_name in ref_lower:
+                found_month = month_num
+                break
+        
+        # Find day number
+        day_match = re.search(r'\b(\d{1,2})\b', activity_ref)
+        if day_match:
+            found_day = int(day_match.group(1))
+        
+        if found_month and found_day:
+            # Assume current year if not specified
+            current_year = date.today().year
+            try:
+                target = date(current_year, found_month, found_day)
+                # If date is in future, use last year
+                if target > date.today():
+                    target = date(current_year - 1, found_month, found_day)
+                logging.info(f"Parsed '{activity_ref}' to {target}")
+                return target
+            except ValueError:
+                pass
+        
+        return None
+
+
     def _resolve_date_from_entities(self, entities: Dict[str, Any]):
         """Resolve a target date from extracted entities."""
         from datetime import date, timedelta
@@ -2015,6 +2373,36 @@ SQL:
         except Exception:
             athlete_brief = ""
         
+        # ⭐ GET ATHLETE HEALTH CONDITIONS FOR ACTIVITY (DYNAMIC DURATION)
+        # Chronic/injury: until resolved, Lifestyle: 3*severity days, Mental: 14*severity days
+        health_context = ""
+        try:
+            activity_date = date_val if isinstance(date_val, date) else None
+            logging.info(f"Looking for health context around {activity_date} for user {request.user_id}")
+            
+            if activity_date:
+                # Use dynamic duration based on category and severity
+                conditions = self.note_extractor.get_relevant_conditions_for_activity(
+                    request.user_id, activity_date
+                )
+                logging.info(f"Found {len(conditions) if conditions else 0} relevant conditions for {activity_date}")
+                
+                if conditions:
+                    health_lines = ["⚠️ SPORCU DURUMU (Bu aktivite ile ilgili):"]
+                    for c in conditions:
+                        chronic_tag = " [KRONİK]" if c.get('is_chronic') else ""
+                        health_lines.append(f"  - {c['description']} ({c.get('time_ref', '')}){chronic_tag}")
+                    health_lines.append("")
+                    health_lines.append("⚡ ANALİZDE KULLAN: Bu durumların performansa etkisini yorumla!")
+                    health_context = "\n".join(health_lines)
+                    logging.info(f"health_context generated: {health_context[:100]}...")
+        except Exception as e:
+            logging.warning(f"Failed to get health context for analysis: {e}")
+            import traceback
+            traceback.print_exc()
+
+
+        
         if wants_detail:
             detail_instruction = """
 - DETAYLI ANALİZ İSTENİYOR - ekstra derinlemesine bak:
@@ -2044,6 +2432,8 @@ SQL:
         prompt = f"""# SENİ TANIYORUM
 {athlete_brief}
 
+{health_context}
+
 # SOHBET GEÇMİŞİ
 {history_context}
 
@@ -2057,6 +2447,7 @@ SQL:
 {detail_instruction}
 """
         
+
         max_tokens = 1500 if wants_detail else 1000
         resp = self.llm.generate(prompt, max_tokens=max_tokens)
         

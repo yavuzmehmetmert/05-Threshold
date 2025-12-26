@@ -39,6 +39,27 @@ class ConversationTurn:
     handler_type: Optional[str] = None  # Which handler processed this
 
 
+@dataclass
+class PinnedActivity:
+    """Currently discussed activity in conversation."""
+    activity_id: Optional[int] = None
+    activity_date: Optional[Any] = None  # date object
+    activity_name: Optional[str] = None
+    pinned_at: Optional[datetime] = None
+    
+    @property
+    def is_valid(self) -> bool:
+        """Check if there's a valid pinned activity."""
+        return self.activity_id is not None and self.activity_date is not None
+    
+    def clear(self):
+        """Clear the pinned activity."""
+        self.activity_id = None
+        self.activity_date = None
+        self.activity_name = None
+        self.pinned_at = None
+
+
 class ConversationState:
     """
     Manages conversation state for a user session.
@@ -54,8 +75,35 @@ class ConversationState:
         self.user_id = user_id
         self.history: List[ConversationTurn] = []
         self.metrics = UserMetrics()
+        self.pinned_activity = PinnedActivity()  # Currently discussed activity
         self.created_at = datetime.now()
         self.last_activity_at = datetime.now()
+    
+    def set_pinned_activity(self, activity_id: int, activity_date, activity_name: str):
+        """Set the currently discussed activity."""
+        self.pinned_activity = PinnedActivity(
+            activity_id=activity_id,
+            activity_date=activity_date,
+            activity_name=activity_name,
+            pinned_at=datetime.now()
+        )
+    
+    def get_pinned_context(self) -> str:
+        """Get pinned activity context for LLM prompts."""
+        if not self.pinned_activity.is_valid:
+            return ""
+        
+        from datetime import date, timedelta
+        today = date.today()
+        act_date = self.pinned_activity.activity_date
+        days_diff = (today - act_date).days
+        
+        return f"""KONUŞULAN AKTİVİTE: {self.pinned_activity.activity_name} ({act_date})
+- "O gün" = {act_date} ({days_diff} gün önce)
+- "O günden önceki gün" = {act_date - timedelta(days=1)}
+- Bugün = {today}
+Bu aktivite hakkında konuşuyoruz. Tarih referanslarını buna göre hesapla!"""
+
     
     def add_turn(self, role: str, content: str, handler_type: Optional[str] = None):
         """
